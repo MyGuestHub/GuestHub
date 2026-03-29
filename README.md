@@ -1,36 +1,74 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# GuestHub (Next.js + PostgreSQL Raw SQL)
 
-## Getting Started
+پنل مدیریت هتل برای مدیریت کاربران، نقش‌ها، مهمانان، اتاق‌ها و رزرو، با SQL خام و بدون ORM.
 
-First, run the development server:
+## Tech Stack
+
+- Next.js 16 (App Router)
+- PostgreSQL 16
+- `pg` driver (raw SQL)
+- Cookie session auth (HttpOnly)
+- Dynamic RBAC (roles + permissions)
+
+## Features
+
+- Login برای کارکنان هتل
+- مدیریت کاربر توسط ادمین
+- نقش و دسترسی داینامیک (RBAC)
+- ثبت مهمان
+- ثبت اتاق
+- اتصال مهمان به اتاق با رزرو
+- نمایش وضعیت اتاق‌ها: `available` / `occupied` / `maintenance`
+
+## Database Setup
+
+1. ساخت دیتابیس و اجرای schema/seed:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pnpm db:setup
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. ساخت یا بروزرسانی ادمین اولیه:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+DATABASE_URL='postgresql://<db_user>@/guesthub?host=/var/run/postgresql' ADMIN_PASSWORD='YourStrongPass123' pnpm db:seed-admin
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Environment
 
-## Learn More
+یک فایل `.env.local` بسازید:
 
-To learn more about Next.js, take a look at the following resources:
+```env
+DATABASE_URL=postgresql://<db_user>@/guesthub?host=/var/run/postgresql
+SESSION_TTL_HOURS=24
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Run
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+pnpm install
+pnpm dev
+```
 
-## Deploy on Vercel
+سپس:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- `http://localhost:3000/en/login`
+- `http://localhost:3000/ar/login`
+- با کاربر ادمین وارد شوید.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Important SQL Files
+
+- `db/001_init.sql`: جدول‌ها، ایندکس‌ها، view وضعیت زنده اتاق
+- `db/002_seed_rbac.sql`: seed دسترسی‌ها و نقش‌ها
+
+## Main Tables
+
+- `app_users`
+- `app_roles`
+- `app_permissions`
+- `app_role_permissions`
+- `app_user_roles`
+- `app_sessions`
+- `guests`
+- `rooms`
+- `reservations`
