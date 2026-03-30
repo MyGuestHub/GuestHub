@@ -7,7 +7,15 @@ import { NotificationBell } from "./notification-bell";
 import { LiveClock } from "./live-clock";
 import { HtmlDirSetter } from "@/components/html-dir-setter";
 
-type NavKey = "dashboard" | "rooms" | "guests" | "users" | "roles" | "reservations" | "service-requests";
+type NavKey =
+  | "dashboard"
+  | "rooms"
+  | "guests"
+  | "users"
+  | "roles"
+  | "reservations"
+  | "service-requests"
+  | "profile";
 
 type Props = {
   lang: AppLang;
@@ -118,7 +126,7 @@ export function PanelShell({ lang, user, active, title, subtitle, children }: Pr
         </nav>
 
         <div className="border-t border-slate-800 px-4 py-3">
-          <p className="text-[10px] text-slate-600">v0.1.0</p>
+          <p className="text-[10px] text-slate-600">v{process.env.NEXT_PUBLIC_APP_VERSION}</p>
         </div>
       </aside>
 
@@ -155,7 +163,7 @@ export function PanelShell({ lang, user, active, title, subtitle, children }: Pr
             <NotificationBell lang={lang} hasPermission={hasPermission(user, "services.manage")} />
 
             <Link
-              href={`/${lang}/users/${user.id}`}
+              href={`/${lang}/profile`}
               className="hidden items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:bg-slate-100 md:inline-flex"
             >
               <FiUser className="h-3.5 w-3.5" />

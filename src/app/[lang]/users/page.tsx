@@ -116,6 +116,7 @@ export default async function UsersPage({ params, searchParams }: Props) {
                 <th className="px-4 py-3 text-left">{ctx.t("الاسم", "Full name")}</th>
                 <th className="px-4 py-3 text-left">{ctx.t("الأدوار", "Roles")}</th>
                 <th className="px-4 py-3 text-left">{ctx.t("الحالة", "Status")}</th>
+                <th className="px-4 py-3 text-left">{ctx.t("إجراء", "Action")}</th>
               </tr>
             </thead>
             <tbody>
@@ -130,6 +131,14 @@ export default async function UsersPage({ params, searchParams }: Props) {
                   <td className="px-4 py-3">{user.roles.length ? user.roles.join(", ") : "-"}</td>
                   <td className="px-4 py-3">
                     {user.is_active ? ctx.t("نشط", "Active") : ctx.t("موقوف", "Disabled")}
+                  </td>
+                  <td className="px-4 py-3">
+                    <Link
+                      href={`/${ctx.lang}/users/${user.id}/edit`}
+                      className="text-blue-600 hover:text-blue-700"
+                    >
+                      {ctx.t("تعديل", "Edit")}
+                    </Link>
                   </td>
                 </tr>
               ))}

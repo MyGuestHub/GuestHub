@@ -86,6 +86,7 @@ export type UserProfile = {
   avatar_url: string | null;
   is_active: boolean;
   roles: string[];
+  role_ids: number[];
 };
 
 export type RoomStats = {
@@ -409,6 +410,7 @@ export async function getUserProfile(userId: number): Promise<UserProfile | null
     full_name: string;
     avatar_url: string | null;
     is_active: boolean;
+    role_id: number | null;
     role_name: string | null;
   }>(
     `
@@ -418,6 +420,7 @@ export async function getUserProfile(userId: number): Promise<UserProfile | null
       u.full_name,
       u.avatar_url,
       u.is_active,
+      r.id AS role_id,
       r.role_name
     FROM app_users u
     LEFT JOIN app_user_roles ur ON ur.user_id = u.id
@@ -430,13 +433,20 @@ export async function getUserProfile(userId: number): Promise<UserProfile | null
   if (!result.rowCount) return null;
 
   const first = result.rows[0];
+  const roleNames: string[] = [];
+  const roleIds: number[] = [];
+  for (const r of result.rows) {
+    if (r.role_name && !roleNames.includes(r.role_name)) roleNames.push(r.role_name);
+    if (r.role_id != null && !roleIds.includes(r.role_id)) roleIds.push(r.role_id);
+  }
   return {
     id: first.id,
     username: first.username,
     full_name: first.full_name,
     avatar_url: first.avatar_url,
     is_active: first.is_active,
-    roles: Array.from(new Set(result.rows.map((r) => r.role_name).filter(Boolean) as string[])),
+    roles: roleNames,
+    role_ids: roleIds,
   };
 }
 
