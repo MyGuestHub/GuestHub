@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth";
 import { dirForLang, resolveLang, tr } from "@/lib/i18n";
+import { HtmlDirSetter } from "@/components/html-dir-setter";
 
 type Props = {
   params: Promise<{ lang: string }>;
@@ -27,6 +28,7 @@ export default async function LoginPage({ params, searchParams }: Props) {
       dir={dirForLang(lang)}
       className="min-h-screen bg-slate-100 px-4 py-8 text-slate-900"
     >
+      <HtmlDirSetter lang={lang} />
       <section className="mx-auto w-full max-w-md rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200 sm:p-8">
         <div className="mb-4 flex items-center justify-end gap-2 text-sm">
           <Link

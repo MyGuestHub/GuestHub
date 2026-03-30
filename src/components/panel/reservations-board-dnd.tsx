@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useId, useMemo, useState } from "react";
 import {
   DndContext,
   DragOverlay,
@@ -146,6 +146,7 @@ export function ReservationsBoardDnd({ lang, initialItems, onItemsChange }: Prop
   const [saving, setSaving] = useState(false);
   const [activeId, setActiveId] = useState<string | null>(null);
   const text = labels(lang);
+  const dndId = useId();
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
@@ -248,6 +249,7 @@ export function ReservationsBoardDnd({ lang, initialItems, onItemsChange }: Prop
   return (
     <div className="space-y-3">
       <DndContext
+        id={dndId}
         sensors={sensors}
         collisionDetection={closestCenter}
         onDragStart={onDragStart}

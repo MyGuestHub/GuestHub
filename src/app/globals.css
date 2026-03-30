@@ -18,3 +18,8 @@ body {
   color: var(--foreground);
   font-family: var(--font-sans), sans-serif;
 }
+
+::selection {
+  background: rgba(13, 148, 136, 0.18);
+  color: #052b26;
+}

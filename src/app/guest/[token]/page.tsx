@@ -8,6 +8,7 @@ import {
 import { tr, type AppLang } from "@/lib/i18n";
 import { GuestServiceForm } from "@/components/guest/guest-service-form";
 import { GuestRequestsLive } from "@/components/guest/guest-requests-live";
+import { HtmlDirSetter } from "@/components/html-dir-setter";
 
 type Props = {
   params: Promise<{ token: string }>;
@@ -41,6 +42,7 @@ export default async function GuestPortalPage({ params, searchParams }: Props) {
 
   return (
     <div dir={lang === "ar" ? "rtl" : "ltr"} className="flex min-h-screen flex-col bg-slate-50 text-slate-800">
+      <HtmlDirSetter lang={lang} />
       <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/90 backdrop-blur">
         <div className="mx-auto flex max-w-lg items-center justify-between px-4 py-3">
           <div>

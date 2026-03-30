@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useId, useMemo, useState } from "react";
 import { DndContext, PointerSensor, closestCenter, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
 import { SortableContext, useSortable, verticalListSortingStrategy, arrayMove } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -75,6 +75,7 @@ export function RolePermissionsDnd({ lang, roleId, initialAssigned, allPermissio
   const [selectedPermissionId, setSelectedPermissionId] = useState<string>("");
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string>("");
+  const dndId = useId();
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }));
 
   const t = (ar: string, en: string) => (lang === "ar" ? ar : en);
@@ -173,7 +174,7 @@ export function RolePermissionsDnd({ lang, roleId, initialAssigned, allPermissio
         </button>
       </div>
 
-      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+      <DndContext id={dndId} sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
         <SortableContext
           items={assigned.map((item) => String(item.permission_id))}
           strategy={verticalListSortingStrategy}
