@@ -40,61 +40,78 @@ export default async function GuestPortalPage({ params, searchParams }: Props) {
     weekday: "short", month: "short", day: "numeric",
   });
 
+  const nights = Math.max(
+    1,
+    Math.ceil(
+      (new Date(guest.checkOut).getTime() - new Date(guest.checkIn).getTime()) / (1000 * 60 * 60 * 24),
+    ),
+  );
+
   return (
     <div dir={lang === "ar" ? "rtl" : "ltr"} className="flex min-h-screen flex-col bg-slate-50 text-slate-800">
       <HtmlDirSetter lang={lang} />
-      <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/90 backdrop-blur">
+
+      {/* ── Header ── */}
+      <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/95 backdrop-blur-md">
         <div className="mx-auto flex max-w-lg items-center justify-between px-4 py-3">
           <div>
-            <p className="text-xs uppercase tracking-widest text-blue-600">GuestHub</p>
-            <p className="text-sm font-semibold">
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-blue-600">GuestHub</p>
+            <p className="text-sm font-semibold text-slate-800">
               {t("مرحبًا", "Welcome")}, {guest.guestName}
             </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2.5">
             <a
               href={`/guest/${token}?lang=${otherLang}`}
-              className="rounded-lg border border-slate-200 px-2 py-1 text-xs font-medium text-slate-600 transition hover:bg-slate-100"
+              className="rounded-full border border-slate-200 px-2.5 py-1 text-xs font-medium text-slate-600 transition hover:bg-slate-100"
             >
               {lang === "ar" ? "EN" : "عربي"}
             </a>
-            <div className="text-end">
-              <p className="text-xs text-slate-400">
-                {t("الغرفة", "Room")}{" "}
-                <span className="font-mono font-bold text-slate-700">{guest.roomNumber}</span>
-              </p>
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-600 text-xs font-bold text-white">
+              {guest.roomNumber}
             </div>
           </div>
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-lg flex-1 px-4 py-6">
-        {/* Stay info card */}
-        <section className="mb-6 rounded-2xl border border-blue-100 bg-blue-50/50 p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs text-blue-500">{t("تسجيل الدخول", "Check-in")}</p>
-              <p className="text-sm font-semibold text-slate-800">{checkInDate}</p>
+      <main className="mx-auto w-full max-w-lg flex-1 px-4 py-5">
+        {/* ── Stay info card ── */}
+        <section className="mb-5 overflow-hidden rounded-2xl border border-blue-100 bg-gradient-to-r from-blue-50 to-indigo-50">
+          <div className="flex items-stretch">
+            <div className="flex-1 p-4">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-blue-500">
+                {t("تسجيل الدخول", "Check-in")}
+              </p>
+              <p className="mt-0.5 text-sm font-bold text-slate-800">{checkInDate}</p>
             </div>
-            <div className="h-px flex-1 mx-4 bg-blue-200" />
-            <div className="text-end">
-              <p className="text-xs text-blue-500">{t("تسجيل الخروج", "Check-out")}</p>
-              <p className="text-sm font-semibold text-slate-800">{checkOutDate}</p>
+            <div className="flex flex-col items-center justify-center px-3">
+              <div className="rounded-full bg-blue-600 px-2.5 py-1 text-[10px] font-bold text-white">
+                {nights} {t("ليلة", nights === 1 ? "night" : "nights")}
+              </div>
+              <div className="mt-1 h-px w-8 bg-blue-200" />
+            </div>
+            <div className="flex-1 p-4 text-end">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-blue-500">
+                {t("تسجيل الخروج", "Check-out")}
+              </p>
+              <p className="mt-0.5 text-sm font-bold text-slate-800">{checkOutDate}</p>
             </div>
           </div>
         </section>
 
+        {/* ── Active requests ── */}
         <GuestRequestsLive token={token} lang={lang} initialRequests={myRequests} />
 
+        {/* ── Services ── */}
         <section>
-          <h2 className="mb-3 text-lg font-semibold text-slate-900">
-            {t("طلب خدمة جديدة", "Request a Service")}
+          <h2 className="mb-3 text-base font-bold text-slate-900">
+            {t("خدمات الفندق", "Hotel Services")}
           </h2>
           <GuestServiceForm token={token} categories={categories} lang={lang} />
         </section>
       </main>
 
-      <footer className="border-t border-slate-200 bg-white py-4 text-center text-xs text-slate-400">
+      <footer className="border-t border-slate-100 bg-white py-4 text-center text-[11px] text-slate-400">
         GuestHub &copy; {new Date().getFullYear()}
       </footer>
     </div>

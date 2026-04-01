@@ -843,6 +843,7 @@ export type ServiceItemOption = {
   id: number;
   name_en: string;
   name_ar: string;
+  category_slug: string;
   category_name_en: string;
   category_name_ar: string;
   estimated_cost: string | null;
@@ -854,6 +855,7 @@ export async function listServiceItemOptions(): Promise<ServiceItemOption[]> {
        si.id,
        si.name_en,
        si.name_ar,
+       sc.slug AS category_slug,
        sc.name_en AS category_name_en,
        sc.name_ar AS category_name_ar,
        si.estimated_cost::text

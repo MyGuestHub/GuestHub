@@ -23,21 +23,51 @@ type Props = {
   }>;
 };
 
-const statusColors: Record<string, string> = {
-  pending: "bg-amber-100 text-amber-800",
-  accepted: "bg-blue-100 text-blue-800",
-  in_progress: "bg-indigo-100 text-indigo-800",
-  completed: "bg-emerald-100 text-emerald-800",
-  cancelled: "bg-slate-100 text-slate-500",
+const statusMeta: Record<string, {
+  icon: React.ComponentType<{ className?: string }>;
+  dot: string;
+  badge: string;
+  cardBg: string;
+  cardBorder: string;
+}> = {
+  pending: {
+    icon: FiClock,
+    dot: "bg-amber-400",
+    badge: "bg-[rgba(251,191,36,0.22)] text-amber-50 ring-1 ring-amber-200/50",
+    cardBg: "bg-[rgba(251,191,36,0.08)]",
+    cardBorder: "border-amber-400/20",
+  },
+  accepted: {
+    icon: FiAlertCircle,
+    dot: "bg-blue-400",
+    badge: "bg-[rgba(59,130,246,0.24)] text-blue-50 ring-1 ring-blue-200/50",
+    cardBg: "bg-[rgba(59,130,246,0.08)]",
+    cardBorder: "border-blue-400/20",
+  },
+  in_progress: {
+    icon: FiLoader,
+    dot: "bg-indigo-400",
+    badge: "bg-[rgba(99,102,241,0.24)] text-indigo-50 ring-1 ring-indigo-200/50",
+    cardBg: "bg-[rgba(99,102,241,0.08)]",
+    cardBorder: "border-indigo-400/20",
+  },
+  completed: {
+    icon: FiCheckCircle,
+    dot: "bg-emerald-400",
+    badge: "bg-[rgba(16,185,129,0.24)] text-emerald-50 ring-1 ring-emerald-200/50",
+    cardBg: "bg-[rgba(16,185,129,0.08)]",
+    cardBorder: "border-emerald-400/20",
+  },
+  cancelled: {
+    icon: FiXCircle,
+    dot: "bg-slate-400",
+    badge: "bg-[rgba(100,116,139,0.24)] text-slate-200 ring-1 ring-slate-300/30",
+    cardBg: "bg-[rgba(100,116,139,0.08)]",
+    cardBorder: "border-slate-400/20",
+  },
 };
 
-const statusIcons: Record<string, React.ComponentType<{ className?: string }>> = {
-  pending: FiClock,
-  accepted: FiAlertCircle,
-  in_progress: FiLoader,
-  completed: FiCheckCircle,
-  cancelled: FiXCircle,
-};
+const statusKeys = ["pending", "accepted", "in_progress", "completed", "cancelled"] as const;
 
 export default async function ServiceRequestsPage({ params, searchParams }: Props) {
   const routeParams = await params;
@@ -79,45 +109,51 @@ export default async function ServiceRequestsPage({ params, searchParams }: Prop
       title={ctx.t("طلبات الخدمة", "Service Requests")}
     >
       {query.error ? (
-        <p className="mb-3 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm text-rose-700">
+        <p className="mb-3 rounded-2xl border border-rose-400/30 bg-[rgba(244,63,94,0.12)] px-4 py-2 text-sm text-rose-200">
           {query.error}
         </p>
       ) : null}
       {query.ok ? (
-        <p className="mb-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm text-emerald-700">
+        <p className="mb-3 rounded-2xl border border-emerald-400/30 bg-[rgba(16,185,129,0.12)] px-4 py-2 text-sm text-emerald-200">
           {query.ok}
         </p>
       ) : null}
 
-      {/* Stats cards */}
+      {/* ── Status stat cards ── */}
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
-        {(["pending", "accepted", "in_progress", "completed", "cancelled"] as const).map((s) => {
-          const Icon = statusIcons[s];
+        {statusKeys.map((s) => {
+          const meta = statusMeta[s];
+          const Icon = meta.icon;
+          const isActive = statusFilter === s;
           return (
             <a
               key={s}
               href={`/${ctx.lang}/service-requests?status=${s}`}
-              className={`rounded-2xl border p-4 transition hover:shadow-sm ${
-                statusFilter === s
-                  ? "border-teal-400 bg-teal-50 ring-2 ring-teal-500"
-                  : "border-slate-200 bg-white"
+              className={`rounded-2xl border p-4 backdrop-blur-sm transition hover:bg-white/[0.06] ${
+                isActive
+                  ? `${meta.cardBorder} ${meta.cardBg} ring-2 ring-white/20`
+                  : "border-white/10 bg-[rgba(255,255,255,0.08)]"
               }`}
             >
-              <p className="text-xs text-slate-500">{statusLabel(s)}</p>
+              <div className="flex items-center gap-2">
+                <span className={`h-2 w-2 rounded-full ${meta.dot}`} />
+                <p className="text-xs text-white/60">{statusLabel(s)}</p>
+              </div>
               <div className="mt-3 flex items-center justify-between">
-                <p className="text-2xl font-bold text-slate-900">
+                <p className="text-2xl font-bold text-white">
                   {stats[s as keyof typeof stats]}
                 </p>
-                <Icon className="h-5 w-5 text-slate-400" />
+                <Icon className="h-5 w-5 text-white/30" />
               </div>
             </a>
           );
         })}
       </section>
 
+      {/* ── Filter + Summary row ── */}
       <section className="mt-4 grid gap-4 xl:grid-cols-[1.5fr_1fr]">
-        <article className="rounded-2xl border border-slate-200 bg-white p-4">
-          <h2 className="text-sm font-semibold text-slate-900">
+        <article className="rounded-2xl border border-white/10 bg-[rgba(255,255,255,0.08)] p-4 backdrop-blur-sm">
+          <h2 className="text-sm font-semibold text-white">
             {ctx.t("فلتر الحالة", "Status Filter")}
           </h2>
           <div className="mt-3 flex flex-wrap gap-2">
@@ -125,44 +161,48 @@ export default async function ServiceRequestsPage({ params, searchParams }: Prop
               href={`/${ctx.lang}/service-requests`}
               className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition ${
                 !statusFilter
-                  ? "border-teal-400 bg-teal-50 text-teal-800"
-                  : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100"
+                  ? "border-cyan-400/40 bg-[rgba(34,211,238,0.15)] text-cyan-200"
+                  : "border-white/10 bg-white/5 text-white/60 hover:bg-white/10"
               }`}
             >
               {ctx.t("الكل", "All")} ({stats.total})
             </a>
-            {(["pending", "accepted", "in_progress", "completed", "cancelled"] as const).map((s) => (
-              <a
-                key={s}
-                href={`/${ctx.lang}/service-requests?status=${s}`}
-                className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition ${
-                  statusFilter === s
-                    ? "border-teal-400 bg-teal-50 text-teal-800"
-                    : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100"
-                }`}
-              >
-                {statusLabel(s)} ({stats[s as keyof typeof stats]})
-              </a>
-            ))}
+            {statusKeys.map((s) => {
+              const meta = statusMeta[s];
+              return (
+                <a
+                  key={s}
+                  href={`/${ctx.lang}/service-requests?status=${s}`}
+                  className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition ${
+                    statusFilter === s
+                      ? `${meta.cardBorder} ${meta.cardBg} text-white`
+                      : "border-white/10 bg-white/5 text-white/60 hover:bg-white/10"
+                  }`}
+                >
+                  <span className={`h-1.5 w-1.5 rounded-full ${meta.dot}`} />
+                  {statusLabel(s)} ({stats[s as keyof typeof stats]})
+                </a>
+              );
+            })}
           </div>
         </article>
 
-        <article className="rounded-2xl border border-slate-200 bg-white p-4">
-          <h2 className="text-sm font-semibold text-slate-900">
+        <article className="rounded-2xl border border-white/10 bg-[rgba(255,255,255,0.08)] p-4 backdrop-blur-sm">
+          <h2 className="text-sm font-semibold text-white">
             {ctx.t("خلاصه", "Summary")}
           </h2>
           <div className="mt-3 grid grid-cols-3 gap-3 text-center">
-            <div className="rounded-xl bg-amber-50 px-3 py-2">
-              <p className="text-xs text-amber-700">{ctx.t("مفتوحة", "Open")}</p>
-              <p className="mt-1 text-lg font-bold text-amber-800">{totalActive}</p>
+            <div className="rounded-xl bg-[rgba(251,191,36,0.12)] px-3 py-2">
+              <p className="text-xs text-amber-200">{ctx.t("مفتوحة", "Open")}</p>
+              <p className="mt-1 text-lg font-bold text-white">{totalActive}</p>
             </div>
-            <div className="rounded-xl bg-emerald-50 px-3 py-2">
-              <p className="text-xs text-emerald-700">{ctx.t("مكتملة", "Done")}</p>
-              <p className="mt-1 text-lg font-bold text-emerald-800">{stats.completed}</p>
+            <div className="rounded-xl bg-[rgba(16,185,129,0.12)] px-3 py-2">
+              <p className="text-xs text-emerald-200">{ctx.t("مكتملة", "Done")}</p>
+              <p className="mt-1 text-lg font-bold text-white">{stats.completed}</p>
             </div>
-            <div className="rounded-xl bg-slate-100 px-3 py-2">
-              <p className="text-xs text-slate-600">{ctx.t("إنجاز", "Rate")}</p>
-              <p className="mt-1 text-lg font-bold text-slate-900">{completionRate}%</p>
+            <div className="rounded-xl bg-[rgba(255,255,255,0.08)] px-3 py-2">
+              <p className="text-xs text-white/60">{ctx.t("إنجاز", "Rate")}</p>
+              <p className="mt-1 text-lg font-bold text-white">{completionRate}%</p>
             </div>
           </div>
         </article>
@@ -172,14 +212,14 @@ export default async function ServiceRequestsPage({ params, searchParams }: Prop
         <div className="mt-3">
           <a
             href={`/${ctx.lang}/service-requests`}
-            className="text-sm text-teal-600 underline"
+            className="text-sm text-cyan-300 underline transition hover:text-cyan-200"
           >
             {ctx.t("عرض الكل", "Show all")}
           </a>
         </div>
       ) : null}
 
-      {/* Create request on behalf of guest */}
+      {/* Create request */}
       <CreateRequestForm
         lang={ctx.lang}
         reservations={reservations}
@@ -187,12 +227,12 @@ export default async function ServiceRequestsPage({ params, searchParams }: Prop
         returnTo={`/${ctx.lang}/service-requests${statusFilter ? `?status=${statusFilter}` : ""}`}
       />
 
-      {/* Requests table */}
-      <section className="mt-4 overflow-hidden rounded-2xl border border-slate-200 bg-white">
+      {/* ── Requests table ── */}
+      <section className="mt-4 overflow-hidden rounded-2xl bg-[rgba(255,255,255,0.10)] shadow-[0_10px_24px_rgba(2,6,23,0.24)] backdrop-blur-xl">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-slate-100 bg-slate-50 text-slate-500">
+            <thead className="bg-[rgba(255,255,255,0.12)] text-white/70">
+              <tr>
                 <th className="px-4 py-3 text-start font-medium">#</th>
                 <th className="px-4 py-3 text-start font-medium">{ctx.t("الضيف", "Guest")}</th>
                 <th className="px-4 py-3 text-start font-medium">{ctx.t("الغرفة", "Room")}</th>
@@ -207,41 +247,40 @@ export default async function ServiceRequestsPage({ params, searchParams }: Prop
             <tbody>
               {requests.rows.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="px-4 py-8 text-center text-slate-400">
+                  <td colSpan={9} className="px-4 py-8 text-center text-white/30">
                     {ctx.t("لا توجد طلبات", "No requests found")}
                   </td>
                 </tr>
               ) : null}
               {requests.rows.map((r) => {
-                const StatusIcon = statusIcons[r.request_status] ?? FiClock;
+                const meta = statusMeta[r.request_status] ?? statusMeta.pending;
+                const StatusIcon = meta.icon;
                 return (
-                  <tr key={r.id} className="border-b border-slate-100 transition hover:bg-slate-50">
-                    <td className="px-4 py-3 font-mono text-xs text-slate-400">{r.id}</td>
-                    <td className="px-4 py-3">{r.guest_name}</td>
-                    <td className="px-4 py-3 font-mono">{r.room_number}</td>
-                    <td className="px-4 py-3 text-xs text-slate-500">
+                  <tr key={r.id} className="text-white/85 shadow-[inset_0_-1px_0_rgba(255,255,255,0.06)]">
+                    <td className="px-4 py-3 font-mono text-xs text-white/40">{r.id}</td>
+                    <td className="px-4 py-3 font-medium">{r.guest_name}</td>
+                    <td className="px-4 py-3 font-mono text-white/70">{r.room_number}</td>
+                    <td className="px-4 py-3 text-xs text-white/50">
                       {ctx.lang === "ar" ? r.category_name_ar : r.category_name_en}
                     </td>
                     <td className="px-4 py-3">
                       {ctx.lang === "ar" ? r.item_name_ar : r.item_name_en}
                       {r.quantity > 1 ? (
-                        <span className="ms-1 text-xs text-slate-400">×{r.quantity}</span>
+                        <span className="ms-1 text-xs text-white/40">×{r.quantity}</span>
                       ) : null}
                     </td>
                     <td className="px-4 py-3">
-                      <span
-                        className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ${statusColors[r.request_status] ?? ""}`}
-                      >
+                      <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ${meta.badge}`}>
                         <StatusIcon className="h-3 w-3" />
                         {statusLabel(r.request_status)}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-xs">
                       {r.assigned_to_name ?? (
-                        <span className="text-slate-300">{ctx.t("غير معيّن", "Unassigned")}</span>
+                        <span className="text-white/25">{ctx.t("غير معيّن", "Unassigned")}</span>
                       )}
                     </td>
-                    <td className="px-4 py-3 text-xs text-slate-400">
+                    <td className="px-4 py-3 text-xs text-white/50">
                       {new Date(r.created_at).toLocaleDateString(ctx.lang === "ar" ? "ar" : "en", {
                         month: "short",
                         day: "numeric",
@@ -294,12 +333,12 @@ export default async function ServiceRequestsPage({ params, searchParams }: Prop
                                 </option>
                               ))}
                             </AppSelect>
-                            <button className="rounded-lg bg-blue-600 px-2.5 py-1 text-xs font-semibold text-white">
+                            <button className="rounded-lg bg-cyan-500/80 px-2.5 py-1 text-xs font-semibold text-white transition hover:bg-cyan-500">
                               {ctx.t("حفظ", "Save")}
                             </button>
                           </form>
                         ) : (
-                          <span className="text-xs text-slate-300">—</span>
+                          <span className="text-xs text-white/20">—</span>
                         )}
                         <form action="/api/service-requests" method="post">
                           <input type="hidden" name="lang" value={ctx.lang} />
@@ -310,7 +349,7 @@ export default async function ServiceRequestsPage({ params, searchParams }: Prop
                             name="returnTo"
                             value={`/${ctx.lang}/service-requests${statusFilter ? `?status=${statusFilter}` : ""}`}
                           />
-                          <button className="rounded-lg border border-rose-200 bg-rose-50 px-2.5 py-1 text-xs font-semibold text-rose-700">
+                          <button className="rounded-lg bg-rose-400/20 px-2.5 py-1 text-xs font-semibold text-rose-200 transition hover:bg-rose-400/30">
                             {ctx.t("حذف", "Delete")}
                           </button>
                         </form>
