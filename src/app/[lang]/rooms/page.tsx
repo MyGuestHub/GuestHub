@@ -91,6 +91,9 @@ export default async function RoomsPage({ params, searchParams }: Props) {
                 <th className="px-4 py-3 text-left">{ctx.t("النوع", "Type")}</th>
                 <th className="px-4 py-3 text-left">{ctx.t("السعة", "Capacity")}</th>
                 <th className="px-4 py-3 text-left">{ctx.t("الحالة", "Status")}</th>
+                {canManageRooms ? (
+                  <th className="px-4 py-3 text-left">{ctx.t("إجراءات", "Actions")}</th>
+                ) : null}
               </tr>
             </thead>
             <tbody>
@@ -109,6 +112,64 @@ export default async function RoomsPage({ params, searchParams }: Props) {
                           : ctx.t("صيانة", "Maintenance")}
                     </span>
                   </td>
+                  {canManageRooms ? (
+                    <td className="px-4 py-3">
+                      <div className="space-y-2">
+                        <form action="/api/rooms" method="post" className="grid min-w-[520px] gap-2 md:grid-cols-2">
+                          <input type="hidden" name="lang" value={ctx.lang} />
+                          <input type="hidden" name="returnTo" value={`/${ctx.lang}/rooms`} />
+                          <input type="hidden" name="action" value="update" />
+                          <input type="hidden" name="roomId" value={room.id} />
+                          <input
+                            name="roomNumber"
+                            required
+                            defaultValue={room.room_number}
+                            className="rounded-lg border border-slate-300 bg-slate-50 px-2 py-1.5 text-xs"
+                          />
+                          <input
+                            name="floor"
+                            type="number"
+                            defaultValue={room.floor ?? ""}
+                            className="rounded-lg border border-slate-300 bg-slate-50 px-2 py-1.5 text-xs"
+                          />
+                          <input
+                            name="roomType"
+                            defaultValue={room.room_type}
+                            className="rounded-lg border border-slate-300 bg-slate-50 px-2 py-1.5 text-xs"
+                          />
+                          <input
+                            name="capacity"
+                            type="number"
+                            min={1}
+                            defaultValue={room.capacity}
+                            className="rounded-lg border border-slate-300 bg-slate-50 px-2 py-1.5 text-xs"
+                          />
+                          <select
+                            name="status"
+                            defaultValue={room.status}
+                            className="rounded-lg border border-slate-300 bg-slate-50 px-2 py-1.5 text-xs"
+                          >
+                            <option value="active">{ctx.t("نشطة", "Active")}</option>
+                            <option value="maintenance">{ctx.t("صيانة", "Maintenance")}</option>
+                          </select>
+                          <div className="flex flex-wrap gap-2">
+                            <button className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white">
+                              {ctx.t("حفظ", "Save")}
+                            </button>
+                          </div>
+                        </form>
+                        <form action="/api/rooms" method="post">
+                          <input type="hidden" name="lang" value={ctx.lang} />
+                          <input type="hidden" name="returnTo" value={`/${ctx.lang}/rooms`} />
+                          <input type="hidden" name="action" value="delete" />
+                          <input type="hidden" name="roomId" value={room.id} />
+                          <button className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-semibold text-rose-700">
+                            {ctx.t("حذف", "Delete")}
+                          </button>
+                        </form>
+                      </div>
+                    </td>
+                  ) : null}
                 </tr>
               ))}
             </tbody>

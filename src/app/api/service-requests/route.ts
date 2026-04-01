@@ -98,6 +98,27 @@ export async function POST(request: Request) {
     );
   }
 
+  /* ─── Delete request ─────────────────────────────────────────────── */
+  if (action === "delete") {
+    const requestId = Number.parseInt(cleanText(form.get("requestId")), 10);
+    if (!Number.isFinite(requestId)) {
+      return NextResponse.redirect(
+        new URL(
+          `${returnTo}?error=${encodeURIComponent(tr(lang, "معرف الطلب غير صالح", "Invalid request id"))}`,
+          request.url,
+        ),
+      );
+    }
+
+    await query(`DELETE FROM service_requests WHERE id = $1`, [requestId]);
+    return NextResponse.redirect(
+      new URL(
+        `${returnTo}?ok=${encodeURIComponent(tr(lang, "تم حذف الطلب", "Request deleted"))}`,
+        request.url,
+      ),
+    );
+  }
+
   /* ─── Create request on behalf of guest ──────────────────────────── */
   if (action === "create") {
     const reservationId = Number.parseInt(cleanText(form.get("reservationId")), 10);

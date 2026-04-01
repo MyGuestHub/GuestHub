@@ -29,7 +29,7 @@ export default async function ReservationsPage({ params, searchParams }: Props) 
       user={ctx.user}
       active="reservations"
       title={ctx.t("إدارة الحجوزات", "Reservations Management")}
-      subtitle={ctx.t("حجوزات ديناميكية مع السحب والإفلات", "Drag & drop reservation workflow")}
+      subtitle={ctx.t("إدارة الحجز مع التحديث والحذف والسحب والإفلات", "Manage reservations with edit, delete and drag & drop")}
     >
       {query.error ? (
         <p className="mb-3 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm text-rose-700">
@@ -41,53 +41,6 @@ export default async function ReservationsPage({ params, searchParams }: Props) 
           {query.ok}
         </p>
       ) : null}
-
-      <section className="mb-4 rounded-2xl border border-slate-200 bg-white p-4">
-        <h2 className="text-lg font-semibold text-slate-900">{ctx.t("تسجيل حجز جديد", "Create Reservation")}</h2>
-        <form action="/api/reservations" method="post" className="mt-3 grid gap-3 lg:grid-cols-5">
-          <input type="hidden" name="lang" value={ctx.lang} />
-          <input type="hidden" name="returnTo" value={`/${ctx.lang}/reservations`} />
-          <select
-            name="guestId"
-            required
-            className="rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-700"
-          >
-            <option value="">{ctx.t("اختر الضيف", "Select guest")}</option>
-            {guestOptions.map((guest) => (
-              <option key={guest.id} value={guest.id}>
-                {guest.full_name}
-              </option>
-            ))}
-          </select>
-          <select
-            name="roomId"
-            required
-            className="rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-700"
-          >
-            <option value="">{ctx.t("اختر الغرفة", "Select room")}</option>
-            {roomOptions.map((room) => (
-              <option key={room.id} value={room.id}>
-                {room.room_number} - {room.room_type}
-              </option>
-            ))}
-          </select>
-          <input
-            name="checkIn"
-            type="datetime-local"
-            required
-            className="rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-700"
-          />
-          <input
-            name="checkOut"
-            type="datetime-local"
-            required
-            className="rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-700"
-          />
-          <button className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white">
-            {ctx.t("إنشاء الحجز", "Create")}
-          </button>
-        </form>
-      </section>
 
       {/* Generate guest access link */}
       <section className="mb-4 rounded-2xl border border-slate-200 bg-white p-4">
@@ -148,7 +101,13 @@ export default async function ReservationsPage({ params, searchParams }: Props) 
         ) : null}
       </section>
 
-      <ReservationsLiveView lang={ctx.lang} initialRows={reservations.rows} initialBoard={board} />
+      <ReservationsLiveView
+        lang={ctx.lang}
+        initialRows={reservations.rows}
+        initialBoard={board}
+        guestOptions={guestOptions}
+        roomOptions={roomOptions}
+      />
 
       <Pagination
         lang={ctx.lang}

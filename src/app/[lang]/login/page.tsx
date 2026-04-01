@@ -26,29 +26,39 @@ export default async function LoginPage({ params, searchParams }: Props) {
   return (
     <main
       dir={dirForLang(lang)}
-      className="min-h-screen bg-slate-100 px-4 py-8 text-slate-900"
+      className="relative flex min-h-screen items-center justify-center overflow-hidden px-4"
     >
       <HtmlDirSetter lang={lang} />
-      <section className="mx-auto w-full max-w-md rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200 sm:p-8">
+
+      {/* Background image */}
+      <div
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: "url('/back-login.jpg')" }}
+      />
+      {/* Dark overlay */}
+      <div className="absolute inset-0 bg-black/40" />
+
+      {/* Glassmorphism card */}
+      <section className="relative z-10 w-full max-w-md rounded-3xl border border-white/20 bg-white/10 p-6 shadow-2xl backdrop-blur-xl sm:p-8">
         <div className="mb-4 flex items-center justify-end gap-2 text-sm">
           <Link
             href="/ar/login"
-            className={`rounded-lg px-3 py-1 ${lang === "ar" ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-700"}`}
+            className={`rounded-lg px-3 py-1 transition ${lang === "ar" ? "bg-white/90 text-slate-900 shadow-sm" : "bg-white/10 text-white/80 hover:bg-white/20"}`}
           >
             العربية
           </Link>
           <Link
             href="/en/login"
-            className={`rounded-lg px-3 py-1 ${lang === "en" ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-700"}`}
+            className={`rounded-lg px-3 py-1 transition ${lang === "en" ? "bg-white/90 text-slate-900 shadow-sm" : "bg-white/10 text-white/80 hover:bg-white/20"}`}
           >
             English
           </Link>
         </div>
 
-        <h1 className="text-2xl font-bold">
+        <h1 className="text-2xl font-bold text-white">
           {tr(lang, "تسجيل دخول موظفي الفندق", "Hotel Staff Login")}
         </h1>
-        <p className="mt-2 text-sm text-slate-600">
+        <p className="mt-2 text-sm text-white/70">
           {tr(
             lang,
             "لوحة إدارة الضيوف والغرف والحجوزات",
@@ -57,13 +67,13 @@ export default async function LoginPage({ params, searchParams }: Props) {
         </p>
 
         {query.error ? (
-          <p className="mt-4 rounded-xl bg-rose-50 px-3 py-2 text-sm text-rose-700">
+          <p className="mt-4 rounded-xl bg-rose-500/20 px-3 py-2 text-sm text-rose-200 backdrop-blur-sm">
             {query.error}
           </p>
         ) : null}
 
         {query.ok ? (
-          <p className="mt-4 rounded-xl bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
+          <p className="mt-4 rounded-xl bg-emerald-500/20 px-3 py-2 text-sm text-emerald-200 backdrop-blur-sm">
             {query.ok}
           </p>
         ) : null}
@@ -72,33 +82,33 @@ export default async function LoginPage({ params, searchParams }: Props) {
           <input type="hidden" name="lang" value={lang} />
 
           <label className="block">
-            <span className="mb-1 block text-sm font-medium">
+            <span className="mb-1 block text-sm font-medium text-white/90">
               {tr(lang, "اسم المستخدم", "Username")}
             </span>
             <input
               name="username"
               required
-              className="w-full rounded-xl border border-slate-300 px-3 py-2 outline-none ring-0 focus:border-slate-500"
+              className="w-full rounded-xl border border-white/20 bg-white/10 px-3 py-2 text-white placeholder-white/40 outline-none backdrop-blur-sm transition focus:border-white/40 focus:bg-white/15"
               placeholder="admin"
             />
           </label>
 
           <label className="block">
-            <span className="mb-1 block text-sm font-medium">
+            <span className="mb-1 block text-sm font-medium text-white/90">
               {tr(lang, "كلمة المرور", "Password")}
             </span>
             <input
               name="password"
               type="password"
               required
-              className="w-full rounded-xl border border-slate-300 px-3 py-2 outline-none ring-0 focus:border-slate-500"
+              className="w-full rounded-xl border border-white/20 bg-white/10 px-3 py-2 text-white placeholder-white/40 outline-none backdrop-blur-sm transition focus:border-white/40 focus:bg-white/15"
               placeholder="••••••••"
             />
           </label>
 
           <button
             type="submit"
-            className="w-full rounded-xl bg-blue-600 px-4 py-2 font-medium text-white transition hover:bg-blue-700"
+            className="w-full rounded-xl bg-white/20 px-4 py-2.5 font-medium text-white shadow-lg backdrop-blur-sm transition hover:bg-white/30 active:scale-[0.98]"
           >
             {tr(lang, "دخول", "Sign in")}
           </button>

@@ -44,6 +44,8 @@ export type StaffUser = {
 
 export type ReservationRow = {
   id: number;
+  guest_id: number;
+  room_id: number;
   guest_name: string;
   room_number: string;
   check_in: string;
@@ -295,6 +297,8 @@ export async function listReservationsPaginated(
     `
     SELECT
       re.id,
+      re.guest_id,
+      re.room_id,
       g.first_name || ' ' || g.last_name AS guest_name,
       r.room_number,
       re.check_in::text,
@@ -325,6 +329,8 @@ export async function listReservationsBoard(): Promise<ReservationBoardRow[]> {
     `
     SELECT
       re.id,
+      re.guest_id,
+      re.room_id,
       g.first_name || ' ' || g.last_name AS guest_name,
       r.room_number,
       re.check_in::text,
@@ -396,7 +402,7 @@ export async function listAvailableRoomsOptions(): Promise<
     `
     SELECT id, room_number, room_type
     FROM room_live_status
-    WHERE live_status = 'available'
+    WHERE status = 'active'
     ORDER BY room_number
     `,
   );

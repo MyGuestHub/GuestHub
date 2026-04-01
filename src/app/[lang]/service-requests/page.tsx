@@ -249,56 +249,71 @@ export default async function ServiceRequestsPage({ params, searchParams }: Prop
                       })}
                     </td>
                     <td className="px-4 py-3">
-                      {r.request_status !== "completed" && r.request_status !== "cancelled" ? (
-                        <form
-                          action="/api/service-requests"
-                          method="post"
-                          className="flex flex-wrap items-center gap-1"
-                        >
+                      <div className="flex flex-col gap-2">
+                        {r.request_status !== "completed" && r.request_status !== "cancelled" ? (
+                          <form
+                            action="/api/service-requests"
+                            method="post"
+                            className="flex flex-wrap items-center gap-1"
+                          >
+                            <input type="hidden" name="lang" value={ctx.lang} />
+                            <input type="hidden" name="action" value="update_status" />
+                            <input type="hidden" name="requestId" value={r.id} />
+                            <input
+                              type="hidden"
+                              name="returnTo"
+                              value={`/${ctx.lang}/service-requests${statusFilter ? `?status=${statusFilter}` : ""}`}
+                            />
+                            <select
+                              name="status"
+                              defaultValue=""
+                              required
+                              className="rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-xs"
+                            >
+                              <option value="" disabled>
+                                {ctx.t("تغيير", "Change")}
+                              </option>
+                              {r.request_status !== "accepted" ? (
+                                <option value="accepted">{statusLabel("accepted")}</option>
+                              ) : null}
+                              {r.request_status !== "in_progress" ? (
+                                <option value="in_progress">{statusLabel("in_progress")}</option>
+                              ) : null}
+                              <option value="completed">{statusLabel("completed")}</option>
+                              <option value="cancelled">{statusLabel("cancelled")}</option>
+                            </select>
+                            <select
+                              name="assignedTo"
+                              className="rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-xs"
+                            >
+                              <option value="">{ctx.t("تعيين", "Assign")}</option>
+                              {staffList.map((s) => (
+                                <option key={s.id} value={s.id}>
+                                  {s.full_name}
+                                </option>
+                              ))}
+                            </select>
+                            <button className="rounded-lg bg-blue-600 px-2.5 py-1 text-xs font-semibold text-white">
+                              {ctx.t("حفظ", "Save")}
+                            </button>
+                          </form>
+                        ) : (
+                          <span className="text-xs text-slate-300">—</span>
+                        )}
+                        <form action="/api/service-requests" method="post">
                           <input type="hidden" name="lang" value={ctx.lang} />
-                          <input type="hidden" name="action" value="update_status" />
+                          <input type="hidden" name="action" value="delete" />
                           <input type="hidden" name="requestId" value={r.id} />
                           <input
                             type="hidden"
                             name="returnTo"
                             value={`/${ctx.lang}/service-requests${statusFilter ? `?status=${statusFilter}` : ""}`}
                           />
-                          <select
-                            name="status"
-                            defaultValue=""
-                            required
-                            className="rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-xs"
-                          >
-                            <option value="" disabled>
-                              {ctx.t("تغيير", "Change")}
-                            </option>
-                            {r.request_status !== "accepted" ? (
-                              <option value="accepted">{statusLabel("accepted")}</option>
-                            ) : null}
-                            {r.request_status !== "in_progress" ? (
-                              <option value="in_progress">{statusLabel("in_progress")}</option>
-                            ) : null}
-                            <option value="completed">{statusLabel("completed")}</option>
-                            <option value="cancelled">{statusLabel("cancelled")}</option>
-                          </select>
-                          <select
-                            name="assignedTo"
-                            className="rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-xs"
-                          >
-                            <option value="">{ctx.t("تعيين", "Assign")}</option>
-                            {staffList.map((s) => (
-                              <option key={s.id} value={s.id}>
-                                {s.full_name}
-                              </option>
-                            ))}
-                          </select>
-                          <button className="rounded-lg bg-blue-600 px-2.5 py-1 text-xs font-semibold text-white">
-                            {ctx.t("حفظ", "Save")}
+                          <button className="rounded-lg border border-rose-200 bg-rose-50 px-2.5 py-1 text-xs font-semibold text-rose-700">
+                            {ctx.t("حذف", "Delete")}
                           </button>
                         </form>
-                      ) : (
-                        <span className="text-xs text-slate-300">—</span>
-                      )}
+                      </div>
                     </td>
                   </tr>
                 );

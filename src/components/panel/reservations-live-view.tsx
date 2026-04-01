@@ -10,6 +10,8 @@ import {
 
 type Row = {
   id: number;
+  guest_id: number;
+  room_id: number;
   guest_name: string;
   room_number: string;
   check_in: string;
@@ -21,6 +23,8 @@ type Props = {
   lang: "ar" | "en";
   initialRows: Row[];
   initialBoard: ReservationBoardItem[];
+  guestOptions: Array<{ id: number; full_name: string }>;
+  roomOptions: Array<{ id: number; room_number: string; room_type: string }>;
 };
 
 function statusMeta(lang: "ar" | "en") {
@@ -60,7 +64,18 @@ function StatusBadge({ status, lang }: { status: ReservationStatus; lang: "ar" |
   );
 }
 
-export function ReservationsLiveView({ lang, initialRows, initialBoard }: Props) {
+function toInputDateTime(value: string) {
+  const date = new Date(value);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const yyyy = date.getFullYear();
+  const mm = pad(date.getMonth() + 1);
+  const dd = pad(date.getDate());
+  const hh = pad(date.getHours());
+  const min = pad(date.getMinutes());
+  return `${yyyy}-${mm}-${dd}T${hh}:${min}`;
+}
+
+export function ReservationsLiveView({ lang, initialRows, initialBoard, guestOptions, roomOptions }: Props) {
   const [rows, setRows] = useState<Row[]>(initialRows);
 
   const rowMap = useMemo(() => {
@@ -96,6 +111,7 @@ export function ReservationsLiveView({ lang, initialRows, initialBoard }: Props)
                 <th className="px-4 py-3 text-left">{lang === "ar" ? "الدخول" : "Check in"}</th>
                 <th className="px-4 py-3 text-left">{lang === "ar" ? "الخروج" : "Check out"}</th>
                 <th className="px-4 py-3 text-left">{lang === "ar" ? "الحالة" : "Status"}</th>
+                <th className="px-4 py-3 text-left">{lang === "ar" ? "إجراءات" : "Actions"}</th>
               </tr>
             </thead>
             <tbody>
@@ -110,6 +126,85 @@ export function ReservationsLiveView({ lang, initialRows, initialBoard }: Props)
                     <td className="px-4 py-3 text-xs">{new Date(reservation.check_out).toLocaleString()}</td>
                     <td className="px-4 py-3">
                       <StatusBadge status={status} lang={lang} />
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="space-y-2">
+                        <form action="/api/reservations" method="post" className="grid min-w-[560px] gap-2 md:grid-cols-2">
+                          <input type="hidden" name="lang" value={lang} />
+                          <input type="hidden" name="returnTo" value={`/${lang}/reservations`} />
+                          <input type="hidden" name="action" value="update" />
+                          <input type="hidden" name="reservationId" value={reservation.id} />
+                          <select
+                            name="guestId"
+                            defaultValue={reservation.guest_id}
+                            className="rounded-lg border border-slate-300 bg-slate-50 px-2 py-1.5 text-xs"
+                            required
+                          >
+                            {guestOptions.map((guest) => (
+                              <option key={guest.id} value={guest.id}>
+                                {guest.full_name}
+                              </option>
+                            ))}
+                          </select>
+                          <select
+                            name="roomId"
+                            defaultValue={reservation.room_id}
+                            className="rounded-lg border border-slate-300 bg-slate-50 px-2 py-1.5 text-xs"
+                            required
+                          >
+                            {roomOptions.map((room) => (
+                              <option key={room.id} value={room.id}>
+                                {room.room_number} - {room.room_type}
+                              </option>
+                            ))}
+                          </select>
+                          <input
+                            name="checkIn"
+                            type="datetime-local"
+                            defaultValue={toInputDateTime(reservation.check_in)}
+                            required
+                            className="rounded-lg border border-slate-300 bg-slate-50 px-2 py-1.5 text-xs"
+                          />
+                          <input
+                            name="checkOut"
+                            type="datetime-local"
+                            defaultValue={toInputDateTime(reservation.check_out)}
+                            required
+                            className="rounded-lg border border-slate-300 bg-slate-50 px-2 py-1.5 text-xs"
+                          />
+                          <select
+                            name="status"
+                            defaultValue={status}
+                            className="rounded-lg border border-slate-300 bg-slate-50 px-2 py-1.5 text-xs"
+                          >
+                            <option value="booked">{lang === "ar" ? "محجوز" : "Booked"}</option>
+                            <option value="checked_in">{lang === "ar" ? "تم تسجيل الدخول" : "Checked In"}</option>
+                            <option value="checked_out">{lang === "ar" ? "مكتمل" : "Completed"}</option>
+                            <option value="cancelled">{lang === "ar" ? "ملغي" : "Cancelled"}</option>
+                          </select>
+                          <div className="flex flex-wrap gap-2">
+                            <button className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white">
+                              {lang === "ar" ? "حفظ" : "Save"}
+                            </button>
+                          </div>
+                        </form>
+                        <form action="/api/reservations" method="post">
+                          <input type="hidden" name="lang" value={lang} />
+                          <input type="hidden" name="returnTo" value={`/${lang}/reservations`} />
+                          <input type="hidden" name="action" value="delete" />
+                          <input type="hidden" name="reservationId" value={reservation.id} />
+                          <button
+                            onClick={(event) => {
+                              if (!window.confirm(lang === "ar" ? "حذف هذا الحجز؟" : "Delete this reservation?")) {
+                                event.preventDefault();
+                              }
+                            }}
+                            className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-semibold text-rose-700"
+                          >
+                            {lang === "ar" ? "حذف" : "Delete"}
+                          </button>
+                        </form>
+                      </div>
                     </td>
                   </tr>
                 );

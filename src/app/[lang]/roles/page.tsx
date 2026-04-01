@@ -49,6 +49,7 @@ export default async function RolesPage({ params, searchParams }: Props) {
           <form action="/api/admin/roles" method="post" className="mt-3 space-y-3">
             <input type="hidden" name="lang" value={ctx.lang} />
             <input type="hidden" name="returnTo" value={`/${ctx.lang}/roles`} />
+            <input type="hidden" name="action" value="create" />
             <input
               name="roleName"
               required
@@ -84,6 +85,45 @@ export default async function RolesPage({ params, searchParams }: Props) {
               </Link>
             ))}
           </div>
+
+          {selectedRole ? (
+            <div className="mt-5 border-t border-slate-200 pt-4">
+              <h3 className="text-sm font-semibold text-slate-800">
+                {ctx.t("تعديل الدور المحدد", "Edit selected role")}
+              </h3>
+              <form action="/api/admin/roles" method="post" className="mt-3 space-y-3">
+                <input type="hidden" name="lang" value={ctx.lang} />
+                <input type="hidden" name="returnTo" value={`/${ctx.lang}/roles?roleId=${selectedRole.id}`} />
+                <input type="hidden" name="action" value="update" />
+                <input type="hidden" name="roleId" value={selectedRole.id} />
+                <input
+                  name="roleName"
+                  required
+                  defaultValue={selectedRole.role_name}
+                  className="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-700"
+                />
+                <input
+                  name="description"
+                  defaultValue={selectedRole.description ?? ""}
+                  className="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-700"
+                />
+                <div className="flex flex-wrap gap-2">
+                  <button className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white">
+                    {ctx.t("حفظ التعديلات", "Save changes")}
+                  </button>
+                </div>
+              </form>
+              <form action="/api/admin/roles" method="post" className="mt-2">
+                <input type="hidden" name="lang" value={ctx.lang} />
+                <input type="hidden" name="returnTo" value={`/${ctx.lang}/roles`} />
+                <input type="hidden" name="action" value="delete" />
+                <input type="hidden" name="roleId" value={selectedRole.id} />
+                <button className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-700">
+                  {ctx.t("حذف الدور", "Delete role")}
+                </button>
+              </form>
+            </div>
+          ) : null}
         </article>
 
         <article className="rounded-2xl border border-slate-200 bg-white p-4">

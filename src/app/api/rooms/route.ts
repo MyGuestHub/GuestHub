@@ -8,12 +8,95 @@ export async function POST(request: Request) {
   const form = await request.formData();
   const lang = resolveLang(cleanText(form.get("lang")));
   const returnTo = cleanText(form.get("returnTo")) || `/${lang}/rooms`;
+  const action = cleanText(form.get("action")) || "create";
 
   const currentUser = await getCurrentUser();
   if (!currentUser || !hasPermission(currentUser, "rooms.manage")) {
     return NextResponse.redirect(
       new URL(
         `${returnTo}?error=${encodeURIComponent(tr(lang, "لا تملك صلاحية", "Access denied"))}`,
+        request.url,
+      ),
+    );
+  }
+
+  if (action === "delete") {
+    const roomId = Number.parseInt(cleanText(form.get("roomId")), 10);
+    if (!Number.isFinite(roomId)) {
+      return NextResponse.redirect(
+        new URL(
+          `${returnTo}?error=${encodeURIComponent(tr(lang, "معرف الغرفة غير صالح", "Invalid room id"))}`,
+          request.url,
+        ),
+      );
+    }
+
+    const hasReservations = await query(`SELECT 1 FROM reservations WHERE room_id = $1 LIMIT 1`, [roomId]);
+    if (hasReservations.rowCount) {
+      return NextResponse.redirect(
+        new URL(
+          `${returnTo}?error=${encodeURIComponent(tr(lang, "لا يمكن حذف الغرفة لوجود حجوزات مرتبطة", "Cannot delete room with linked reservations"))}`,
+          request.url,
+        ),
+      );
+    }
+
+    await query(`DELETE FROM rooms WHERE id = $1`, [roomId]);
+    return NextResponse.redirect(
+      new URL(
+        `${returnTo}?ok=${encodeURIComponent(tr(lang, "تم حذف الغرفة", "Room deleted"))}`,
+        request.url,
+      ),
+    );
+  }
+
+  if (action === "update") {
+    const roomId = Number.parseInt(cleanText(form.get("roomId")), 10);
+    const roomNumber = cleanText(form.get("roomNumber"));
+    const floorRaw = cleanText(form.get("floor"));
+    const roomType = cleanText(form.get("roomType")) || "standard";
+    const capacity = Number.parseInt(cleanText(form.get("capacity")) || "2", 10);
+    const status = cleanText(form.get("status")) || "active";
+    const floor = floorRaw ? Number.parseInt(floorRaw, 10) : null;
+
+    if (
+      !Number.isFinite(roomId) ||
+      !roomNumber ||
+      !Number.isFinite(capacity) ||
+      capacity < 1 ||
+      (status !== "active" && status !== "maintenance")
+    ) {
+      return NextResponse.redirect(
+        new URL(
+          `${returnTo}?error=${encodeURIComponent(tr(lang, "بيانات الغرفة غير صحيحة", "Invalid room data"))}`,
+          request.url,
+        ),
+      );
+    }
+
+    try {
+      await query(
+        `UPDATE rooms
+         SET room_number = $2, floor = $3, room_type = $4, capacity = $5, status = $6
+         WHERE id = $1`,
+        [roomId, roomNumber, Number.isFinite(floor ?? Number.NaN) ? floor : null, roomType, capacity, status],
+      );
+    } catch (error) {
+      const maybePg = error as { code?: string };
+      if (maybePg.code === "23505") {
+        return NextResponse.redirect(
+          new URL(
+            `${returnTo}?error=${encodeURIComponent(tr(lang, "رقم الغرفة مكرر", "Room number already exists"))}`,
+            request.url,
+          ),
+        );
+      }
+      throw error;
+    }
+
+    return NextResponse.redirect(
+      new URL(
+        `${returnTo}?ok=${encodeURIComponent(tr(lang, "تم تحديث الغرفة", "Room updated"))}`,
         request.url,
       ),
     );

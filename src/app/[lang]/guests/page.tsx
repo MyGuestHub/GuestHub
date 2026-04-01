@@ -84,6 +84,7 @@ export default async function GuestsPage({ params, searchParams }: Props) {
                 <th className="px-4 py-3 text-left">{ctx.t("البريد", "Email")}</th>
                 <th className="px-4 py-3 text-left">{ctx.t("الغرفة الحالية", "Current room")}</th>
                 <th className="px-4 py-3 text-left">{ctx.t("الدخول/الخروج", "Check in/out")}</th>
+                {canManage ? <th className="px-4 py-3 text-left">{ctx.t("إجراءات", "Actions")}</th> : null}
               </tr>
             </thead>
             <tbody>
@@ -99,6 +100,55 @@ export default async function GuestsPage({ params, searchParams }: Props) {
                     {guest.check_in ? new Date(guest.check_in).toLocaleString() : "-"} /{" "}
                     {guest.check_out ? new Date(guest.check_out).toLocaleString() : "-"}
                   </td>
+                  {canManage ? (
+                    <td className="px-4 py-3">
+                      <div className="space-y-2">
+                        <form action="/api/guests" method="post" className="grid min-w-[520px] gap-2 md:grid-cols-2">
+                          <input type="hidden" name="lang" value={ctx.lang} />
+                          <input type="hidden" name="returnTo" value={`/${ctx.lang}/guests`} />
+                          <input type="hidden" name="action" value="update" />
+                          <input type="hidden" name="guestId" value={guest.id} />
+                          <input
+                            name="firstName"
+                            required
+                            defaultValue={guest.first_name}
+                            className="rounded-lg border border-slate-300 bg-slate-50 px-2 py-1.5 text-xs"
+                          />
+                          <input
+                            name="lastName"
+                            required
+                            defaultValue={guest.last_name}
+                            className="rounded-lg border border-slate-300 bg-slate-50 px-2 py-1.5 text-xs"
+                          />
+                          <input
+                            name="phone"
+                            defaultValue={guest.phone ?? ""}
+                            className="rounded-lg border border-slate-300 bg-slate-50 px-2 py-1.5 text-xs"
+                          />
+                          <input
+                            name="email"
+                            type="email"
+                            defaultValue={guest.email ?? ""}
+                            className="rounded-lg border border-slate-300 bg-slate-50 px-2 py-1.5 text-xs"
+                          />
+                          <div className="flex flex-wrap gap-2 md:col-span-2">
+                            <button className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white">
+                              {ctx.t("حفظ", "Save")}
+                            </button>
+                          </div>
+                        </form>
+                        <form action="/api/guests" method="post">
+                          <input type="hidden" name="lang" value={ctx.lang} />
+                          <input type="hidden" name="returnTo" value={`/${ctx.lang}/guests`} />
+                          <input type="hidden" name="action" value="delete" />
+                          <input type="hidden" name="guestId" value={guest.id} />
+                          <button className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-semibold text-rose-700">
+                            {ctx.t("حذف", "Delete")}
+                          </button>
+                        </form>
+                      </div>
+                    </td>
+                  ) : null}
                 </tr>
               ))}
             </tbody>
