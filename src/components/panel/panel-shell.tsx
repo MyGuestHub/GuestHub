@@ -41,7 +41,6 @@ export function PanelShell({ lang, user, active, title, subtitle, backgroundImag
   const activePath = active === "dashboard" ? "dashboard" : active;
   const resolvedBackground = backgroundImage ?? "/back.jpeg";
   const hasBackground = Boolean(resolvedBackground);
-  const isRtl = dirForLang(lang) === "rtl";
   const glassSoft = hasBackground
     ? "bg-white/12 text-white hover:bg-white/22"
     : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50";
@@ -75,8 +74,7 @@ export function PanelShell({ lang, user, active, title, subtitle, backgroundImag
               {active !== "dashboard" ? (
                 <BackNavButton
                   fallbackHref={`/${lang}/dashboard`}
-                  label={t("رجوع", "Back")}
-                  rtl={isRtl}
+                  label={t("الرئيسية", "Home")}
                   dark={hasBackground}
                 />
               ) : null}

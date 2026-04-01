@@ -1,32 +1,25 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { FiArrowLeft, FiArrowRight } from "react-icons/fi";
+import { FiHome } from "react-icons/fi";
 
 type Props = {
   fallbackHref: string;
   label: string;
-  rtl?: boolean;
   dark?: boolean;
 };
 
-export function BackNavButton({ fallbackHref, label, rtl = false, dark = false }: Props) {
+export function BackNavButton({ fallbackHref, label, dark = false }: Props) {
   const router = useRouter();
 
-  const onBack = () => {
-    if (typeof window !== "undefined" && window.history.length > 1) {
-      router.back();
-      return;
-    }
+  const onHome = () => {
     router.push(fallbackHref);
   };
-
-  const Icon = rtl ? FiArrowRight : FiArrowLeft;
 
   return (
     <button
       type="button"
-      onClick={onBack}
+      onClick={onHome}
       className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition ${
         dark
           ? "bg-white/15 text-white hover:bg-white/25"
@@ -34,7 +27,7 @@ export function BackNavButton({ fallbackHref, label, rtl = false, dark = false }
       }`}
       aria-label={label}
     >
-      <Icon className="h-3.5 w-3.5" />
+      <FiHome className="h-3.5 w-3.5" />
       <span>{label}</span>
     </button>
   );
