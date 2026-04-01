@@ -3,6 +3,7 @@ import {
   FiBookOpen,
   FiCalendar,
   FiClock,
+  FiGrid,
   FiHome,
   FiLayers,
   FiUser,
@@ -54,6 +55,13 @@ export default async function DashboardPage({ params, searchParams }: Props) {
       icon: FiBell,
       meta: `${serviceOpen} ${ctx.t("مفتوحة", "open")}`,
       iconClass: "bg-fuchsia-100 text-fuchsia-700",
+    },
+    {
+      href: `/${ctx.lang}/qr-codes`,
+      label: ctx.t("رموز QR", "QR Codes"),
+      icon: FiGrid,
+      meta: ctx.t("إدارة رموز الغرف", "Room QR management"),
+      iconClass: "bg-violet-100 text-violet-700",
     },
     {
       href: `/${ctx.lang}/guests`,

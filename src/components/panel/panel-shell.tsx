@@ -16,6 +16,7 @@ type NavKey =
   | "roles"
   | "reservations"
   | "service-requests"
+  | "qr-codes"
   | "profile";
 
 type Props = {

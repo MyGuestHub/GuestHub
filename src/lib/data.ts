@@ -767,7 +767,10 @@ export async function validateGuestToken(token: string): Promise<GuestContext | 
     [token],
   );
 
-  if (!result.rowCount) return null;
+  if (!result.rowCount) {
+    // Fallback: check room QR tokens
+    return validateRoomQrToken(token);
+  }
 
   const row = result.rows[0];
   return {
@@ -865,4 +868,126 @@ export async function listServiceItemOptions(): Promise<ServiceItemOption[]> {
      ORDER BY sc.sort_order, si.sort_order`,
   );
   return result.rows;
+}
+
+/* ───── Room QR token queries ─────────────────────────────────────── */
+
+export type RoomQrToken = {
+  id: number;
+  room_id: number;
+  room_number: string;
+  floor: string;
+  room_type: string;
+  token: string | null;
+  created_at: string | null;
+  has_active_reservation: boolean;
+  guest_name: string | null;
+};
+
+export async function listRoomQrTokens(): Promise<RoomQrToken[]> {
+  const result = await query<RoomQrToken>(
+    `SELECT
+       r.id AS room_id,
+       r.room_number,
+       r.floor,
+       r.room_type,
+       rq.id,
+       rq.token,
+       rq.created_at::text,
+       CASE WHEN re.id IS NOT NULL THEN TRUE ELSE FALSE END AS has_active_reservation,
+       CASE WHEN re.id IS NOT NULL THEN g.first_name || ' ' || g.last_name ELSE NULL END AS guest_name
+     FROM rooms r
+     LEFT JOIN room_qr_tokens rq ON rq.room_id = r.id
+     LEFT JOIN LATERAL (
+       SELECT re2.id, re2.guest_id
+       FROM reservations re2
+       WHERE re2.room_id = r.id AND re2.reservation_status IN ('booked', 'checked_in')
+       ORDER BY re2.check_in DESC
+       LIMIT 1
+     ) re ON TRUE
+     LEFT JOIN guests g ON g.id = re.guest_id
+     WHERE r.status = 'active'
+     ORDER BY r.room_number`,
+  );
+  return result.rows;
+}
+
+export async function generateRoomQrToken(roomId: number): Promise<string> {
+  const crypto = await import("node:crypto");
+  const token = `room-${crypto.randomUUID()}-${crypto.randomBytes(12).toString("hex")}`;
+
+  await query(
+    `INSERT INTO room_qr_tokens (room_id, token)
+     VALUES ($1, $2)
+     ON CONFLICT (room_id) DO UPDATE SET token = $2, created_at = NOW()`,
+    [roomId, token],
+  );
+
+  return token;
+}
+
+export async function generateAllRoomQrTokens(): Promise<number> {
+  const crypto = await import("node:crypto");
+  const rooms = await query<{ id: number }>(`SELECT id FROM rooms WHERE status = 'active' ORDER BY id`);
+  let count = 0;
+
+  for (const room of rooms.rows) {
+    const existing = await query(`SELECT id FROM room_qr_tokens WHERE room_id = $1`, [room.id]);
+    if (existing.rowCount === 0) {
+      const token = `room-${crypto.randomUUID()}-${crypto.randomBytes(12).toString("hex")}`;
+      await query(`INSERT INTO room_qr_tokens (room_id, token) VALUES ($1, $2)`, [room.id, token]);
+      count++;
+    }
+  }
+
+  return count;
+}
+
+export async function validateRoomQrToken(token: string): Promise<GuestContext | null> {
+  const result = await query<{
+    token: string;
+    guest_id: number;
+    guest_name: string;
+    room_id: number;
+    room_number: string;
+    reservation_id: number;
+    check_in: string;
+    check_out: string;
+  }>(
+    `SELECT
+       rq.token,
+       g.id AS guest_id,
+       g.first_name || ' ' || g.last_name AS guest_name,
+       rm.id AS room_id,
+       rm.room_number,
+       re.id AS reservation_id,
+       re.check_in::text,
+       re.check_out::text
+     FROM room_qr_tokens rq
+     JOIN rooms rm ON rm.id = rq.room_id
+     JOIN LATERAL (
+       SELECT re2.id, re2.guest_id, re2.check_in, re2.check_out
+       FROM reservations re2
+       WHERE re2.room_id = rq.room_id AND re2.reservation_status IN ('booked', 'checked_in')
+       ORDER BY re2.check_in DESC
+       LIMIT 1
+     ) re ON TRUE
+     JOIN guests g ON g.id = re.guest_id
+     WHERE rq.token = $1`,
+    [token],
+  );
+
+  if (!result.rowCount) return null;
+
+  const row = result.rows[0];
+  return {
+    token: row.token,
+    guestId: row.guest_id,
+    guestName: row.guest_name,
+    roomId: row.room_id,
+    roomNumber: row.room_number,
+    reservationId: row.reservation_id,
+    checkIn: row.check_in,
+    checkOut: row.check_out,
+  };
 }
