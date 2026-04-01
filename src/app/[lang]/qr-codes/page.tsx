@@ -92,14 +92,19 @@ export default async function QrCodesPage({ params, searchParams }: Props) {
                 <span className="rounded-md bg-[rgba(255,255,255,0.15)] px-1.5 py-0.5 text-[10px] text-white/70">
                   {room.room_type}
                 </span>
+                {room.floor ? (
+                  <span className="rounded-md bg-[rgba(255,255,255,0.10)] px-1.5 py-0.5 text-[10px] text-white/50">
+                    {ctx.t("طابق", "Floor")} {room.floor}
+                  </span>
+                ) : null}
               </div>
               {room.has_active_reservation ? (
-                <span className="flex items-center gap-1 rounded-full bg-[rgba(16,185,129,0.25)] px-2 py-0.5 text-[10px] font-medium text-emerald-200">
+                <span className="flex shrink-0 items-center gap-1 rounded-full bg-[rgba(16,185,129,0.25)] px-2 py-0.5 text-[10px] font-medium text-emerald-200">
                   <FiCheck className="h-3 w-3" />
                   {ctx.t("مشغولة", "Occupied")}
                 </span>
               ) : (
-                <span className="flex items-center gap-1 rounded-full bg-[rgba(255,255,255,0.12)] px-2 py-0.5 text-[10px] font-medium text-white/60">
+                <span className="flex shrink-0 items-center gap-1 rounded-full bg-[rgba(255,255,255,0.12)] px-2 py-0.5 text-[10px] font-medium text-white/60">
                   {ctx.t("شاغرة", "Vacant")}
                 </span>
               )}
@@ -176,12 +181,6 @@ export default async function QrCodesPage({ params, searchParams }: Props) {
               </div>
             )}
 
-            {/* Floor badge */}
-            {room.floor ? (
-              <div className="absolute top-3 end-14 rounded-md bg-[rgba(255,255,255,0.10)] px-1.5 py-0.5 text-[10px] text-white/50">
-                {ctx.t("طابق", "Floor")} {room.floor}
-              </div>
-            ) : null}
           </div>
         ))}
       </div>

@@ -118,6 +118,7 @@ export function ReservationsLiveView({ lang, initialRows, allReservations, guest
   const [boardItems, setBoardItems] = useState<BoardItem[]>(allReservations);
   const [editReservation, setEditReservation] = useState<Row | null>(null);
   const [deleteReservation, setDeleteReservation] = useState<Row | null>(null);
+  const [showCreate, setShowCreate] = useState(false);
   const [statusChanging, setStatusChanging] = useState<number | null>(null);
 
   const meta = useMemo(() => statusMeta(lang), [lang]);
@@ -154,6 +155,17 @@ export function ReservationsLiveView({ lang, initialRows, allReservations, guest
 
   return (
     <>
+      {/* Add new reservation button */}
+      <div className="mb-4 flex justify-end">
+        <button
+          type="button"
+          onClick={() => setShowCreate(true)}
+          className="rounded-xl bg-[rgba(16,185,129,0.25)] px-4 py-2.5 text-sm font-semibold text-emerald-50 backdrop-blur-md transition hover:bg-[rgba(16,185,129,0.35)]"
+        >
+          {lang === "ar" ? "حجز جديد" : "New Reservation"}
+        </button>
+      </div>
+
       {/* Status Board */}
       <section className="mb-4 rounded-2xl bg-[rgba(255,255,255,0.10)] p-4 shadow-[0_10px_24px_rgba(2,6,23,0.24)] backdrop-blur-xl">
         <h2 className="mb-4 text-lg font-semibold text-white">
@@ -387,6 +399,70 @@ export function ReservationsLiveView({ lang, initialRows, allReservations, guest
             </div>
           </>
         ) : null}
+      </AppModal>
+
+      {/* Create Modal */}
+      <AppModal
+        open={showCreate}
+        onClose={() => setShowCreate(false)}
+        title={lang === "ar" ? "حجز جديد" : "New Reservation"}
+        closeLabel={lang === "ar" ? "إلغاء" : "Cancel"}
+      >
+        <form action="/api/reservations" method="post" className="mt-4 grid gap-3 md:grid-cols-2">
+          <input type="hidden" name="lang" value={lang} />
+          <input type="hidden" name="returnTo" value={`/${lang}/reservations`} />
+          <input type="hidden" name="action" value="create" />
+
+          <label className="block">
+            <span className="mb-1 block text-xs font-medium text-white/80">{lang === "ar" ? "الضيف" : "Guest"}</span>
+            <AppSelect name="guestId" required>
+              <option value="">{lang === "ar" ? "اختر الضيف" : "Select guest"}</option>
+              {guestOptions.map((guest) => (
+                <option key={guest.id} value={guest.id} className="text-slate-900">
+                  {guest.full_name}
+                </option>
+              ))}
+            </AppSelect>
+          </label>
+
+          <label className="block">
+            <span className="mb-1 block text-xs font-medium text-white/80">{lang === "ar" ? "الغرفة" : "Room"}</span>
+            <AppSelect name="roomId" required>
+              <option value="">{lang === "ar" ? "اختر الغرفة" : "Select room"}</option>
+              {roomOptions.map((room) => (
+                <option key={room.id} value={room.id} className="text-slate-900">
+                  {room.room_number} - {room.room_type}
+                </option>
+              ))}
+            </AppSelect>
+          </label>
+
+          <label className="block">
+            <span className="mb-1 block text-xs font-medium text-white/80">{lang === "ar" ? "الدخول" : "Check in"}</span>
+            <input
+              name="checkIn"
+              type="datetime-local"
+              required
+              className="w-full rounded-xl bg-white/15 px-3 py-2 text-sm text-white outline-none"
+            />
+          </label>
+
+          <label className="block">
+            <span className="mb-1 block text-xs font-medium text-white/80">{lang === "ar" ? "الخروج" : "Check out"}</span>
+            <input
+              name="checkOut"
+              type="datetime-local"
+              required
+              className="w-full rounded-xl bg-white/15 px-3 py-2 text-sm text-white outline-none"
+            />
+          </label>
+
+          <div className="md:col-span-2 flex justify-end">
+            <button className="rounded-xl bg-emerald-500/85 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-500">
+              {lang === "ar" ? "إنشاء الحجز" : "Create Reservation"}
+            </button>
+          </div>
+        </form>
       </AppModal>
     </>
   );
