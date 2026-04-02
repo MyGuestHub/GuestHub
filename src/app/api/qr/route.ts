@@ -23,7 +23,9 @@ export async function GET(request: Request) {
   return new NextResponse(svg, {
     headers: {
       "Content-Type": "image/svg+xml",
-      "Cache-Control": "public, max-age=86400",
+      "Cache-Control": "no-store, no-cache, must-revalidate",
+      Pragma: "no-cache",
+      Expires: "0",
     },
   });
 }
