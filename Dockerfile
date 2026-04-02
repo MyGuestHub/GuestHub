@@ -61,6 +61,7 @@ COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/db ./db
 COPY --from=builder /app/scripts/db-bootstrap.js ./scripts/db-bootstrap.js
 COPY --from=builder /app/scripts/docker-entrypoint.sh ./scripts/docker-entrypoint.sh
+COPY --from=builder /app/scripts/seed-admin.mjs ./scripts/seed-admin.mjs
 
 # Create directories for persistent data and Next.js cache (will be mounted as volumes)
 RUN mkdir -p /app/public/uploads /app/data /app/logs /app/backups /app/.next/cache \

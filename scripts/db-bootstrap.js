@@ -6,6 +6,7 @@ const { Client } = require('pg');
 
 const DATABASE_URL = process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/guesthub';
 const INIT_DIR = path.join(process.cwd(), 'db', 'init');
+const DB_ROOT_DIR = path.join(process.cwd(), 'db');
 const MIGRATIONS_DIR = path.join(process.cwd(), 'db', 'migrations');
 const READY_FILE = process.env.DB_BOOTSTRAP_READY_FILE || path.join(process.cwd(), 'data', 'db-bootstrap.ready');
 
@@ -136,7 +137,20 @@ async function markScriptTracked(client, name) {
 }
 
 async function runInitScripts(client) {
-  const files = getSortedSqlFiles(INIT_DIR);
+  const initFiles = getSortedSqlFiles(INIT_DIR);
+  const rootFiles = getSortedSqlFiles(DB_ROOT_DIR);
+
+  let files = initFiles;
+  let sourceDir = INIT_DIR;
+  let trackPrefix = 'init/';
+
+  if (files.length === 0 && rootFiles.length > 0) {
+    files = rootFiles;
+    sourceDir = DB_ROOT_DIR;
+    trackPrefix = 'db/';
+    console.log('[DB Bootstrap] db/init is empty; using db/*.sql files for initialization');
+  }
+
   if (files.length === 0) {
     console.log('[DB Bootstrap] No init scripts found');
     return;
@@ -156,13 +170,13 @@ async function runInitScripts(client) {
   ]);
 
   for (const file of files) {
-    const trackName = `init/${file}`;
+    const trackName = `${trackPrefix}${file}`;
     if (tracked.has(trackName)) {
       console.log(`[DB Bootstrap]   ↷ ${file} (already tracked)`);
       continue;
     }
 
-    const sql = fs.readFileSync(path.join(INIT_DIR, file), 'utf8');
+    const sql = fs.readFileSync(path.join(sourceDir, file), 'utf8');
     try {
       await client.query(sql);
       await markScriptTracked(client, trackName);
