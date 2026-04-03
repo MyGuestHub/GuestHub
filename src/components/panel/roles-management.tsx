@@ -59,19 +59,19 @@ export function RolesManagement({ lang, returnTo, roles, selectedRoleId, labels 
       {/* Header with search and add button */}
       <div className="flex flex-wrap items-center gap-3">
         <div className="relative flex-1 min-w-[200px]">
-          <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/50" />
+          <FiSearch className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/60" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={t("بحث عن دور...", "Search roles...")}
-            className="w-full rounded-xl bg-slate-900/50 py-2.5 pl-10 pr-4 text-sm text-white placeholder:text-white/40 outline-none transition"
+            className="w-full rounded-xl border border-white/20 bg-slate-900/40 py-2.5 pe-4 ps-10 text-sm text-white placeholder:text-white/50 outline-none transition focus:border-cyan-400/60 focus:bg-slate-900/50 focus:ring-2 focus:ring-cyan-400/30"
           />
         </div>
         <button
           type="button"
           onClick={() => setCreateOpen(true)}
-          className="inline-flex items-center gap-2 rounded-xl bg-emerald-500/80 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-emerald-500"
+          className="inline-flex items-center gap-2 rounded-xl border border-emerald-400/50 bg-gradient-to-r from-emerald-500/35 to-teal-500/35 px-4 py-2.5 text-sm font-medium text-white transition hover:brightness-110"
         >
           <FiPlus className="h-4 w-4" />
           {labels.openCreateModal}
@@ -80,24 +80,24 @@ export function RolesManagement({ lang, returnTo, roles, selectedRoleId, labels 
 
       {/* Stats */}
       <div className="flex gap-3">
-        <div className="flex-1 rounded-xl bg-slate-900/50 p-3">
-          <div className="flex items-center gap-2">
-            <div className="rounded-lg bg-cyan-400/20 p-2">
-              <FiShield className="h-4 w-4 text-cyan-300" />
+        <div className="flex-1 rounded-2xl border border-cyan-400/40 bg-gradient-to-br from-cyan-500/25 to-blue-500/25 p-4">
+          <div className="flex items-center gap-3">
+            <div className="rounded-xl bg-cyan-500/40 p-2.5">
+              <FiShield className="h-5 w-5 text-cyan-300" />
             </div>
             <div>
-              <p className="text-lg font-bold text-white">{roles.length}</p>
+              <p className="text-2xl font-bold text-white">{roles.length}</p>
               <p className="text-xs text-white/60">{t("إجمالي الأدوار", "Total Roles")}</p>
             </div>
           </div>
         </div>
-        <div className="flex-1 rounded-xl bg-slate-900/50 p-3">
-          <div className="flex items-center gap-2">
-            <div className="rounded-lg bg-amber-400/20 p-2">
-              <FiKey className="h-4 w-4 text-amber-300" />
+        <div className="flex-1 rounded-2xl border border-amber-400/40 bg-gradient-to-br from-amber-500/25 to-orange-500/25 p-4">
+          <div className="flex items-center gap-3">
+            <div className="rounded-xl bg-amber-500/40 p-2.5">
+              <FiKey className="h-5 w-5 text-amber-300" />
             </div>
             <div>
-              <p className="text-lg font-bold text-white">{filteredRoles.length}</p>
+              <p className="text-2xl font-bold text-white">{filteredRoles.length}</p>
               <p className="text-xs text-white/60">{t("نتائج البحث", "Matching")}</p>
             </div>
           </div>
@@ -105,7 +105,7 @@ export function RolesManagement({ lang, returnTo, roles, selectedRoleId, labels 
       </div>
 
       {/* Roles list */}
-      <div className="rounded-xl bg-slate-900/50 overflow-hidden">
+      <div className="overflow-hidden rounded-2xl border border-white/20 bg-gradient-to-br from-white/[0.12] to-white/[0.06] shadow-2xl backdrop-blur-xl">
         <div className="divide-y divide-white/10">
           {filteredRoles.length === 0 ? (
             <div className="p-6 text-center text-white/60 text-sm">
@@ -116,8 +116,8 @@ export function RolesManagement({ lang, returnTo, roles, selectedRoleId, labels 
               <Link
                 key={role.id}
                 href={`/${lang}/roles?roleId=${role.id}`}
-                className={`flex items-center justify-between px-4 py-3 transition hover:bg-slate-900/40 ${
-                  selectedRole?.id === role.id ? "bg-cyan-400/20" : ""
+                className={`flex items-center justify-between px-4 py-3.5 transition hover:bg-white/[0.08] ${
+                  selectedRole?.id === role.id ? "bg-white/[0.10]" : ""
                 }`}
               >
                 <div className="flex items-center gap-3">

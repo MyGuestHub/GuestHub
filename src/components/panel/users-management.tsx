@@ -96,7 +96,7 @@ export function UsersManagement({ lang, returnTo, users, roles, labels }: Props)
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={t("البحث عن مستخدم...", "Search users...")}
-            className="w-full rounded-xl bg-slate-900/60 py-2.5 pe-4 ps-10 text-sm text-white placeholder-white/50 outline-none transition focus:bg-slate-900/70"
+            className="w-full rounded-xl border border-white/20 bg-slate-900/40 py-2.5 pe-4 ps-10 text-sm text-white placeholder-white/50 outline-none transition focus:border-cyan-400/60 focus:bg-slate-900/50 focus:ring-2 focus:ring-cyan-400/30"
           />
           {searchQuery && (
             <button
@@ -131,73 +131,79 @@ export function UsersManagement({ lang, returnTo, users, roles, labels }: Props)
       {/* ═══════════════════════════════════════════════════════════════
           STATS ROW
       ═══════════════════════════════════════════════════════════════ */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <section className="relative overflow-hidden rounded-3xl border border-white/20 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6">
+        <div className="pointer-events-none absolute inset-0 overflow-hidden">
+          <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-gradient-to-br from-cyan-500/20 to-blue-500/20 blur-3xl" />
+          <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-gradient-to-br from-purple-500/20 to-pink-500/20 blur-3xl" />
+        </div>
+        <div className="relative grid grid-cols-2 gap-4 sm:grid-cols-4">
         <button
           onClick={() => setStatusFilter("all")}
-          className={`group flex items-center gap-3 rounded-xl border p-3 transition ${
+          className={`group flex items-center gap-3 rounded-2xl border p-4 transition ${
             statusFilter === "all"
-              ? "border-violet-400/50 bg-violet-500/30 shadow-lg"
-              : "border-white/20 bg-slate-900/50 hover:bg-slate-900/70"
+              ? "border-violet-400/40 bg-gradient-to-br from-violet-500/25 to-fuchsia-500/25"
+              : "border-white/15 bg-slate-900/40 hover:bg-slate-900/60"
           }`}
         >
-          <div className="grid h-10 w-10 place-items-center rounded-lg bg-violet-500/30 shadow-md">
-            <FiUsers className="h-5 w-5 text-white" />
+          <div className={`rounded-xl p-2.5 ${statusFilter === "all" ? "bg-violet-500/40" : "bg-slate-900/60"}`}>
+            <FiUsers className={`h-5 w-5 ${statusFilter === "all" ? "text-violet-300" : "text-white/60"}`} />
           </div>
           <div className="text-start">
-            <p className="text-2xl font-bold text-white">{stats.total}</p>
+            <p className="text-2xl font-bold tracking-tight text-white">{stats.total}</p>
             <p className="text-xs text-white/60">{t("إجمالي المستخدمين", "Total Users")}</p>
           </div>
         </button>
 
         <button
           onClick={() => setStatusFilter(statusFilter === "active" ? "all" : "active")}
-          className={`group flex items-center gap-3 rounded-xl border p-3 transition ${
+          className={`group flex items-center gap-3 rounded-2xl border p-4 transition ${
             statusFilter === "active"
-              ? "border-emerald-400/50 bg-emerald-500/30 shadow-lg"
-              : "border-white/20 bg-slate-900/50 hover:bg-slate-900/70"
+              ? "border-emerald-400/40 bg-gradient-to-br from-emerald-500/25 to-teal-500/25"
+              : "border-white/15 bg-slate-900/40 hover:bg-slate-900/60"
           }`}
         >
-          <div className="grid h-10 w-10 place-items-center rounded-lg bg-emerald-500/30 shadow-md">
-            <FiUserCheck className="h-5 w-5 text-white" />
+          <div className={`rounded-xl p-2.5 ${statusFilter === "active" ? "bg-emerald-500/40" : "bg-slate-900/60"}`}>
+            <FiUserCheck className={`h-5 w-5 ${statusFilter === "active" ? "text-emerald-300" : "text-white/60"}`} />
           </div>
           <div className="text-start">
-            <p className="text-2xl font-bold text-white">{stats.active}</p>
+            <p className="text-2xl font-bold tracking-tight text-white">{stats.active}</p>
             <p className="text-xs text-white/60">{t("نشطين", "Active")}</p>
           </div>
         </button>
 
         <button
           onClick={() => setStatusFilter(statusFilter === "disabled" ? "all" : "disabled")}
-          className={`group flex items-center gap-3 rounded-xl border p-3 transition ${
+          className={`group flex items-center gap-3 rounded-2xl border p-4 transition ${
             statusFilter === "disabled"
-              ? "border-rose-400/50 bg-rose-500/30 shadow-lg"
-              : "border-white/20 bg-slate-900/50 hover:bg-slate-900/70"
+              ? "border-rose-400/40 bg-gradient-to-br from-rose-500/25 to-pink-500/25"
+              : "border-white/15 bg-slate-900/40 hover:bg-slate-900/60"
           }`}
         >
-          <div className="grid h-10 w-10 place-items-center rounded-lg bg-rose-500/30 shadow-md">
-            <FiUserX className="h-5 w-5 text-white" />
+          <div className={`rounded-xl p-2.5 ${statusFilter === "disabled" ? "bg-rose-500/40" : "bg-slate-900/60"}`}>
+            <FiUserX className={`h-5 w-5 ${statusFilter === "disabled" ? "text-rose-300" : "text-white/60"}`} />
           </div>
           <div className="text-start">
-            <p className="text-2xl font-bold text-white">{stats.disabled}</p>
+            <p className="text-2xl font-bold tracking-tight text-white">{stats.disabled}</p>
             <p className="text-xs text-white/60">{t("معطلين", "Disabled")}</p>
           </div>
         </button>
 
-        <div className="flex items-center gap-3 rounded-xl border border-amber-400/40 bg-amber-500/20 p-3 shadow-lg">
-          <div className="grid h-10 w-10 place-items-center rounded-lg bg-amber-500/30 shadow-md">
-            <FiShield className="h-5 w-5 text-white" />
+        <div className="flex items-center gap-3 rounded-2xl border border-amber-400/40 bg-gradient-to-br from-amber-500/25 to-orange-500/25 p-4">
+          <div className="rounded-xl p-2.5 bg-amber-500/40">
+            <FiShield className="h-5 w-5 text-amber-300" />
           </div>
           <div className="text-start">
-            <p className="text-2xl font-bold text-white">{stats.withRoles}</p>
+            <p className="text-2xl font-bold tracking-tight text-white">{stats.withRoles}</p>
             <p className="text-xs text-white/60">{t("بأدوار", "With Roles")}</p>
           </div>
         </div>
-      </div>
+        </div>
+      </section>
 
       {/* ═══════════════════════════════════════════════════════════════
           USERS TABLE
       ═══════════════════════════════════════════════════════════════ */}
-      <section className="overflow-hidden rounded-2xl bg-slate-900/60 shadow-lg">
+      <section className="overflow-hidden rounded-2xl border border-white/20 bg-gradient-to-br from-white/[0.12] to-white/[0.06] shadow-2xl backdrop-blur-xl">
         {filteredUsers.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
             <FiSearch className="mb-3 h-10 w-10 text-white/20" />
@@ -222,17 +228,17 @@ export function UsersManagement({ lang, returnTo, users, roles, labels }: Props)
           <div className="overflow-x-auto">
             <table className="w-full min-w-[820px] text-sm">
               <thead>
-                <tr className="border-b border-white/20 bg-slate-900/50 text-xs uppercase tracking-wide text-white/70">
-                  <th className="px-4 py-3 text-start font-medium">{t("المستخدم", "User")}</th>
-                  <th className="px-4 py-3 text-start font-medium">{t("الاسم الكامل", "Full Name")}</th>
-                  <th className="px-4 py-3 text-start font-medium">{t("الأدوار", "Roles")}</th>
-                  <th className="px-4 py-3 text-start font-medium">{t("الحالة", "Status")}</th>
-                  <th className="px-4 py-3 text-end font-medium">{t("إجراءات", "Actions")}</th>
+                <tr className="border-b border-white/15 bg-slate-900/40">
+                  <th className="px-4 py-4 text-start text-xs font-semibold uppercase tracking-wider text-white/70">{t("المستخدم", "User")}</th>
+                  <th className="px-4 py-4 text-start text-xs font-semibold uppercase tracking-wider text-white/70">{t("الاسم الكامل", "Full Name")}</th>
+                  <th className="px-4 py-4 text-start text-xs font-semibold uppercase tracking-wider text-white/70">{t("الأدوار", "Roles")}</th>
+                  <th className="px-4 py-4 text-start text-xs font-semibold uppercase tracking-wider text-white/70">{t("الحالة", "Status")}</th>
+                  <th className="px-4 py-4 text-end text-xs font-semibold uppercase tracking-wider text-white/70">{t("إجراءات", "Actions")}</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/15">
+              <tbody className="divide-y divide-white/10">
                 {filteredUsers.map((user) => (
-                  <tr key={user.id} className="group transition hover:bg-slate-900/50">
+                  <tr key={user.id} className="group transition-colors hover:bg-white/[0.08]">
                     <td className="px-4 py-3.5">
                       <div className="flex items-center gap-3">
                         <div className="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-indigo-500/50 to-purple-500/50 ring-2 shadow-md">

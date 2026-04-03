@@ -119,20 +119,20 @@ export function RoomsManagement({ lang, returnTo, rooms, canManageRooms, labels 
       {/* Header with search and add button */}
       <div className="flex flex-wrap items-center gap-3">
         <div className="relative flex-1 min-w-[240px]">
-          <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/50" />
+          <FiSearch className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/60" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={t("بحث برقم الغرفة أو النوع...", "Search by room number or type...")}
-            className="w-full rounded-xl bg-slate-800/75 py-2.5 pl-10 pr-4 text-sm text-white placeholder:text-white/40 outline-none transition focus:bg-slate-800/90"
+            className="w-full rounded-xl border border-white/20 bg-slate-900/40 py-2.5 pe-4 ps-10 text-sm text-white placeholder:text-white/50 outline-none transition focus:border-cyan-400/60 focus:bg-slate-900/50 focus:ring-2 focus:ring-cyan-400/30"
           />
         </div>
         {canManageRooms && (
           <button
             type="button"
             onClick={() => setAddOpen(true)}
-            className="flex items-center gap-2 rounded-xl bg-emerald-500/40 px-4 py-2.5 text-sm font-semibold text-emerald-100 shadow-lg shadow-emerald-500/20 transition hover:bg-emerald-500/50"
+            className="flex items-center gap-2 rounded-xl border border-emerald-400/50 bg-gradient-to-r from-emerald-500/35 to-teal-500/35 px-4 py-2.5 text-sm font-semibold text-emerald-100 transition hover:brightness-110"
           >
             <FiPlus className="h-4 w-4" />
             {labels.openAddModal}
@@ -141,21 +141,26 @@ export function RoomsManagement({ lang, returnTo, rooms, canManageRooms, labels 
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <section className="relative overflow-hidden rounded-3xl border border-white/20 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6">
+        <div className="pointer-events-none absolute inset-0 overflow-hidden">
+          <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-gradient-to-br from-cyan-500/20 to-blue-500/20 blur-3xl" />
+          <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-gradient-to-br from-purple-500/20 to-pink-500/20 blur-3xl" />
+        </div>
+        <div className="relative grid grid-cols-2 gap-4 sm:grid-cols-4">
         <button
           type="button"
           onClick={() => setStatusFilter("all")}
-          className={`group flex items-center gap-3 rounded-xl p-3 transition ${
+          className={`group flex items-center gap-3 rounded-2xl border p-4 transition ${
             statusFilter === "all"
-              ? "bg-violet-500/30 shadow-lg"
-              : "bg-violet-900/30 hover:bg-violet-900/45"
+              ? "border-violet-400/40 bg-gradient-to-br from-violet-500/25 to-fuchsia-500/25"
+              : "border-white/15 bg-slate-900/40 hover:bg-slate-900/60"
           }`}
         >
-          <div className={`rounded-lg p-2 ${statusFilter === "all" ? "bg-violet-400/30" : "bg-white/10"}`}>
-            <FiHome className={`h-5 w-5 ${statusFilter === "all" ? "text-violet-200" : "text-white/60"}`} />
+          <div className={`rounded-xl p-2.5 ${statusFilter === "all" ? "bg-violet-500/40" : "bg-slate-900/60"}`}>
+            <FiHome className={`h-5 w-5 ${statusFilter === "all" ? "text-violet-300" : "text-white/60"}`} />
           </div>
           <div className="text-start">
-            <p className="text-xl font-bold text-white">{stats.total}</p>
+            <p className="text-2xl font-bold tracking-tight text-white">{stats.total}</p>
             <p className="text-xs text-white/60">{t("إجمالي الغرف", "Total Rooms")}</p>
           </div>
         </button>
@@ -163,17 +168,17 @@ export function RoomsManagement({ lang, returnTo, rooms, canManageRooms, labels 
         <button
           type="button"
           onClick={() => setStatusFilter("available")}
-          className={`group flex items-center gap-3 rounded-xl p-3 transition ${
+          className={`group flex items-center gap-3 rounded-2xl border p-4 transition ${
             statusFilter === "available"
-              ? "bg-emerald-500/30 shadow-lg"
-              : "bg-emerald-900/30 hover:bg-emerald-900/45"
+              ? "border-emerald-400/40 bg-gradient-to-br from-emerald-500/25 to-teal-500/25"
+              : "border-white/15 bg-slate-900/40 hover:bg-slate-900/60"
           }`}
         >
-          <div className={`rounded-lg p-2 ${statusFilter === "available" ? "bg-emerald-400/30" : "bg-white/10"}`}>
-            <FiCheckCircle className={`h-5 w-5 ${statusFilter === "available" ? "text-emerald-200" : "text-white/60"}`} />
+          <div className={`rounded-xl p-2.5 ${statusFilter === "available" ? "bg-emerald-500/40" : "bg-slate-900/60"}`}>
+            <FiCheckCircle className={`h-5 w-5 ${statusFilter === "available" ? "text-emerald-300" : "text-white/60"}`} />
           </div>
           <div className="text-start">
-            <p className="text-xl font-bold text-white">{stats.available}</p>
+            <p className="text-2xl font-bold tracking-tight text-white">{stats.available}</p>
             <p className="text-xs text-white/60">{labels.available}</p>
           </div>
         </button>
@@ -181,17 +186,17 @@ export function RoomsManagement({ lang, returnTo, rooms, canManageRooms, labels 
         <button
           type="button"
           onClick={() => setStatusFilter("occupied")}
-          className={`group flex items-center gap-3 rounded-xl p-3 transition ${
+          className={`group flex items-center gap-3 rounded-2xl border p-4 transition ${
             statusFilter === "occupied"
-              ? "bg-amber-500/30 shadow-lg"
-              : "bg-amber-900/30 hover:bg-amber-900/45"
+              ? "border-amber-400/40 bg-gradient-to-br from-amber-500/25 to-orange-500/25"
+              : "border-white/15 bg-slate-900/40 hover:bg-slate-900/60"
           }`}
         >
-          <div className={`rounded-lg p-2 ${statusFilter === "occupied" ? "bg-amber-400/30" : "bg-white/10"}`}>
-            <FiUsers className={`h-5 w-5 ${statusFilter === "occupied" ? "text-amber-200" : "text-white/60"}`} />
+          <div className={`rounded-xl p-2.5 ${statusFilter === "occupied" ? "bg-amber-500/40" : "bg-slate-900/60"}`}>
+            <FiUsers className={`h-5 w-5 ${statusFilter === "occupied" ? "text-amber-300" : "text-white/60"}`} />
           </div>
           <div className="text-start">
-            <p className="text-xl font-bold text-white">{stats.occupied}</p>
+            <p className="text-2xl font-bold tracking-tight text-white">{stats.occupied}</p>
             <p className="text-xs text-white/60">{labels.occupied}</p>
           </div>
         </button>
@@ -199,34 +204,35 @@ export function RoomsManagement({ lang, returnTo, rooms, canManageRooms, labels 
         <button
           type="button"
           onClick={() => setStatusFilter("maintenance")}
-          className={`group flex items-center gap-3 rounded-xl p-3 transition ${
+          className={`group flex items-center gap-3 rounded-2xl border p-4 transition ${
             statusFilter === "maintenance"
-              ? "bg-rose-500/30 shadow-lg"
-              : "bg-rose-900/30 hover:bg-rose-900/45"
+              ? "border-rose-400/40 bg-gradient-to-br from-rose-500/25 to-pink-500/25"
+              : "border-white/15 bg-slate-900/40 hover:bg-slate-900/60"
           }`}
         >
-          <div className={`rounded-lg p-2 ${statusFilter === "maintenance" ? "bg-rose-400/30" : "bg-white/10"}`}>
-            <FiTool className={`h-5 w-5 ${statusFilter === "maintenance" ? "text-rose-200" : "text-white/60"}`} />
+          <div className={`rounded-xl p-2.5 ${statusFilter === "maintenance" ? "bg-rose-500/40" : "bg-slate-900/60"}`}>
+            <FiTool className={`h-5 w-5 ${statusFilter === "maintenance" ? "text-rose-300" : "text-white/60"}`} />
           </div>
           <div className="text-start">
-            <p className="text-xl font-bold text-white">{stats.maintenance}</p>
+            <p className="text-2xl font-bold tracking-tight text-white">{stats.maintenance}</p>
             <p className="text-xs text-white/60">{labels.maintenanceLabel}</p>
           </div>
         </button>
-      </div>
+        </div>
+      </section>
 
       {/* Rooms Table */}
-      <section className="overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900/85 to-slate-800/70 shadow-lg">
+      <section className="overflow-hidden rounded-2xl border border-white/20 bg-gradient-to-br from-white/[0.12] to-white/[0.06] shadow-2xl backdrop-blur-xl">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[720px] text-sm">
             <thead>
-              <tr className="border-b border-white/15 bg-slate-950/70 text-xs uppercase tracking-wide text-white/80">
-                <th className="px-4 py-3 text-start">{labels.room}</th>
-                <th className="px-4 py-3 text-start">{labels.floor}</th>
-                <th className="px-4 py-3 text-start">{labels.type}</th>
-                <th className="px-4 py-3 text-start">{labels.capacity}</th>
-                <th className="px-4 py-3 text-start">{labels.status}</th>
-                {canManageRooms && <th className="px-4 py-3 text-start">{labels.actions}</th>}
+              <tr className="border-b border-white/15 bg-slate-900/40">
+                <th className="px-4 py-4 text-start text-xs font-semibold uppercase tracking-wider text-white/70">{labels.room}</th>
+                <th className="px-4 py-4 text-start text-xs font-semibold uppercase tracking-wider text-white/70">{labels.floor}</th>
+                <th className="px-4 py-4 text-start text-xs font-semibold uppercase tracking-wider text-white/70">{labels.type}</th>
+                <th className="px-4 py-4 text-start text-xs font-semibold uppercase tracking-wider text-white/70">{labels.capacity}</th>
+                <th className="px-4 py-4 text-start text-xs font-semibold uppercase tracking-wider text-white/70">{labels.status}</th>
+                {canManageRooms && <th className="px-4 py-4 text-start text-xs font-semibold uppercase tracking-wider text-white/70">{labels.actions}</th>}
               </tr>
             </thead>
             <tbody className="divide-y divide-white/10">
@@ -241,8 +247,8 @@ export function RoomsManagement({ lang, returnTo, rooms, canManageRooms, labels 
                   const statusConfig = getStatusConfig(room.live_status);
                   const StatusIcon = statusConfig.icon;
                   return (
-                    <tr key={room.id} className="group bg-slate-900/25 transition even:bg-slate-900/40 hover:bg-slate-800/55">
-                      <td className="px-4 py-3">
+                    <tr key={room.id} className="group transition-colors hover:bg-white/[0.08]">
+                      <td className="px-4 py-4">
                         <div className="flex items-center gap-3">
                           <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-cyan-500/25">
                             <FiHome className="h-5 w-5 text-cyan-300" />
@@ -250,20 +256,20 @@ export function RoomsManagement({ lang, returnTo, rooms, canManageRooms, labels 
                           <span className="font-semibold text-white">{room.room_number}</span>
                         </div>
                       </td>
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-4">
                         <div className="flex items-center gap-2 text-white/80">
                           <FiLayers className="h-4 w-4 text-white/40" />
                           {room.floor ?? "-"}
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-white/80">{room.room_type}</td>
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-4 text-white/80">{room.room_type}</td>
+                      <td className="px-4 py-4">
                         <div className="flex items-center gap-2 text-white/80">
                           <FiUsers className="h-4 w-4 text-white/40" />
                           {room.capacity}
                         </div>
                       </td>
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-4">
                         <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${statusConfig.bg} ${statusConfig.text}`}>
                           <StatusIcon className="h-3 w-3" />
                           {room.live_status === "available"
@@ -274,7 +280,7 @@ export function RoomsManagement({ lang, returnTo, rooms, canManageRooms, labels 
                         </span>
                       </td>
                       {canManageRooms && (
-                        <td className="px-4 py-3">
+                        <td className="px-4 py-4">
                           <div className="flex items-center gap-1.5">
                             <button
                               type="button"

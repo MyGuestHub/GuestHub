@@ -32,14 +32,24 @@ export default async function RolesPage({ params, searchParams }: Props) {
       title={ctx.t("الأدوار والصلاحيات", "Roles & Permissions")}
     >
       {query.error && (
-        <p className="mb-4 rounded-xl bg-red-500/20 px-4 py-3 text-sm text-red-100 backdrop-blur-sm">
-          {query.error}
-        </p>
+        <div className="mb-4 flex items-center gap-3 rounded-2xl bg-gradient-to-r from-rose-500/20 to-pink-500/20 px-4 py-3 backdrop-blur-sm">
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-rose-500/20">
+            <svg className="h-4 w-4 text-rose-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </div>
+          <p className="text-sm font-medium text-rose-200">{query.error}</p>
+        </div>
       )}
       {query.ok && (
-        <p className="mb-4 rounded-xl bg-emerald-500/20 px-4 py-3 text-sm text-emerald-100 backdrop-blur-sm">
-          {query.ok}
-        </p>
+        <div className="mb-4 flex items-center gap-3 rounded-2xl bg-gradient-to-r from-emerald-500/20 to-teal-500/20 px-4 py-3 backdrop-blur-sm">
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500/20">
+            <svg className="h-4 w-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <p className="text-sm font-medium text-emerald-200">{query.ok}</p>
+        </div>
       )}
 
       <section className="grid gap-4 xl:grid-cols-[360px_minmax(0,1fr)]">

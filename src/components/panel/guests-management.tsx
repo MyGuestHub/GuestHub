@@ -126,7 +126,7 @@ export function GuestsManagement({ lang, returnTo, guests, canManage, labels }: 
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={t("البحث عن ضيف...", "Search guests...")}
-            className="w-full rounded-xl bg-slate-900/60 py-2.5 pe-4 ps-10 text-sm text-white placeholder-white/50 outline-none transition focus:bg-slate-900/70"
+            className="w-full rounded-xl border border-white/20 bg-slate-900/40 py-2.5 pe-4 ps-10 text-sm text-white placeholder-white/50 outline-none transition focus:border-cyan-400/60 focus:bg-slate-900/50 focus:ring-2 focus:ring-cyan-400/30"
           />
           {searchQuery && (
             <button
@@ -142,7 +142,7 @@ export function GuestsManagement({ lang, returnTo, guests, canManage, labels }: 
           <button
             type="button"
             onClick={() => setAddOpen(true)}
-            className="flex items-center gap-2 rounded-xl bg-emerald-500/40 px-4 py-2.5 text-sm font-semibold text-emerald-100 shadow-lg shadow-emerald-500/20 transition hover:bg-emerald-500/50"
+            className="flex items-center gap-2 rounded-xl border border-emerald-400/50 bg-gradient-to-r from-emerald-500/35 to-teal-500/35 px-4 py-2.5 text-sm font-semibold text-emerald-100 transition hover:brightness-110"
           >
             <FiPlus className="h-4 w-4" />
             <span>{labels.openAddModal}</span>
@@ -153,63 +153,69 @@ export function GuestsManagement({ lang, returnTo, guests, canManage, labels }: 
       {/* ═══════════════════════════════════════════════════════════════
           STATS ROW
       ═══════════════════════════════════════════════════════════════ */}
-      <div className="grid grid-cols-3 gap-3">
+      <section className="relative overflow-hidden rounded-3xl border border-white/20 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6">
+        <div className="pointer-events-none absolute inset-0 overflow-hidden">
+          <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-gradient-to-br from-cyan-500/20 to-blue-500/20 blur-3xl" />
+          <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-gradient-to-br from-purple-500/20 to-pink-500/20 blur-3xl" />
+        </div>
+        <div className="relative grid grid-cols-3 gap-4">
         <button
           onClick={() => setStatusFilter(statusFilter === "all" ? "all" : "all")}
-          className={`group flex items-center gap-3 rounded-xl border p-3 transition ${
+          className={`group flex items-center gap-3 rounded-2xl border p-4 transition ${
             statusFilter === "all"
-              ? "border-violet-400/50 bg-violet-500/30 shadow-lg"
-              : "border-white/20 bg-slate-900/50 hover:bg-slate-900/70"
+              ? "border-violet-400/40 bg-gradient-to-br from-violet-500/25 to-fuchsia-500/25"
+              : "border-white/15 bg-slate-900/40 hover:bg-slate-900/60"
           }`}
         >
-          <div className="grid h-10 w-10 place-items-center rounded-lg bg-violet-500/30 shadow-md">
-            <FiUsers className="h-5 w-5 text-white" />
+          <div className={`rounded-xl p-2.5 ${statusFilter === "all" ? "bg-violet-500/40" : "bg-slate-900/60"}`}>
+            <FiUsers className={`h-5 w-5 ${statusFilter === "all" ? "text-violet-300" : "text-white/60"}`} />
           </div>
           <div className="text-start">
-            <p className="text-2xl font-bold text-white">{stats.total}</p>
+            <p className="text-2xl font-bold tracking-tight text-white">{stats.total}</p>
             <p className="text-xs text-white/60">{t("إجمالي الضيوف", "Total Guests")}</p>
           </div>
         </button>
 
         <button
           onClick={() => setStatusFilter(statusFilter === "checked_in" ? "all" : "checked_in")}
-          className={`group flex items-center gap-3 rounded-xl border p-3 transition ${
+          className={`group flex items-center gap-3 rounded-2xl border p-4 transition ${
             statusFilter === "checked_in"
-              ? "border-emerald-400/50 bg-emerald-500/30 shadow-lg"
-              : "border-white/20 bg-slate-900/50 hover:bg-slate-900/70"
+              ? "border-emerald-400/40 bg-gradient-to-br from-emerald-500/25 to-teal-500/25"
+              : "border-white/15 bg-slate-900/40 hover:bg-slate-900/60"
           }`}
         >
-          <div className="grid h-10 w-10 place-items-center rounded-lg bg-emerald-500/30 shadow-md">
-            <FiUserCheck className="h-5 w-5 text-white" />
+          <div className={`rounded-xl p-2.5 ${statusFilter === "checked_in" ? "bg-emerald-500/40" : "bg-slate-900/60"}`}>
+            <FiUserCheck className={`h-5 w-5 ${statusFilter === "checked_in" ? "text-emerald-300" : "text-white/60"}`} />
           </div>
           <div className="text-start">
-            <p className="text-2xl font-bold text-white">{stats.checkedIn}</p>
+            <p className="text-2xl font-bold tracking-tight text-white">{stats.checkedIn}</p>
             <p className="text-xs text-white/60">{t("مسجلين حاليًا", "Checked In")}</p>
           </div>
         </button>
 
         <button
           onClick={() => setStatusFilter(statusFilter === "checked_out" ? "all" : "checked_out")}
-          className={`group flex items-center gap-3 rounded-xl border p-3 transition ${
+          className={`group flex items-center gap-3 rounded-2xl border p-4 transition ${
             statusFilter === "checked_out"
-              ? "border-amber-400/50 bg-amber-500/30 shadow-lg"
-              : "border-white/20 bg-slate-900/50 hover:bg-slate-900/70"
+              ? "border-amber-400/40 bg-gradient-to-br from-amber-500/25 to-orange-500/25"
+              : "border-white/15 bg-slate-900/40 hover:bg-slate-900/60"
           }`}
         >
-          <div className="grid h-10 w-10 place-items-center rounded-lg bg-amber-500/30 shadow-md">
-            <FiUserX className="h-5 w-5 text-white" />
+          <div className={`rounded-xl p-2.5 ${statusFilter === "checked_out" ? "bg-amber-500/40" : "bg-slate-900/60"}`}>
+            <FiUserX className={`h-5 w-5 ${statusFilter === "checked_out" ? "text-amber-300" : "text-white/60"}`} />
           </div>
           <div className="text-start">
-            <p className="text-2xl font-bold text-white">{stats.checkedOut}</p>
+            <p className="text-2xl font-bold tracking-tight text-white">{stats.checkedOut}</p>
             <p className="text-xs text-white/60">{t("غادروا", "Checked Out")}</p>
           </div>
         </button>
-      </div>
+        </div>
+      </section>
 
       {/* ═══════════════════════════════════════════════════════════════
           GUESTS TABLE
       ═══════════════════════════════════════════════════════════════ */}
-      <section className="overflow-hidden rounded-2xl bg-slate-900/60 shadow-lg">
+      <section className="overflow-hidden rounded-2xl border border-white/20 bg-gradient-to-br from-white/[0.12] to-white/[0.06] shadow-2xl backdrop-blur-xl">
         {filteredGuests.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
             <FiSearch className="mb-3 h-10 w-10 text-white/20" />
@@ -234,21 +240,21 @@ export function GuestsManagement({ lang, returnTo, guests, canManage, labels }: 
           <div className="overflow-x-auto">
             <table className="w-full min-w-[900px] text-sm">
               <thead>
-                <tr className="border-b border-white/20 bg-slate-900/50 text-xs uppercase tracking-wide text-white/70">
-                  <th className="px-4 py-3 text-start font-medium">{labels.name}</th>
-                  <th className="px-4 py-3 text-start font-medium">{labels.phone}</th>
-                  <th className="px-4 py-3 text-start font-medium">{labels.email}</th>
-                  <th className="px-4 py-3 text-start font-medium">{labels.currentRoom}</th>
-                  <th className="px-4 py-3 text-start font-medium">{labels.checkInOut}</th>
-                  <th className="px-4 py-3 text-start font-medium">{t("الحالة", "Status")}</th>
-                  {canManage && <th className="px-4 py-3 text-end font-medium">{labels.actions}</th>}
+                <tr className="border-b border-white/15 bg-slate-900/40">
+                  <th className="px-4 py-4 text-start text-xs font-semibold uppercase tracking-wider text-white/70">{labels.name}</th>
+                  <th className="px-4 py-4 text-start text-xs font-semibold uppercase tracking-wider text-white/70">{labels.phone}</th>
+                  <th className="px-4 py-4 text-start text-xs font-semibold uppercase tracking-wider text-white/70">{labels.email}</th>
+                  <th className="px-4 py-4 text-start text-xs font-semibold uppercase tracking-wider text-white/70">{labels.currentRoom}</th>
+                  <th className="px-4 py-4 text-start text-xs font-semibold uppercase tracking-wider text-white/70">{labels.checkInOut}</th>
+                  <th className="px-4 py-4 text-start text-xs font-semibold uppercase tracking-wider text-white/70">{t("الحالة", "Status")}</th>
+                  {canManage && <th className="px-4 py-4 text-end text-xs font-semibold uppercase tracking-wider text-white/70">{labels.actions}</th>}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/15">
+              <tbody className="divide-y divide-white/10">
                 {filteredGuests.map((guest) => {
                   const isCheckedIn = guest.check_in && !guest.check_out;
                   return (
-                    <tr key={guest.id} className="group transition hover:bg-slate-900/50">
+                    <tr key={guest.id} className="group transition-colors hover:bg-white/[0.08]">
                       <td className="px-4 py-3.5">
                         <div className="flex items-center gap-3">
                           <div className="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-violet-500/50 to-purple-500/50 ring-2 shadow-md">

@@ -252,7 +252,7 @@ export function ReservationsLiveView({ lang, initialRows, allReservations, guest
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={t("البحث عن ضيف أو غرفة...", "Search guest or room...")}
-            className="w-full rounded-xl bg-slate-900/60 py-2.5 pe-4 ps-10 text-sm text-white placeholder-white/50 outline-none transition focus:bg-slate-900/70"
+            className="w-full rounded-xl border border-white/20 bg-slate-900/40 py-2.5 pe-4 ps-10 text-sm text-white placeholder-white/50 outline-none transition focus:border-cyan-400/60 focus:bg-slate-900/50 focus:ring-2 focus:ring-cyan-400/30"
           />
           {searchQuery && (
             <button
@@ -286,7 +286,7 @@ export function ReservationsLiveView({ lang, initialRows, allReservations, guest
             <button
               onClick={() => setViewMode("list")}
               className={`rounded-lg p-2 transition ${
-                viewMode === "list" ? "bg-white/40 text-white shadow-sm" : "text-white/60 hover:text-white/90"
+                viewMode === "list" ? "bg-slate-900/80 text-white" : "text-white/60 hover:text-white/90"
               }`}
             >
               <FiList className="h-4 w-4" />
@@ -294,7 +294,7 @@ export function ReservationsLiveView({ lang, initialRows, allReservations, guest
             <button
               onClick={() => setViewMode("board")}
               className={`rounded-lg p-2 transition ${
-                viewMode === "board" ? "bg-white/40 text-white shadow-sm" : "text-white/60 hover:text-white/90"
+                viewMode === "board" ? "bg-slate-900/80 text-white" : "text-white/60 hover:text-white/90"
               }`}
             >
               <FiGrid className="h-4 w-4" />
@@ -320,13 +320,13 @@ export function ReservationsLiveView({ lang, initialRows, allReservations, guest
 
       {/* Filter Panel */}
       {showFilters && (
-        <div className="flex flex-wrap items-center gap-2 rounded-xl bg-slate-900/50 p-3">
+        <div className="flex flex-wrap items-center gap-2 rounded-xl border border-white/20 bg-slate-900/50 p-3">
           <span className="text-xs font-medium text-white/70">{t("الحالة:", "Status:")}</span>
           <button
             onClick={() => setStatusFilter("all")}
             className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${
               statusFilter === "all"
-                ? "bg-white/40 text-white shadow-sm"
+                ? "bg-slate-900/80 text-white"
                 : "bg-slate-900/50 text-white/70 hover:bg-slate-900/70"
             }`}
           >
@@ -364,20 +364,33 @@ export function ReservationsLiveView({ lang, initialRows, allReservations, guest
       {/* ═══════════════════════════════════════════════════════════════
           STATS ROW
       ═══════════════════════════════════════════════════════════════ */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
+      <section className="relative overflow-hidden rounded-3xl border border-white/20 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6">
+        <div className="pointer-events-none absolute inset-0 overflow-hidden">
+          <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-gradient-to-br from-cyan-500/20 to-blue-500/20 blur-3xl" />
+          <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-gradient-to-br from-purple-500/20 to-pink-500/20 blur-3xl" />
+        </div>
+        <div className="relative grid grid-cols-2 gap-4 sm:grid-cols-5">
         {/* Room Availability */}
-        <div className="flex items-center gap-3 rounded-xl border border-cyan-400/40 bg-cyan-500/20 p-3 shadow-lg">
-          <div className="grid h-10 w-10 place-items-center rounded-lg bg-cyan-500/30 shadow-md">
-            <FiHome className="h-5 w-5 text-white" />
+        <button
+          type="button"
+          onClick={() => setStatusFilter("all")}
+          className={`group flex items-center gap-3 rounded-2xl border p-4 transition ${
+            statusFilter === "all"
+              ? "border-cyan-400/40 bg-gradient-to-br from-cyan-500/25 to-blue-500/25"
+              : "border-white/15 bg-slate-900/40 hover:bg-slate-900/60"
+          }`}
+        >
+          <div className={`rounded-xl p-2.5 ${statusFilter === "all" ? "bg-cyan-500/40" : "bg-slate-900/60"}`}>
+            <FiHome className={`h-5 w-5 ${statusFilter === "all" ? "text-cyan-300" : "text-white/60"}`} />
           </div>
           <div className="text-start">
-            <p className="text-2xl font-bold text-white">
+            <p className="text-2xl font-bold tracking-tight text-white">
               {stats.availableRooms}
               <span className="text-sm font-normal text-white/50">/{stats.totalRooms}</span>
             </p>
             <p className="text-xs text-white/60">{t("غرف متاحة", "Available Rooms")}</p>
           </div>
-        </div>
+        </button>
 
         {[
           { key: "booked" as const, value: stats.booked },
@@ -391,29 +404,30 @@ export function ReservationsLiveView({ lang, initialRows, allReservations, guest
             <button
               key={key}
               onClick={() => setStatusFilter(statusFilter === key ? "all" : key)}
-              className={`group flex items-center gap-3 rounded-xl border p-3 transition ${
+              className={`group flex items-center gap-3 rounded-2xl border p-4 transition ${
                 statusFilter === key
-                  ? `${m.columnBg} ${m.columnBorder} shadow-lg`
-                  : "border-white/20 bg-slate-900/50 hover:bg-slate-900/70"
+                  ? `${m.cardBg} ${m.cardBorder}`
+                  : "border-white/15 bg-slate-900/40 hover:bg-slate-900/60"
               }`}
             >
-              <div className={`grid h-10 w-10 place-items-center rounded-lg ${m.cardBg} shadow-md`}>
+              <div className={`rounded-xl p-2.5 ${m.cardBg}`}>
                 <Icon className={`h-5 w-5 ${statusFilter === key ? "text-white" : "text-white/80"}`} />
               </div>
               <div className="text-start">
-                <p className="text-2xl font-bold text-white">{value}</p>
+                <p className="text-2xl font-bold tracking-tight text-white">{value}</p>
                 <p className="text-xs text-white/60">{m.label}</p>
               </div>
             </button>
           );
         })}
-      </div>
+        </div>
+      </section>
 
       {/* ═══════════════════════════════════════════════════════════════
           LIST VIEW (Default)
       ═══════════════════════════════════════════════════════════════ */}
       {viewMode === "list" && (
-        <section className="overflow-hidden rounded-2xl bg-slate-900/60 shadow-lg">
+        <section className="overflow-hidden rounded-2xl border border-white/20 bg-gradient-to-br from-white/[0.12] to-white/[0.06] shadow-2xl backdrop-blur-xl">
           {filteredRows.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-center">
               <FiSearch className="mb-3 h-10 w-10 text-white/20" />
@@ -438,23 +452,23 @@ export function ReservationsLiveView({ lang, initialRows, allReservations, guest
             <div className="overflow-x-auto">
               <table className="w-full min-w-[900px] text-sm">
                 <thead>
-                  <tr className="border-b border-white/20 bg-slate-900/50 text-xs uppercase tracking-wide text-white/70">
-                    <th className="px-4 py-3 text-start font-medium">{t("الضيف", "Guest")}</th>
-                    <th className="px-4 py-3 text-start font-medium">{t("الغرفة", "Room")}</th>
-                    <th className="px-4 py-3 text-start font-medium">{t("تسجيل الدخول", "Check In")}</th>
-                    <th className="px-4 py-3 text-start font-medium">{t("تسجيل الخروج", "Check Out")}</th>
-                    <th className="px-4 py-3 text-start font-medium">{t("المدة", "Duration")}</th>
-                    <th className="px-4 py-3 text-start font-medium">{t("الحالة", "Status")}</th>
-                    <th className="px-4 py-3 text-end font-medium">{t("إجراءات", "Actions")}</th>
+                  <tr className="border-b border-white/15 bg-slate-900/40">
+                    <th className="px-4 py-4 text-start text-xs font-semibold uppercase tracking-wider text-white/70">{t("الضيف", "Guest")}</th>
+                    <th className="px-4 py-4 text-start text-xs font-semibold uppercase tracking-wider text-white/70">{t("الغرفة", "Room")}</th>
+                    <th className="px-4 py-4 text-start text-xs font-semibold uppercase tracking-wider text-white/70">{t("تسجيل الدخول", "Check In")}</th>
+                    <th className="px-4 py-4 text-start text-xs font-semibold uppercase tracking-wider text-white/70">{t("تسجيل الخروج", "Check Out")}</th>
+                    <th className="px-4 py-4 text-start text-xs font-semibold uppercase tracking-wider text-white/70">{t("المدة", "Duration")}</th>
+                    <th className="px-4 py-4 text-start text-xs font-semibold uppercase tracking-wider text-white/70">{t("الحالة", "Status")}</th>
+                    <th className="px-4 py-4 text-end text-xs font-semibold uppercase tracking-wider text-white/70">{t("إجراءات", "Actions")}</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-white/15">
+                <tbody className="divide-y divide-white/10">
                   {filteredRows.map((reservation) => {
                     const nights = calculateNights(reservation.check_in, reservation.check_out);
                     return (
                       <tr
                         key={reservation.id}
-                        className="group transition hover:bg-slate-900/50"
+                        className="group transition-colors hover:bg-white/[0.08]"
                       >
                         <td className="px-4 py-3.5">
                           <div className="flex items-center gap-3">
