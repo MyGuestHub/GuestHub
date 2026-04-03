@@ -125,7 +125,7 @@ export function RoomsManagement({ lang, returnTo, rooms, canManageRooms, labels 
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={t("بحث برقم الغرفة أو النوع...", "Search by room number or type...")}
-            className="w-full rounded-xl bg-slate-900/60 py-2.5 pl-10 pr-4 text-sm text-white placeholder:text-white/40 outline-none transition focus:bg-slate-900/70"
+            className="w-full rounded-xl bg-slate-800/75 py-2.5 pl-10 pr-4 text-sm text-white placeholder:text-white/40 outline-none transition focus:bg-slate-800/90"
           />
         </div>
         {canManageRooms && (
@@ -148,7 +148,7 @@ export function RoomsManagement({ lang, returnTo, rooms, canManageRooms, labels 
           className={`group flex items-center gap-3 rounded-xl p-3 transition ${
             statusFilter === "all"
               ? "bg-violet-500/30 shadow-lg"
-              : "bg-slate-900/50 hover:bg-slate-900/70"
+              : "bg-violet-900/30 hover:bg-violet-900/45"
           }`}
         >
           <div className={`rounded-lg p-2 ${statusFilter === "all" ? "bg-violet-400/30" : "bg-white/10"}`}>
@@ -166,7 +166,7 @@ export function RoomsManagement({ lang, returnTo, rooms, canManageRooms, labels 
           className={`group flex items-center gap-3 rounded-xl p-3 transition ${
             statusFilter === "available"
               ? "bg-emerald-500/30 shadow-lg"
-              : "bg-slate-900/50 hover:bg-slate-900/70"
+              : "bg-emerald-900/30 hover:bg-emerald-900/45"
           }`}
         >
           <div className={`rounded-lg p-2 ${statusFilter === "available" ? "bg-emerald-400/30" : "bg-white/10"}`}>
@@ -184,7 +184,7 @@ export function RoomsManagement({ lang, returnTo, rooms, canManageRooms, labels 
           className={`group flex items-center gap-3 rounded-xl p-3 transition ${
             statusFilter === "occupied"
               ? "bg-amber-500/30 shadow-lg"
-              : "bg-slate-900/50 hover:bg-slate-900/70"
+              : "bg-amber-900/30 hover:bg-amber-900/45"
           }`}
         >
           <div className={`rounded-lg p-2 ${statusFilter === "occupied" ? "bg-amber-400/30" : "bg-white/10"}`}>
@@ -202,7 +202,7 @@ export function RoomsManagement({ lang, returnTo, rooms, canManageRooms, labels 
           className={`group flex items-center gap-3 rounded-xl p-3 transition ${
             statusFilter === "maintenance"
               ? "bg-rose-500/30 shadow-lg"
-              : "bg-slate-900/50 hover:bg-slate-900/70"
+              : "bg-rose-900/30 hover:bg-rose-900/45"
           }`}
         >
           <div className={`rounded-lg p-2 ${statusFilter === "maintenance" ? "bg-rose-400/30" : "bg-white/10"}`}>
@@ -216,11 +216,11 @@ export function RoomsManagement({ lang, returnTo, rooms, canManageRooms, labels 
       </div>
 
       {/* Rooms Table */}
-      <section className="overflow-hidden rounded-2xl bg-slate-900/60 shadow-lg">
+      <section className="overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900/85 to-slate-800/70 shadow-lg">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[720px] text-sm">
             <thead>
-              <tr className="border-b border-white/10 bg-slate-900/50 text-xs uppercase tracking-wide text-white/70">
+              <tr className="border-b border-white/15 bg-slate-950/70 text-xs uppercase tracking-wide text-white/80">
                 <th className="px-4 py-3 text-start">{labels.room}</th>
                 <th className="px-4 py-3 text-start">{labels.floor}</th>
                 <th className="px-4 py-3 text-start">{labels.type}</th>
@@ -229,10 +229,10 @@ export function RoomsManagement({ lang, returnTo, rooms, canManageRooms, labels 
                 {canManageRooms && <th className="px-4 py-3 text-start">{labels.actions}</th>}
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-white/10">
               {filteredRooms.length === 0 ? (
                 <tr>
-                  <td colSpan={canManageRooms ? 6 : 5} className="px-4 py-12 text-center text-white/50">
+                  <td colSpan={canManageRooms ? 6 : 5} className="px-4 py-12 text-center text-white/65">
                     {t("لا توجد غرف مطابقة", "No matching rooms found")}
                   </td>
                 </tr>
@@ -241,10 +241,10 @@ export function RoomsManagement({ lang, returnTo, rooms, canManageRooms, labels 
                   const statusConfig = getStatusConfig(room.live_status);
                   const StatusIcon = statusConfig.icon;
                   return (
-                    <tr key={room.id} className="group border-b border-white/5 transition hover:bg-slate-900/50">
+                    <tr key={room.id} className="group bg-slate-900/25 transition even:bg-slate-900/40 hover:bg-slate-800/55">
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
-                          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-cyan-500/20">
+                          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-cyan-500/25">
                             <FiHome className="h-5 w-5 text-cyan-300" />
                           </div>
                           <span className="font-semibold text-white">{room.room_number}</span>
