@@ -22,7 +22,7 @@ export function Pagination({ lang, basePath, page, pageSize, total }: Props) {
   const t = (ar: string, en: string) => tr(lang, ar, en);
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-slate-900/50 px-4 py-3 text-sm shadow-lg">
+    <div className="gh-surface-strong flex flex-wrap items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm">
       <p className="text-white/70">
         {t("الصفحة", "Page")} <span className="font-semibold text-white">{safePage}</span> / {totalPages} 
         <span className="mx-2 text-white/30">•</span>
@@ -33,8 +33,8 @@ export function Pagination({ lang, basePath, page, pageSize, total }: Props) {
           href={hrefFor(basePath, Math.max(1, safePage - 1), pageSize)}
           className={`rounded-lg px-3 py-1.5 text-sm font-medium transition ${
             safePage <= 1
-              ? "pointer-events-none bg-white/5 text-white/30"
-              : "bg-white/10 text-white hover:bg-white/20"
+              ? "pointer-events-none bg-slate-900/60 text-white/30"
+              : "bg-slate-900/70 text-white hover:bg-slate-900/90"
           }`}
         >
           {t("السابق", "Prev")}
@@ -43,8 +43,8 @@ export function Pagination({ lang, basePath, page, pageSize, total }: Props) {
           href={hrefFor(basePath, Math.min(totalPages, safePage + 1), pageSize)}
           className={`rounded-lg px-3 py-1.5 text-sm font-medium transition ${
             safePage >= totalPages
-              ? "pointer-events-none bg-white/5 text-white/30"
-              : "bg-white/10 text-white hover:bg-white/20"
+              ? "pointer-events-none bg-slate-900/60 text-white/30"
+              : "bg-slate-900/70 text-white hover:bg-slate-900/90"
           }`}
         >
           {t("التالي", "Next")}

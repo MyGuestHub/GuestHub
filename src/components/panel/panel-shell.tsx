@@ -58,8 +58,8 @@ export function PanelShell({ lang, user, active, title, subtitle, backgroundImag
         <header
           className={`relative z-50 shrink-0 ${
             hasBackground
-              ? "bg-slate-900/50 backdrop-blur-2xl"
-              : "bg-white"
+              ? "gh-surface-strong"
+              : "gh-surface"
           }`}
         >
           <div className="flex items-center justify-between gap-3 px-4 py-3 md:px-6">
@@ -99,31 +99,33 @@ export function PanelShell({ lang, user, active, title, subtitle, backgroundImag
               <details className="group relative">
                 <summary
                   className={`flex list-none items-center gap-2 rounded-xl px-2.5 py-1.5 transition-all marker:content-none ${
-                    hasBackground ? "bg-slate-900/50 hover:bg-slate-900/70" : "bg-slate-100 hover:bg-slate-200"
+                    hasBackground
+                      ? "bg-slate-900/55 hover:bg-slate-900/75"
+                      : "bg-slate-900/55 hover:bg-slate-900/75"
                   }`}
                 >
                   <div
                     className={`grid h-8 w-8 place-items-center rounded-full ${
-                      hasBackground ? "bg-slate-900/90" : "bg-slate-200"
+                      hasBackground ? "bg-slate-900/90" : "bg-slate-900/85"
                     }`}
                   >
-                    <FiUser className={`h-3.5 w-3.5 ${hasBackground ? "text-white" : "text-slate-700"}`} />
+                    <FiUser className="h-3.5 w-3.5 text-white" />
                   </div>
                   <span
                     className={`hidden max-w-28 truncate text-xs font-semibold lg:block ${
-                      hasBackground ? "text-white" : "text-slate-700"
+                      hasBackground ? "text-white" : "text-white"
                     }`}
                   >
                     {user.fullName}
                   </span>
                   <FiChevronDown
                     className={`h-3.5 w-3.5 transition-transform group-open:rotate-180 ${
-                      hasBackground ? "text-white/70" : "text-slate-500"
+                      hasBackground ? "text-white/70" : "text-white/70"
                     }`}
                   />
                 </summary>
 
-                <div className="absolute end-0 z-50 mt-2 w-56 overflow-hidden rounded-2xl bg-slate-900/95 p-2 shadow-2xl backdrop-blur-xl">
+                <div className="absolute end-0 z-50 mt-2 w-56 overflow-hidden rounded-2xl bg-slate-950/95 p-2 shadow-2xl backdrop-blur-xl">
                   <Link
                     href={`/${lang}/profile`}
                     className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-white/90 transition hover:bg-white/10 hover:text-white"
@@ -142,7 +144,7 @@ export function PanelShell({ lang, user, active, title, subtitle, backgroundImag
                       href={`/en/${switchLangPath}`}
                       className={`inline-flex items-center justify-center gap-1 rounded-lg px-2 py-1.5 text-xs font-semibold transition ${
                         lang === "en"
-                          ? "bg-cyan-500 text-slate-950"
+                          ? "gh-accent-btn"
                           : "bg-white/10 text-white/80 hover:bg-white/20 hover:text-white"
                       }`}
                     >
@@ -152,7 +154,7 @@ export function PanelShell({ lang, user, active, title, subtitle, backgroundImag
                       href={`/ar/${switchLangPath}`}
                       className={`inline-flex items-center justify-center gap-1 rounded-lg px-2 py-1.5 text-xs font-semibold transition ${
                         lang === "ar"
-                          ? "bg-cyan-500 text-slate-950"
+                          ? "gh-accent-btn"
                           : "bg-white/10 text-white/80 hover:bg-white/20 hover:text-white"
                       }`}
                     >

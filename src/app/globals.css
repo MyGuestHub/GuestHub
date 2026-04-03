@@ -10,8 +10,14 @@
 }
 
 :root {
-  --background: #f1f5f9;
-  --foreground: #0f172a;
+  --background: #020617;
+  --foreground: #e2e8f0;
+  --gh-surface-1: rgba(15, 23, 42, 0.62);
+  --gh-surface-2: rgba(15, 23, 42, 0.78);
+  --gh-surface-3: rgba(2, 6, 23, 0.9);
+  --gh-border: rgba(148, 163, 184, 0.22);
+  --gh-accent: #22d3ee;
+  --gh-accent-strong: #06b6d4;
 }
 
 @theme inline {
@@ -23,7 +29,10 @@
 
 body {
   margin: 0;
-  background: var(--background);
+  background:
+    radial-gradient(circle at 20% -10%, rgba(34, 211, 238, 0.14), transparent 32%),
+    radial-gradient(circle at 85% 0%, rgba(56, 189, 248, 0.1), transparent 26%),
+    var(--background);
   color: var(--foreground);
   font-family: "SBC", sans-serif;
 }
@@ -43,7 +52,7 @@ body {
 .panel-glass .bg-teal-50,
 .panel-glass .bg-cyan-50,
 .panel-glass .bg-fuchsia-50 {
-  background-color: rgba(255, 255, 255, 0.18) !important;
+  background-color: var(--gh-surface-1) !important;
   -webkit-backdrop-filter: blur(14px);
   backdrop-filter: blur(14px);
 }
@@ -51,7 +60,7 @@ body {
 .panel-glass .border,
 .panel-glass [class*=" border-"],
 .panel-glass [class^="border-"] {
-  border-color: transparent !important;
+  border-color: var(--gh-border) !important;
 }
 
 .panel-glass .text-slate-900,
@@ -71,7 +80,26 @@ body {
 .panel-glass .shadow-lg,
 .panel-glass .shadow-xl,
 .panel-glass .shadow-2xl {
-  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.25) !important;
+  box-shadow: 0 14px 34px rgba(2, 6, 23, 0.36) !important;
+}
+
+.gh-surface {
+  background: var(--gh-surface-1);
+  border: 1px solid var(--gh-border);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+}
+
+.gh-surface-strong {
+  background: var(--gh-surface-2);
+  border: 1px solid rgba(148, 163, 184, 0.26);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+}
+
+.gh-accent-btn {
+  background: linear-gradient(135deg, var(--gh-accent), var(--gh-accent-strong));
+  color: #082f49;
 }
 
 /* OverlayScrollbars glass theme */
