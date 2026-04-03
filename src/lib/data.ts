@@ -1097,3 +1097,84 @@ export async function revokeGuestSessionsByReservation(reservationId: number): P
     [reservationId],
   );
 }
+
+/**
+ * Resolve any token (guest_access_token OR room_qr_token) to guest info
+ * including phone number, for phone-based verification.
+ */
+export async function getGuestInfoByToken(token: string): Promise<{
+  phone: string | null;
+  guestName: string;
+  reservationId: number;
+  checkOut: string;
+} | null> {
+  // Try guest_access_tokens first
+  const gat = await query<{
+    phone: string | null;
+    guest_name: string;
+    reservation_id: number;
+    check_out: string;
+  }>(
+    `SELECT
+       g.phone,
+       g.first_name || ' ' || g.last_name AS guest_name,
+       re.id AS reservation_id,
+       re.check_out::text
+     FROM guest_access_tokens gat
+     JOIN reservations re ON re.id = gat.reservation_id
+     JOIN guests g ON g.id = re.guest_id
+     WHERE gat.token = $1
+       AND gat.is_revoked = FALSE
+       AND gat.expires_at > NOW()
+       AND re.reservation_status IN ('booked', 'checked_in')`,
+    [token],
+  );
+
+  if (gat.rowCount) {
+    const row = gat.rows[0];
+    return {
+      phone: row.phone,
+      guestName: row.guest_name,
+      reservationId: row.reservation_id,
+      checkOut: row.check_out,
+    };
+  }
+
+  // Try room_qr_tokens
+  const rqt = await query<{
+    phone: string | null;
+    guest_name: string;
+    reservation_id: number;
+    check_out: string;
+  }>(
+    `SELECT
+       g.phone,
+       g.first_name || ' ' || g.last_name AS guest_name,
+       re.id AS reservation_id,
+       re.check_out::text
+     FROM room_qr_tokens rq
+     JOIN rooms rm ON rm.id = rq.room_id
+     JOIN LATERAL (
+       SELECT re2.id, re2.guest_id, re2.check_out
+       FROM reservations re2
+       WHERE re2.room_id = rq.room_id AND re2.reservation_status IN ('booked', 'checked_in')
+       ORDER BY re2.check_in DESC
+       LIMIT 1
+     ) re ON TRUE
+     JOIN guests g ON g.id = re.guest_id
+     WHERE rq.token = $1`,
+    [token],
+  );
+
+  if (rqt.rowCount) {
+    const row = rqt.rows[0];
+    return {
+      phone: row.phone,
+      guestName: row.guest_name,
+      reservationId: row.reservation_id,
+      checkOut: row.check_out,
+    };
+  }
+
+  return null;
+}

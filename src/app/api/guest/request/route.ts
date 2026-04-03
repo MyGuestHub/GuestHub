@@ -3,23 +3,16 @@ import { cookies } from "next/headers";
 import { query, tx } from "@/lib/db";
 import { cleanText } from "@/lib/http";
 import { resolveLang, tr } from "@/lib/i18n";
-import { isRoomQrToken, validateGuestSession, validateGuestToken } from "@/lib/data";
+import { validateGuestSession } from "@/lib/data";
 
 export async function POST(request: Request) {
   const form = await request.formData();
   const lang = resolveLang(cleanText(form.get("lang")));
-  const token = cleanText(form.get("token"));
 
-  // For room QR tokens, validate via session cookie instead of bare token
-  let guest;
-  const isRoom = await isRoomQrToken(token);
-  if (isRoom) {
-    const cookieStore = await cookies();
-    const sessionCookie = cookieStore.get("guest_session")?.value;
-    guest = sessionCookie ? await validateGuestSession(sessionCookie) : null;
-  } else {
-    guest = await validateGuestToken(token);
-  }
+  // All guest access requires a phone-verified session
+  const cookieStore = await cookies();
+  const sessionCookie = cookieStore.get("guest_session")?.value;
+  const guest = sessionCookie ? await validateGuestSession(sessionCookie) : null;
 
   if (!guest) {
     return NextResponse.json(

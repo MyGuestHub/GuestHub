@@ -1,18 +1,15 @@
 import { cookies, headers } from "next/headers";
-import { notFound } from "next/navigation";
 import {
-  isRoomQrToken,
   listServiceItemsByCategory,
   listServiceRequestsByReservation,
   validateGuestSession,
-  validateGuestToken,
 } from "@/lib/data";
 import { tr, type AppLang } from "@/lib/i18n";
 import { GuestServiceForm } from "@/components/guest/guest-service-form";
 import { GuestRequestsLive } from "@/components/guest/guest-requests-live";
 import { HtmlDirSetter } from "@/components/html-dir-setter";
 import { GuestSessionGate } from "@/components/guest/guest-session-gate";
-import { GuestSessionExpired } from "@/components/guest/guest-session-expired";
+import { GuestSessionFixer } from "@/components/guest/guest-session-fixer";
 
 type Props = {
   params: Promise<{ token: string }>;
@@ -28,33 +25,20 @@ export default async function GuestPortalPage({ params, searchParams }: Props) {
   const langOverride = sp.lang === "ar" || sp.lang === "en" ? sp.lang : null;
   const lang: AppLang = langOverride ?? (acceptLang.toLowerCase().startsWith("en") ? "en" : "ar");
 
-  /* ── Session-based access control for room QR tokens ── */
-  const isRoom = await isRoomQrToken(token);
+  /* ── Session-based access (phone-verified) for ALL token types ── */
+  const cookieStore = await cookies();
+  const sessionCookie = cookieStore.get("guest_session")?.value;
 
-  if (isRoom) {
-    const cookieStore = await cookies();
-    const sessionCookie = cookieStore.get("guest_session")?.value;
-
-    if (sessionCookie) {
-      // Has cookie → validate session (reservation must still be active)
-      const guest = await validateGuestSession(sessionCookie);
-      if (!guest) {
-        // Session expired (guest checked out or reservation changed)
-        return <GuestSessionExpired lang={lang} />;
-      }
-      // Valid session → render portal
+  if (sessionCookie) {
+    const guest = await validateGuestSession(sessionCookie);
+    if (guest) {
       return renderPortal(guest, token, lang);
     }
-
-    // No session cookie → first-time visit; activate session
-    return <GuestSessionGate token={token} lang={lang} />;
+    // Session expired → show phone form; it will clear stale cookie on next verify
   }
 
-  /* ── Direct guest_access_token (already per-reservation) ── */
-  const guest = await validateGuestToken(token);
-  if (!guest) notFound();
-
-  return renderPortal(guest, token, lang);
+  // No session (or stale session) → show phone verification
+  return <GuestSessionGate token={token} lang={lang} expired={!!sessionCookie} />;
 }
 
 import type { GuestContext } from "@/lib/data";
@@ -85,6 +69,7 @@ async function renderPortal(guest: GuestContext, token: string, lang: AppLang) {
   return (
     <div dir={lang === "ar" ? "rtl" : "ltr"} className="flex min-h-screen flex-col bg-slate-50 text-slate-800">
       <HtmlDirSetter lang={lang} />
+      <GuestSessionFixer />
 
       {/* ── Header ── */}
       <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/95 backdrop-blur-md">
