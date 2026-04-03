@@ -33,6 +33,7 @@ interface Tile {
   icon: React.ElementType;
   metaAr: string;
   metaEn: string;
+  cardClass: string;
   iconClass: string;
   glowColor: string;
   groupAr: string;
@@ -84,8 +85,9 @@ function GlowCard({
       onMouseLeave={() => setIsHovering(false)}
       className={`
         group relative overflow-hidden rounded-2xl
-        bg-slate-900/55 p-5 backdrop-blur-xl transition-all duration-500
-        hover:-translate-y-1 hover:bg-slate-900/75
+        p-5 backdrop-blur-xl transition-all duration-500
+        ${tile.cardClass}
+        hover:-translate-y-1
         hover:shadow-2xl hover:shadow-black/20
         ${isVisible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"}
       `}
@@ -261,6 +263,7 @@ export function DashboardGrid({
       icon: FiLayers,
       metaAr: `${roomCount} غرفة`,
       metaEn: `${roomCount} rooms`,
+      cardClass: "bg-gradient-to-br from-cyan-900/40 via-slate-900/70 to-slate-900/70 hover:from-cyan-800/45",
       iconClass: "bg-cyan-500/20 text-cyan-300",
       glowColor: "rgba(6, 182, 212, 0.15)",
       groupAr: "الغرف والحجوزات",
@@ -274,6 +277,7 @@ export function DashboardGrid({
       icon: FiCalendar,
       metaAr: "متابعة مباشرة",
       metaEn: "Live board",
+      cardClass: "bg-gradient-to-br from-amber-900/35 via-slate-900/70 to-slate-900/70 hover:from-amber-800/40",
       iconClass: "bg-amber-500/20 text-amber-300",
       glowColor: "rgba(245, 158, 11, 0.15)",
       groupAr: "الغرف والحجوزات",
@@ -287,6 +291,7 @@ export function DashboardGrid({
       icon: FiGrid,
       metaAr: "رموز الغرف",
       metaEn: "Room codes",
+      cardClass: "bg-gradient-to-br from-violet-900/35 via-slate-900/70 to-slate-900/70 hover:from-violet-800/40",
       iconClass: "bg-violet-500/20 text-violet-300",
       glowColor: "rgba(139, 92, 246, 0.15)",
       groupAr: "الغرف والحجوزات",
@@ -300,6 +305,7 @@ export function DashboardGrid({
       icon: FiBell,
       metaAr: `${serviceOpen} مفتوحة`,
       metaEn: `${serviceOpen} open`,
+      cardClass: "bg-gradient-to-br from-fuchsia-900/35 via-slate-900/70 to-slate-900/70 hover:from-fuchsia-800/40",
       iconClass: "bg-fuchsia-500/20 text-fuchsia-300",
       glowColor: "rgba(217, 70, 239, 0.15)",
       groupAr: "الخدمات والضيوف",
@@ -313,6 +319,7 @@ export function DashboardGrid({
       icon: FiUsers,
       metaAr: "قائمة النزلاء",
       metaEn: "Guest directory",
+      cardClass: "bg-gradient-to-br from-teal-900/35 via-slate-900/70 to-slate-900/70 hover:from-teal-800/40",
       iconClass: "bg-teal-500/20 text-teal-300",
       glowColor: "rgba(20, 184, 166, 0.15)",
       groupAr: "الخدمات والضيوف",
@@ -326,6 +333,7 @@ export function DashboardGrid({
       icon: FiUser,
       metaAr: "فريق الفندق",
       metaEn: "Hotel staff",
+      cardClass: "bg-gradient-to-br from-indigo-900/35 via-slate-900/70 to-slate-900/70 hover:from-indigo-800/40",
       iconClass: "bg-indigo-500/20 text-indigo-300",
       glowColor: "rgba(99, 102, 241, 0.15)",
       groupAr: "الإعدادات",
@@ -339,6 +347,7 @@ export function DashboardGrid({
       icon: FiBookOpen,
       metaAr: "الصلاحيات",
       metaEn: "Permissions",
+      cardClass: "bg-gradient-to-br from-rose-900/35 via-slate-900/70 to-slate-900/70 hover:from-rose-800/40",
       iconClass: "bg-rose-500/20 text-rose-300",
       glowColor: "rgba(244, 63, 94, 0.15)",
       groupAr: "الإعدادات",
@@ -352,6 +361,7 @@ export function DashboardGrid({
       icon: FiSettings,
       metaAr: "حسابك",
       metaEn: "Your account",
+      cardClass: "bg-gradient-to-br from-emerald-900/35 via-slate-900/70 to-slate-900/70 hover:from-emerald-800/40",
       iconClass: "bg-emerald-500/20 text-emerald-300",
       glowColor: "rgba(16, 185, 129, 0.15)",
       groupAr: "الإعدادات",

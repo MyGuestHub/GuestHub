@@ -58,8 +58,8 @@ export function PanelShell({ lang, user, active, title, subtitle, backgroundImag
         <header
           className={`relative z-50 shrink-0 ${
             hasBackground
-              ? "border-b border-white/20 bg-slate-900/50 backdrop-blur-2xl"
-              : "border-b border-slate-200 bg-white"
+              ? "bg-slate-900/50 backdrop-blur-2xl"
+              : "bg-white"
           }`}
         >
           <div className="flex items-center justify-between gap-3 px-4 py-3 md:px-6">
@@ -86,6 +86,7 @@ export function PanelShell({ lang, user, active, title, subtitle, backgroundImag
                   fallbackHref={`/${lang}/dashboard`}
                   label={t("الرئيسية", "Home")}
                   dark={hasBackground}
+                  rtl={lang === "ar"}
                 />
               )}
             </div>
