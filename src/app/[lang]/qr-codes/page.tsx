@@ -1,5 +1,6 @@
-import { FiGrid, FiPrinter, FiRefreshCw, FiCheck, FiX } from "react-icons/fi";
+import { FiGrid, FiPrinter, FiRefreshCw, FiCheck, FiX, FiGlobe, FiDownload, FiLink } from "react-icons/fi";
 import { PanelShell } from "@/components/panel/panel-shell";
+import { CopyUrlButton } from "@/components/panel/copy-url-button";
 import { listRoomQrTokens } from "@/lib/data";
 import { requirePanelContext, requirePermissionOrRedirect } from "@/lib/panel";
 
@@ -47,6 +48,45 @@ export default async function QrCodesPage({ params, searchParams }: Props) {
           <p className="text-sm font-medium text-emerald-200">{query.ok}</p>
         </div>
       ) : null}
+
+      {/* Domain configuration banner */}
+      <div className="mb-4 rounded-2xl border border-white/20 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-cyan-500/20">
+              <FiGlobe className="h-5 w-5 text-cyan-400" />
+            </div>
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wider text-white/50">
+                {ctx.t("النطاق الأساسي لرموز QR", "QR Codes Base Domain")}
+              </p>
+              <p className="mt-0.5 font-mono text-sm font-medium text-cyan-300">
+                {appBaseUrl}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="flex items-center gap-1.5 rounded-full bg-emerald-500/20 px-3 py-1 text-xs font-medium text-emerald-300">
+              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
+              {ctx.t("نشط", "Active")}
+            </span>
+            <CopyUrlButton
+              text={appBaseUrl}
+              label={ctx.t("نسخ", "Copy")}
+              copiedLabel={ctx.t("تم النسخ!", "Copied!")}
+            />
+          </div>
+        </div>
+        <div className="mt-3 flex items-center gap-2 rounded-lg bg-white/[0.05] px-3 py-2">
+          <FiLink className="h-3.5 w-3.5 shrink-0 text-white/40" />
+          <p className="text-xs text-white/50">
+            {ctx.t(
+              "جميع رموز QR تشير إلى هذا النطاق. يقوم الضيوف بمسح رمز QR للوصول مباشرة إلى خدمات غرفتهم.",
+              "All QR codes point to this domain. Guests scan the QR code to directly access their room services."
+            )}
+          </p>
+        </div>
+      </div>
 
       {/* Stats bar */}
       <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -143,13 +183,27 @@ export default async function QrCodesPage({ params, searchParams }: Props) {
 
                 {/* Link display */}
                 <div className="w-full rounded-lg bg-slate-900/40 px-3 py-2">
-                  <p className="break-all text-center text-[11px] font-mono text-white/60">
+                  <p className="break-all text-center text-[11px] font-mono text-cyan-300/70">
                     {appBaseUrl}/guest/{room.token}
                   </p>
                 </div>
 
                 {/* Actions */}
-                <div className="flex gap-2">
+                <div className="flex flex-wrap justify-center gap-2">
+                  <CopyUrlButton
+                    text={`${appBaseUrl}/guest/${room.token}`}
+                    label={ctx.t("نسخ الرابط", "Copy URL")}
+                    copiedLabel={ctx.t("تم النسخ!", "Copied!")}
+                  />
+                  <a
+                    href={`/api/qr?path=${encodeURIComponent(`/guest/${room.token}`)}&v=${qrVersion}`}
+                    download={`qr-room-${room.room_number}.svg`}
+                    className="flex items-center gap-1 rounded-lg bg-white/12 px-3 py-1.5 text-xs text-white/80 transition hover:bg-white/20"
+                    title={ctx.t("تحميل", "Download")}
+                  >
+                    <FiDownload className="h-3.5 w-3.5" />
+                    {ctx.t("تحميل", "Download")}
+                  </a>
                   <a
                     href={`/api/qr?path=${encodeURIComponent(`/guest/${room.token}`)}&v=${qrVersion}`}
                     target="_blank"
