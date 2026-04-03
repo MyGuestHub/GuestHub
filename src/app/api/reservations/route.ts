@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser, hasPermission } from "@/lib/auth";
 import { query } from "@/lib/db";
+import { revokeGuestSessionsByReservation } from "@/lib/data";
 import { cleanText, getBaseUrl } from "@/lib/http";
 import { resolveLang, tr } from "@/lib/i18n";
 
@@ -124,6 +125,11 @@ export async function POST(request: Request) {
       `,
       [reservationId, guestId, roomId, checkIn.toISOString(), checkOut.toISOString(), status],
     );
+
+    // Revoke guest sessions when reservation is no longer active
+    if (status === "checked_out" || status === "cancelled") {
+      await revokeGuestSessionsByReservation(reservationId);
+    }
 
     return NextResponse.redirect(
       new URL(

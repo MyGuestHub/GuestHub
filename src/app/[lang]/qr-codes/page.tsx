@@ -1,4 +1,4 @@
-import { FiGrid, FiPrinter, FiRefreshCw, FiCheck, FiX, FiGlobe, FiDownload, FiLink } from "react-icons/fi";
+import { FiGrid, FiPrinter, FiCheck, FiX, FiGlobe, FiDownload, FiLink } from "react-icons/fi";
 import { PanelShell } from "@/components/panel/panel-shell";
 import { CopyUrlButton } from "@/components/panel/copy-url-button";
 import { listRoomQrTokens } from "@/lib/data";
@@ -214,19 +214,7 @@ export default async function QrCodesPage({ params, searchParams }: Props) {
                     <FiPrinter className="h-3.5 w-3.5" />
                     {ctx.t("طباعة", "Print")}
                   </a>
-                  <form action="/api/room-qr" method="post">
-                    <input type="hidden" name="lang" value={ctx.lang} />
-                    <input type="hidden" name="returnTo" value={`/${ctx.lang}/qr-codes`} />
-                    <input type="hidden" name="action" value="single" />
-                    <input type="hidden" name="roomId" value={room.room_id} />
-                    <button
-                      className="flex items-center gap-1 rounded-lg bg-amber-500/20 px-3 py-1.5 text-xs text-amber-200 transition hover:bg-amber-500/30"
-                      title={ctx.t("إعادة إنشاء", "Regenerate")}
-                    >
-                      <FiRefreshCw className="h-3.5 w-3.5" />
-                      {ctx.t("تجديد", "Regenerate")}
-                    </button>
-                  </form>
+
                 </div>
               </div>
             ) : (

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser, hasPermission } from "@/lib/auth";
 import { tx } from "@/lib/db";
+import { revokeGuestSessionsByReservation } from "@/lib/data";
 import { tr } from "@/lib/i18n";
 
 type ReservationStatus = "booked" | "checked_in" | "checked_out" | "cancelled";
@@ -107,6 +108,14 @@ export async function POST(request: Request) {
       }
     }
   });
+
+  // Revoke guest sessions for reservations that are no longer active
+  const deactivated = updates.filter(
+    (u) => u.reservation_status === "checked_out" || u.reservation_status === "cancelled",
+  );
+  for (const item of deactivated) {
+    await revokeGuestSessionsByReservation(item.id);
+  }
 
   return NextResponse.json({
     ok: true,

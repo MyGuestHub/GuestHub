@@ -1,15 +1,26 @@
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import { query, tx } from "@/lib/db";
 import { cleanText } from "@/lib/http";
 import { resolveLang, tr } from "@/lib/i18n";
-import { validateGuestToken } from "@/lib/data";
+import { isRoomQrToken, validateGuestSession, validateGuestToken } from "@/lib/data";
 
 export async function POST(request: Request) {
   const form = await request.formData();
   const lang = resolveLang(cleanText(form.get("lang")));
   const token = cleanText(form.get("token"));
 
-  const guest = await validateGuestToken(token);
+  // For room QR tokens, validate via session cookie instead of bare token
+  let guest;
+  const isRoom = await isRoomQrToken(token);
+  if (isRoom) {
+    const cookieStore = await cookies();
+    const sessionCookie = cookieStore.get("guest_session")?.value;
+    guest = sessionCookie ? await validateGuestSession(sessionCookie) : null;
+  } else {
+    guest = await validateGuestToken(token);
+  }
+
   if (!guest) {
     return NextResponse.json(
       { error: tr(lang, "رابط الوصول غير صالح أو منتهي", "Invalid or expired access link") },

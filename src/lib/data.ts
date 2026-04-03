@@ -923,12 +923,18 @@ export async function listRoomQrTokens(): Promise<RoomQrToken[]> {
 
 export async function generateRoomQrToken(roomId: number): Promise<string> {
   const crypto = await import("node:crypto");
-  const token = `room-${crypto.randomUUID()}-${crypto.randomBytes(12).toString("hex")}`;
 
+  // Return existing token if one already exists (tokens are permanent)
+  const existing = await query<{ token: string }>(
+    `SELECT token FROM room_qr_tokens WHERE room_id = $1`,
+    [roomId],
+  );
+  if (existing.rowCount) return existing.rows[0].token;
+
+  const token = `room-${crypto.randomUUID()}-${crypto.randomBytes(12).toString("hex")}`;
   await query(
-    `INSERT INTO room_qr_tokens (room_id, token)
-     VALUES ($1, $2)
-     ON CONFLICT (room_id) DO UPDATE SET token = $2, created_at = NOW()`,
+    `INSERT INTO room_qr_tokens (room_id, token) VALUES ($1, $2)
+     ON CONFLICT (room_id) DO NOTHING`,
     [roomId, token],
   );
 
@@ -999,4 +1005,95 @@ export async function validateRoomQrToken(token: string): Promise<GuestContext |
     checkIn: row.check_in,
     checkOut: row.check_out,
   };
+}
+
+/* ───── Guest sessions (room QR token binding) ───────────────────── */
+
+import { createSessionToken } from "@/lib/security";
+
+/**
+ * Check if a token is a room QR token (permanent, not per-reservation).
+ */
+export async function isRoomQrToken(token: string): Promise<boolean> {
+  const result = await query(`SELECT 1 FROM room_qr_tokens WHERE token = $1`, [token]);
+  return (result.rowCount ?? 0) > 0;
+}
+
+/**
+ * Create a guest session binding a room QR token to a specific reservation.
+ * Returns the session token string for use in a cookie.
+ */
+export async function createGuestSession(
+  reservationId: number,
+  roomQrToken: string,
+  checkOut: string,
+): Promise<string> {
+  const sessionToken = createSessionToken();
+  await query(
+    `INSERT INTO guest_sessions (session_token, reservation_id, room_qr_token, expires_at)
+     VALUES ($1, $2, $3, $4)`,
+    [sessionToken, reservationId, roomQrToken, checkOut],
+  );
+  return sessionToken;
+}
+
+/**
+ * Validate a guest session cookie. Returns GuestContext if the session
+ * is still valid (reservation active), or null.
+ */
+export async function validateGuestSession(sessionToken: string): Promise<GuestContext | null> {
+  const result = await query<{
+    session_token: string;
+    room_qr_token: string;
+    guest_id: number;
+    guest_name: string;
+    room_id: number;
+    room_number: string;
+    reservation_id: number;
+    check_in: string;
+    check_out: string;
+  }>(
+    `SELECT
+       gs.session_token,
+       gs.room_qr_token,
+       g.id AS guest_id,
+       g.first_name || ' ' || g.last_name AS guest_name,
+       rm.id AS room_id,
+       rm.room_number,
+       re.id AS reservation_id,
+       re.check_in::text,
+       re.check_out::text
+     FROM guest_sessions gs
+     JOIN reservations re ON re.id = gs.reservation_id
+     JOIN guests g ON g.id = re.guest_id
+     JOIN rooms rm ON rm.id = re.room_id
+     WHERE gs.session_token = $1
+       AND gs.expires_at > NOW()
+       AND re.reservation_status IN ('booked', 'checked_in')`,
+    [sessionToken],
+  );
+
+  if (!result.rowCount) return null;
+
+  const row = result.rows[0];
+  return {
+    token: row.room_qr_token,
+    guestId: row.guest_id,
+    guestName: row.guest_name,
+    roomId: row.room_id,
+    roomNumber: row.room_number,
+    reservationId: row.reservation_id,
+    checkIn: row.check_in,
+    checkOut: row.check_out,
+  };
+}
+
+/**
+ * Revoke all guest sessions for a reservation (called on checkout/cancel).
+ */
+export async function revokeGuestSessionsByReservation(reservationId: number): Promise<void> {
+  await query(
+    `DELETE FROM guest_sessions WHERE reservation_id = $1`,
+    [reservationId],
+  );
 }

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser, hasPermission } from "@/lib/auth";
 import { generateRoomQrToken, generateAllRoomQrTokens } from "@/lib/data";
-import { cleanText } from "@/lib/http";
+import { cleanText, getBaseUrl } from "@/lib/http";
 import { resolveLang, tr } from "@/lib/i18n";
 
 export async function POST(request: Request) {
@@ -14,26 +14,38 @@ export async function POST(request: Request) {
   const currentUser = await getCurrentUser();
   if (!currentUser || !hasPermission(currentUser, "guests.manage")) {
     return NextResponse.redirect(
-      `${returnTo}?error=${encodeURIComponent(tr(lang, "لا تملك صلاحية", "Access denied"))}`,
+      new URL(
+        `${returnTo}?error=${encodeURIComponent(tr(lang, "لا تملك صلاحية", "Access denied"))}`,
+        getBaseUrl(),
+      ),
     );
   }
 
   if (action === "bulk") {
     const count = await generateAllRoomQrTokens();
     return NextResponse.redirect(
-      `${returnTo}?ok=${encodeURIComponent(tr(lang, `تم إنشاء ${count} رمز QR`, `Generated ${count} QR codes`))}`,
+      new URL(
+        `${returnTo}?ok=${encodeURIComponent(tr(lang, `تم إنشاء ${count} رمز QR`, `Generated ${count} QR codes`))}`,
+        getBaseUrl(),
+      ),
     );
   }
 
   if (!Number.isFinite(roomId)) {
     return NextResponse.redirect(
-      `${returnTo}?error=${encodeURIComponent(tr(lang, "غرفة غير صالحة", "Invalid room"))}`,
+      new URL(
+        `${returnTo}?error=${encodeURIComponent(tr(lang, "غرفة غير صالحة", "Invalid room"))}`,
+        getBaseUrl(),
+      ),
     );
   }
 
   await generateRoomQrToken(roomId);
 
   return NextResponse.redirect(
-    `${returnTo}?ok=${encodeURIComponent(tr(lang, "تم إنشاء رمز QR", "QR code generated"))}`,
+    new URL(
+      `${returnTo}?ok=${encodeURIComponent(tr(lang, "تم إنشاء رمز QR", "QR code generated"))}`,
+      getBaseUrl(),
+    ),
   );
 }

@@ -1,14 +1,18 @@
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { notFound } from "next/navigation";
 import {
+  isRoomQrToken,
   listServiceItemsByCategory,
   listServiceRequestsByReservation,
+  validateGuestSession,
   validateGuestToken,
 } from "@/lib/data";
 import { tr, type AppLang } from "@/lib/i18n";
 import { GuestServiceForm } from "@/components/guest/guest-service-form";
 import { GuestRequestsLive } from "@/components/guest/guest-requests-live";
 import { HtmlDirSetter } from "@/components/html-dir-setter";
+import { GuestSessionGate } from "@/components/guest/guest-session-gate";
+import { GuestSessionExpired } from "@/components/guest/guest-session-expired";
 
 type Props = {
   params: Promise<{ token: string }>;
@@ -17,14 +21,45 @@ type Props = {
 
 export default async function GuestPortalPage({ params, searchParams }: Props) {
   const { token } = await params;
-  const query = await searchParams;
-  const guest = await validateGuestToken(token);
-  if (!guest) notFound();
+  const sp = await searchParams;
 
   const headersList = await headers();
   const acceptLang = headersList.get("accept-language") ?? "";
-  const langOverride = query.lang === "ar" || query.lang === "en" ? query.lang : null;
+  const langOverride = sp.lang === "ar" || sp.lang === "en" ? sp.lang : null;
   const lang: AppLang = langOverride ?? (acceptLang.toLowerCase().startsWith("en") ? "en" : "ar");
+
+  /* ── Session-based access control for room QR tokens ── */
+  const isRoom = await isRoomQrToken(token);
+
+  if (isRoom) {
+    const cookieStore = await cookies();
+    const sessionCookie = cookieStore.get("guest_session")?.value;
+
+    if (sessionCookie) {
+      // Has cookie → validate session (reservation must still be active)
+      const guest = await validateGuestSession(sessionCookie);
+      if (!guest) {
+        // Session expired (guest checked out or reservation changed)
+        return <GuestSessionExpired lang={lang} />;
+      }
+      // Valid session → render portal
+      return renderPortal(guest, token, lang);
+    }
+
+    // No session cookie → first-time visit; activate session
+    return <GuestSessionGate token={token} lang={lang} />;
+  }
+
+  /* ── Direct guest_access_token (already per-reservation) ── */
+  const guest = await validateGuestToken(token);
+  if (!guest) notFound();
+
+  return renderPortal(guest, token, lang);
+}
+
+import type { GuestContext } from "@/lib/data";
+
+async function renderPortal(guest: GuestContext, token: string, lang: AppLang) {
   const t = (ar: string, en: string) => tr(lang, ar, en);
 
   const [categories, myRequests] = await Promise.all([
