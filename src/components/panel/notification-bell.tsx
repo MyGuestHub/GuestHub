@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { FiBell } from "react-icons/fi";
+import { playNotificationSound } from "@/lib/notification-sound";
 
 type Notification = {
   id: number;
@@ -13,43 +14,11 @@ type Props = {
   hasPermission: boolean;
 };
 
-function playNotificationSound() {
-  try {
-    const ctx = new AudioContext();
-    const now = ctx.currentTime;
-
-    const osc1 = ctx.createOscillator();
-    const gain1 = ctx.createGain();
-    osc1.type = "sine";
-    osc1.frequency.setValueAtTime(880, now);
-    osc1.frequency.setValueAtTime(1100, now + 0.1);
-    gain1.gain.setValueAtTime(0.3, now);
-    gain1.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
-    osc1.connect(gain1).connect(ctx.destination);
-    osc1.start(now);
-    osc1.stop(now + 0.4);
-
-    const osc2 = ctx.createOscillator();
-    const gain2 = ctx.createGain();
-    osc2.type = "sine";
-    osc2.frequency.setValueAtTime(1320, now + 0.15);
-    gain2.gain.setValueAtTime(0, now);
-    gain2.gain.setValueAtTime(0.25, now + 0.15);
-    gain2.gain.exponentialRampToValueAtTime(0.01, now + 0.6);
-    osc2.connect(gain2).connect(ctx.destination);
-    osc2.start(now + 0.15);
-    osc2.stop(now + 0.6);
-
-    setTimeout(() => ctx.close(), 1000);
-  } catch {
-    // AudioContext not available
-  }
-}
-
 export function NotificationBell({ lang, hasPermission }: Props) {
   const [pendingCount, setPendingCount] = useState(0);
   const [seenIds, setSeenIds] = useState<Set<number>>(new Set());
   const sinceRef = useRef(new Date().toISOString());
+  const previousPendingCount = useRef(0);
   const isFirstFetch = useRef(true);
 
   const t = (ar: string, en: string) => (lang === "ar" ? ar : en);
@@ -84,6 +53,12 @@ export function NotificationBell({ lang, hasPermission }: Props) {
 
         sinceRef.current = data.requests[0].created_at;
       }
+
+      if (!isFirstFetch.current && data.count > previousPendingCount.current) {
+        playNotificationSound();
+      }
+
+      previousPendingCount.current = data.count;
     } catch {
       // network error
     }

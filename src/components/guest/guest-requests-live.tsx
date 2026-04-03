@@ -1,7 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { FiCheckCircle, FiClock, FiLoader, FiRefreshCw, FiXCircle } from "react-icons/fi";
+import { playNotificationSound } from "@/lib/notification-sound";
 
 type Request = {
   id: number;
@@ -37,6 +38,9 @@ const statusLabels: Record<string, [string, string]> = {
 
 export function GuestRequestsLive({ token, lang, initialRequests }: Props) {
   const [requests, setRequests] = useState<Request[]>(initialRequests);
+  const knownStatusByIdRef = useRef<Map<number, string>>(
+    new Map(initialRequests.map((req) => [req.id, req.request_status])),
+  );
   const t = (ar: string, en: string) => (lang === "ar" ? ar : en);
 
   const fetchRequests = useCallback(async () => {
@@ -45,7 +49,26 @@ export function GuestRequestsLive({ token, lang, initialRequests }: Props) {
       if (!res.ok) return;
       const data = await res.json();
       if (Array.isArray(data.requests)) {
-        setRequests(data.requests);
+        const nextRequests = data.requests as Request[];
+        const prevStatusById = knownStatusByIdRef.current;
+        const nextStatusById = new Map<number, string>();
+
+        let shouldPlaySound = false;
+
+        for (const req of nextRequests) {
+          nextStatusById.set(req.id, req.request_status);
+          const oldStatus = prevStatusById.get(req.id);
+          if (!oldStatus || oldStatus !== req.request_status) {
+            shouldPlaySound = true;
+          }
+        }
+
+        if (shouldPlaySound) {
+          playNotificationSound();
+        }
+
+        knownStatusByIdRef.current = nextStatusById;
+        setRequests(nextRequests);
       }
     } catch {
       // ignore network error
