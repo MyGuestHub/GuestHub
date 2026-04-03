@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { FiHome } from "react-icons/fi";
+import { FiHome, FiArrowLeft } from "react-icons/fi";
 
 type Props = {
   fallbackHref: string;
@@ -20,14 +20,15 @@ export function BackNavButton({ fallbackHref, label, dark = false }: Props) {
     <button
       type="button"
       onClick={onHome}
-      className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition ${
+      className={`inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-semibold transition ${
         dark
-          ? "bg-white/15 text-white hover:bg-white/25"
-          : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+          ? "bg-gradient-to-r from-slate-900/80 to-slate-800/80 text-white shadow-lg shadow-black/20 hover:brightness-110"
+          : "bg-gradient-to-r from-slate-100 to-slate-200 text-slate-700 hover:brightness-95"
       }`}
       aria-label={label}
     >
-      <FiHome className="h-3.5 w-3.5" />
+      <FiArrowLeft className="h-3.5 w-3.5" />
+      <FiHome className="h-3.5 w-3.5 opacity-70" />
       <span>{label}</span>
     </button>
   );

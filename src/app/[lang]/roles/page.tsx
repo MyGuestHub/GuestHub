@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { PanelShell } from "@/components/panel/panel-shell";
 import { RolePermissionsDnd } from "@/components/panel/role-permissions-dnd";
 import { RolesManagement } from "@/components/panel/roles-management";
@@ -32,16 +31,16 @@ export default async function RolesPage({ params, searchParams }: Props) {
       active="roles"
       title={ctx.t("الأدوار والصلاحيات", "Roles & Permissions")}
     >
-      {query.error ? (
-        <p className="mb-3 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm text-rose-700">
+      {query.error && (
+        <p className="mb-4 rounded-xl bg-red-500/20 px-4 py-3 text-sm text-red-100 backdrop-blur-sm">
           {query.error}
         </p>
-      ) : null}
-      {query.ok ? (
-        <p className="mb-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm text-emerald-700">
+      )}
+      {query.ok && (
+        <p className="mb-4 rounded-xl bg-emerald-500/20 px-4 py-3 text-sm text-emerald-100 backdrop-blur-sm">
           {query.ok}
         </p>
-      ) : null}
+      )}
 
       <section className="grid gap-4 xl:grid-cols-[360px_minmax(0,1fr)]">
         <RolesManagement
@@ -70,14 +69,15 @@ export default async function RolesPage({ params, searchParams }: Props) {
           }}
         />
 
-        <article className="rounded-2xl bg-white/12 p-4 backdrop-blur-xl">
-          <h2 className="text-lg font-semibold text-slate-900">
+        <article className="rounded-2xl bg-slate-900/50 p-5">
+          <h2 className="text-lg font-semibold text-white">
             {ctx.t("ترتيب صلاحيات الدور", "Role Permissions Order")}
             {selectedRole ? `: ${selectedRole.role_name}` : ""}
           </h2>
           {selectedRole ? (
-            <div className="mt-3">
+            <div className="mt-4">
               <RolePermissionsDnd
+                key={selectedRole.id}
                 lang={ctx.lang}
                 roleId={selectedRole.id}
                 initialAssigned={assigned.map((item) => ({
@@ -89,7 +89,7 @@ export default async function RolesPage({ params, searchParams }: Props) {
               />
             </div>
           ) : (
-            <p className="mt-3 text-sm text-slate-400">{ctx.t("لا يوجد أدوار بعد", "No roles found")}</p>
+            <p className="mt-4 text-sm text-white/50">{ctx.t("لا يوجد أدوار بعد", "No roles found")}</p>
           )}
         </article>
       </section>

@@ -201,7 +201,7 @@ export function AppSelect({
         type="button"
         disabled={disabled}
         onClick={() => setOpen((prev) => !prev)}
-        className={`flex w-full items-center justify-between rounded-xl bg-white/15 px-3 py-2 text-sm text-white outline-none backdrop-blur-md transition hover:bg-white/20 disabled:cursor-not-allowed disabled:opacity-60 ${className}`}
+        className={`flex w-full items-center justify-between rounded-xl bg-slate-900/50 px-3 py-2 text-sm text-white outline-none backdrop-blur-md transition hover:bg-slate-900/60 disabled:cursor-not-allowed disabled:opacity-60 ${className}`}
       >
         <span className="truncate text-left">{displayLabel}</span>
         <FiChevronDown className={`h-4 w-4 shrink-0 transition ${open ? "rotate-180" : ""}`} />
@@ -245,7 +245,7 @@ export function AppSelect({
                           className={`w-full px-3 py-2 text-left text-sm transition ${
                             selectedValue === option.value
                               ? "bg-cyan-500/30 text-white"
-                              : "text-white/90 hover:bg-white/10"
+                              : "text-white/90 hover:bg-slate-900/40"
                           } ${option.disabled ? "cursor-not-allowed opacity-50" : ""}`}
                         >
                           {option.group ? <span className="me-1 text-[10px] text-white/55">[{option.group}]</span> : null}

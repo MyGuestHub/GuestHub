@@ -83,9 +83,9 @@ function GlowCard({
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
       className={`
-        group relative overflow-hidden rounded-2xl border border-white/10 
-        bg-white/[0.08] p-5 backdrop-blur-xl transition-all duration-500
-        hover:-translate-y-1 hover:border-white/25 hover:bg-white/[0.12]
+        group relative overflow-hidden rounded-2xl
+        bg-slate-900/55 p-5 backdrop-blur-xl transition-all duration-500
+        hover:-translate-y-1 hover:bg-slate-900/75
         hover:shadow-2xl hover:shadow-black/20
         ${isVisible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"}
       `}
@@ -208,7 +208,7 @@ function StatCard({
   return (
     <div
       className={`
-        relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.06] p-5 backdrop-blur-xl
+        relative overflow-hidden rounded-2xl bg-slate-900/60 p-5 backdrop-blur-xl
         transition-all duration-700
         ${isVisible ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"}
       `}
@@ -404,8 +404,8 @@ export function DashboardGrid({
       {/* Main Navigation Grid */}
       <section
         className={`
-          relative overflow-hidden rounded-3xl border border-white/15 bg-gradient-to-br 
-          from-white/[0.12] via-white/[0.08] to-white/[0.04] p-6 shadow-2xl backdrop-blur-xl
+          relative overflow-hidden rounded-3xl bg-gradient-to-br
+          from-slate-900/80 via-slate-900/70 to-slate-800/70 p-6 shadow-2xl backdrop-blur-xl
           transition-all duration-700 delay-200
           ${mounted ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"}
         `}
@@ -440,8 +440,8 @@ export function DashboardGrid({
       {/* Notification Center */}
       <section
         className={`
-          relative overflow-hidden rounded-3xl border border-white/15 bg-gradient-to-br 
-          from-white/[0.10] to-white/[0.05] p-6 shadow-2xl backdrop-blur-xl
+          relative overflow-hidden rounded-3xl bg-gradient-to-br
+          from-slate-900/80 to-slate-800/70 p-6 shadow-2xl backdrop-blur-xl
           transition-all duration-700 delay-300
           ${mounted ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"}
         `}
@@ -467,7 +467,7 @@ export function DashboardGrid({
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-2 rounded-full bg-gradient-to-r from-amber-500/20 to-orange-500/20 px-4 py-2 ring-1 ring-amber-400/30">
+            <div className="flex items-center gap-2 rounded-full bg-gradient-to-r from-amber-500/20 to-orange-500/20 px-4 py-2">
               <span className="relative flex h-2 w-2">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-75" />
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-400" />
@@ -481,7 +481,7 @@ export function DashboardGrid({
           <div className="mt-6 grid gap-3 sm:grid-cols-3">
             <Link
               href={`/${lang}/service-requests?status=pending`}
-              className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-amber-500/20 to-amber-600/10 px-4 py-4 ring-1 ring-amber-400/20 transition-all duration-300 hover:ring-amber-400/40 hover:shadow-lg hover:shadow-amber-500/10"
+              className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-amber-500/20 to-amber-600/10 px-4 py-4 transition-all duration-300 hover:shadow-lg hover:shadow-amber-500/10"
             >
               <div className="relative z-10">
                 <p className="text-2xl font-bold text-amber-200">{srStats?.pending || 0}</p>
@@ -494,7 +494,7 @@ export function DashboardGrid({
 
             <Link
               href={`/${lang}/service-requests?status=in_progress`}
-              className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-indigo-500/20 to-indigo-600/10 px-4 py-4 ring-1 ring-indigo-400/20 transition-all duration-300 hover:ring-indigo-400/40 hover:shadow-lg hover:shadow-indigo-500/10"
+              className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-indigo-500/20 to-indigo-600/10 px-4 py-4 transition-all duration-300 hover:shadow-lg hover:shadow-indigo-500/10"
             >
               <div className="relative z-10">
                 <p className="text-2xl font-bold text-indigo-200">{srStats?.in_progress || 0}</p>
@@ -507,7 +507,7 @@ export function DashboardGrid({
 
             <Link
               href={`/${lang}/service-requests`}
-              className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-cyan-500/20 to-cyan-600/10 px-4 py-4 ring-1 ring-cyan-400/20 transition-all duration-300 hover:ring-cyan-400/40 hover:shadow-lg hover:shadow-cyan-500/10"
+              className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-cyan-500/20 to-cyan-600/10 px-4 py-4 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/10"
             >
               <div className="relative z-10">
                 <p className="text-2xl font-bold text-cyan-200">→</p>
@@ -520,7 +520,7 @@ export function DashboardGrid({
           </div>
 
           {hasServicePermission && (
-            <div className="mt-5 flex items-center gap-2 rounded-xl bg-white/[0.06] px-4 py-3 text-xs text-white/60">
+            <div className="mt-5 flex items-center gap-2 rounded-xl bg-slate-900/60 px-4 py-3 text-xs text-white/60">
               <FiClock className="h-4 w-4 text-cyan-400" />
               <span>
                 {t(

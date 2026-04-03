@@ -396,14 +396,20 @@ export async function listGuestOptions(): Promise<GuestOption[]> {
 }
 
 export async function listAvailableRoomsOptions(): Promise<
-  Array<{ id: number; room_number: string; room_type: string }>
+  Array<{ id: number; room_number: string; room_type: string; live_status: string }>
 > {
-  const result = await query<{ id: number; room_number: string; room_type: string }>(
+  const result = await query<{ id: number; room_number: string; room_type: string; live_status: string }>(
     `
-    SELECT id, room_number, room_type
+    SELECT id, room_number, room_type, live_status
     FROM room_live_status
     WHERE status = 'active'
-    ORDER BY room_number
+    ORDER BY 
+      CASE live_status 
+        WHEN 'available' THEN 0 
+        WHEN 'occupied' THEN 1 
+        ELSE 2 
+      END,
+      room_number
     `,
   );
   return result.rows;

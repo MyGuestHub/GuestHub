@@ -101,7 +101,7 @@ export function NotificationBell({ lang, hasPermission }: Props) {
   return (
     <a
       href={`/${lang}/service-requests?status=pending`}
-      className="relative rounded-xl border border-slate-200 bg-slate-50 p-2 text-slate-600 transition hover:bg-slate-100"
+      className="relative rounded-xl bg-slate-900/60 p-2 text-white/80 transition hover:bg-slate-900/80 hover:text-white"
       aria-label={t("الإشعارات", "Notifications")}
     >
       <FiBell className="h-4 w-4" />

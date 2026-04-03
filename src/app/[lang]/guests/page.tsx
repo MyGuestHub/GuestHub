@@ -28,12 +28,12 @@ export default async function GuestsPage({ params, searchParams }: Props) {
       title={ctx.t("إدارة الضيوف", "Guest Management")}
     >
       {query.error ? (
-        <p className="mb-3 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm text-rose-700">
+        <p className="mb-4 rounded-xl bg-rose-500/25 px-4 py-3 text-sm font-medium text-rose-100">
           {query.error}
         </p>
       ) : null}
       {query.ok ? (
-        <p className="mb-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm text-emerald-700">
+        <p className="mb-4 rounded-xl bg-emerald-500/25 px-4 py-3 text-sm font-medium text-emerald-100">
           {query.ok}
         </p>
       ) : null}
@@ -69,13 +69,15 @@ export default async function GuestsPage({ params, searchParams }: Props) {
         }}
       />
 
-      <Pagination
-        lang={ctx.lang}
-        basePath={`/${ctx.lang}/guests`}
-        page={guests.pagination.page}
-        pageSize={guests.pagination.pageSize}
-        total={guests.pagination.total}
-      />
+      <div className="mt-6">
+        <Pagination
+          lang={ctx.lang}
+          basePath={`/${ctx.lang}/guests`}
+          page={guests.pagination.page}
+          pageSize={guests.pagination.pageSize}
+          total={guests.pagination.total}
+        />
+      </div>
     </PanelShell>
   );
 }

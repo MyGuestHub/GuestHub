@@ -66,7 +66,7 @@ const statusConfig = {
     color: "amber",
     gradient: "from-amber-500/40 to-orange-500/40",
     border: "border-amber-400/50",
-    badge: "bg-amber-500/30 text-amber-200 ring-1 ring-amber-400/50",
+    badge: "bg-amber-500/30 text-amber-200",
     glow: "shadow-amber-500/30",
   },
   accepted: {
@@ -75,7 +75,7 @@ const statusConfig = {
     color: "blue",
     gradient: "from-blue-500/40 to-cyan-500/40",
     border: "border-blue-400/50",
-    badge: "bg-blue-500/30 text-blue-200 ring-1 ring-blue-400/50",
+    badge: "bg-blue-500/30 text-blue-200",
     glow: "shadow-blue-500/30",
   },
   in_progress: {
@@ -84,7 +84,7 @@ const statusConfig = {
     color: "indigo",
     gradient: "from-indigo-500/40 to-purple-500/40",
     border: "border-indigo-400/50",
-    badge: "bg-indigo-500/30 text-indigo-200 ring-1 ring-indigo-400/50",
+    badge: "bg-indigo-500/30 text-indigo-200",
     glow: "shadow-indigo-500/30",
   },
   completed: {
@@ -93,7 +93,7 @@ const statusConfig = {
     color: "emerald",
     gradient: "from-emerald-500/40 to-teal-500/40",
     border: "border-emerald-400/50",
-    badge: "bg-emerald-500/30 text-emerald-200 ring-1 ring-emerald-400/50",
+    badge: "bg-emerald-500/30 text-emerald-200",
     glow: "shadow-emerald-500/30",
   },
   cancelled: {
@@ -102,7 +102,7 @@ const statusConfig = {
     color: "slate",
     gradient: "from-slate-500/40 to-gray-500/40",
     border: "border-slate-400/50",
-    badge: "bg-slate-500/30 text-slate-200 ring-1 ring-slate-400/50",
+    badge: "bg-slate-500/30 text-slate-200",
     glow: "shadow-slate-500/30",
   },
 };
@@ -158,7 +158,7 @@ export function ServiceRequestsDashboard({
       {/* ═══════════════════════════════════════════════════════════════════
           Hero Stats Section
           ═══════════════════════════════════════════════════════════════════ */}
-      <section className="relative overflow-hidden rounded-3xl border border-white/20 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6 shadow-2xl">
+      <section className="relative overflow-hidden rounded-3xl border border-white/20 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6">
         {/* Background decoration */}
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
           <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-gradient-to-br from-cyan-500/20 to-blue-500/20 blur-3xl" />
@@ -169,7 +169,7 @@ export function ServiceRequestsDashboard({
           {/* Main metrics */}
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {/* Active Requests */}
-            <div className="group relative overflow-hidden rounded-2xl border border-amber-400/40 bg-gradient-to-br from-amber-500/25 to-orange-500/25 p-4 transition-all hover:border-amber-400/60 hover:shadow-lg hover:shadow-amber-500/20">
+            <div className="group relative overflow-hidden rounded-2xl border border-amber-400/40 bg-gradient-to-br from-amber-500/25 to-orange-500/25 p-4 transition-all hover:border-amber-400/60">
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-xs font-medium uppercase tracking-wider text-amber-200">
@@ -191,7 +191,7 @@ export function ServiceRequestsDashboard({
             </div>
 
             {/* Completion Rate */}
-            <div className="group relative overflow-hidden rounded-2xl border border-emerald-400/40 bg-gradient-to-br from-emerald-500/25 to-teal-500/25 p-4 transition-all hover:border-emerald-400/60 hover:shadow-lg hover:shadow-emerald-500/20">
+            <div className="group relative overflow-hidden rounded-2xl border border-emerald-400/40 bg-gradient-to-br from-emerald-500/25 to-teal-500/25 p-4 transition-all hover:border-emerald-400/60">
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-xs font-medium uppercase tracking-wider text-emerald-200">
@@ -207,7 +207,7 @@ export function ServiceRequestsDashboard({
                 </div>
               </div>
               {/* Mini progress bar */}
-              <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-white/20">
+              <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-slate-900/60">
                 <div
                   className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-teal-400 transition-all duration-500"
                   style={{ width: `${completionRate}%` }}
@@ -216,7 +216,7 @@ export function ServiceRequestsDashboard({
             </div>
 
             {/* Avg Response Time */}
-            <div className="group relative overflow-hidden rounded-2xl border border-blue-400/40 bg-gradient-to-br from-blue-500/25 to-cyan-500/25 p-4 transition-all hover:border-blue-400/60 hover:shadow-lg hover:shadow-blue-500/20">
+            <div className="group relative overflow-hidden rounded-2xl border border-blue-400/40 bg-gradient-to-br from-blue-500/25 to-cyan-500/25 p-4 transition-all hover:border-blue-400/60">
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-xs font-medium uppercase tracking-wider text-blue-200">
@@ -238,7 +238,7 @@ export function ServiceRequestsDashboard({
             </div>
 
             {/* Total Requests */}
-            <div className="group relative overflow-hidden rounded-2xl border border-purple-400/40 bg-gradient-to-br from-purple-500/25 to-pink-500/25 p-4 transition-all hover:border-purple-400/60 hover:shadow-lg hover:shadow-purple-500/20">
+            <div className="group relative overflow-hidden rounded-2xl border border-purple-400/40 bg-gradient-to-br from-purple-500/25 to-pink-500/25 p-4 transition-all hover:border-purple-400/60">
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-xs font-medium uppercase tracking-wider text-purple-200">
@@ -257,7 +257,7 @@ export function ServiceRequestsDashboard({
           </div>
 
           {/* Status breakdown mini-chart */}
-          <div className="flex flex-col items-center justify-center rounded-2xl border border-white/20 bg-white/10 px-6 py-4">
+          <div className="flex flex-col items-center justify-center rounded-2xl border border-white/20 bg-slate-900/40 px-6 py-4">
             <p className="mb-3 text-xs font-medium uppercase tracking-wider text-white/70">
               {t("توزيع الحالات", "Status Distribution")}
             </p>
@@ -290,11 +290,11 @@ export function ServiceRequestsDashboard({
           href={basePath}
           className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-all ${
             !statusFilter
-              ? "bg-white/25 text-white shadow-lg shadow-white/10 ring-1 ring-white/30"
-              : "bg-white/10 text-white/80 hover:bg-white/20 hover:text-white"
+              ? "bg-slate-900/70 text-white shadow-lg shadow-white/10"
+              : "bg-slate-900/40 text-white/80 hover:bg-slate-900/60 hover:text-white"
           }`}
         >
-          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white/30 text-xs font-bold">
+          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-slate-900/80 text-xs font-bold">
             {stats.total}
           </span>
           {t("الكل", "All")}
@@ -311,14 +311,14 @@ export function ServiceRequestsDashboard({
               className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-all ${
                 isActive
                   ? `${config.badge} shadow-lg ${config.glow}`
-                  : "bg-white/10 text-white/80 hover:bg-white/20 hover:text-white"
+                  : "bg-slate-900/40 text-white/80 hover:bg-slate-900/60 hover:text-white"
               }`}
             >
               <Icon className={`h-4 w-4 ${isActive ? "" : "opacity-80"}`} />
               <span>{config.label[lang]}</span>
               <span
                 className={`flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-xs font-bold ${
-                  isActive ? "bg-white/30" : "bg-white/20"
+                  isActive ? "bg-slate-900/80" : "bg-slate-900/60"
                 }`}
               >
                 {count}
@@ -340,20 +340,20 @@ export function ServiceRequestsDashboard({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={t("بحث بالاسم، الغرفة، أو الخدمة...", "Search by name, room, or service...")}
-            className="w-full rounded-xl border border-white/20 bg-white/10 py-2.5 pe-4 ps-10 text-sm text-white placeholder-white/50 outline-none transition focus:border-cyan-400/60 focus:bg-white/15 focus:ring-2 focus:ring-cyan-400/30"
+            className="w-full rounded-xl border border-white/20 bg-slate-900/40 py-2.5 pe-4 ps-10 text-sm text-white placeholder-white/50 outline-none transition focus:border-cyan-400/60 focus:bg-slate-900/50 focus:ring-2 focus:ring-cyan-400/30"
           />
         </div>
 
         {/* View toggle & actions */}
         <div className="flex items-center gap-2">
-          <div className="flex overflow-hidden rounded-lg border border-white/20 bg-white/10">
+          <div className="flex overflow-hidden rounded-lg border border-white/20 bg-slate-900/40">
             <button
               type="button"
               onClick={() => setViewMode("table")}
               className={`flex items-center gap-1.5 px-3 py-2 text-sm transition ${
                 viewMode === "table"
-                  ? "bg-white/25 text-white"
-                  : "text-white/70 hover:bg-white/15 hover:text-white"
+                  ? "bg-slate-900/70 text-white"
+                  : "text-white/70 hover:bg-slate-900/50 hover:text-white"
               }`}
             >
               <FiList className="h-4 w-4" />
@@ -364,8 +364,8 @@ export function ServiceRequestsDashboard({
               onClick={() => setViewMode("kanban")}
               className={`flex items-center gap-1.5 px-3 py-2 text-sm transition ${
                 viewMode === "kanban"
-                  ? "bg-white/25 text-white"
-                  : "text-white/70 hover:bg-white/15 hover:text-white"
+                  ? "bg-slate-900/70 text-white"
+                  : "text-white/70 hover:bg-slate-900/50 hover:text-white"
               }`}
             >
               <FiGrid className="h-4 w-4" />
@@ -376,7 +376,7 @@ export function ServiceRequestsDashboard({
           <button
             type="button"
             onClick={() => window.location.reload()}
-            className="flex items-center gap-1.5 rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-sm text-white/90 transition hover:bg-white/20 hover:text-white"
+            className="flex items-center gap-1.5 rounded-lg border border-white/20 bg-slate-900/40 px-3 py-2 text-sm text-white/90 transition hover:bg-slate-900/60 hover:text-white"
           >
             <FiRefreshCw className="h-4 w-4" />
             <span className="hidden sm:inline">{t("تحديث", "Refresh")}</span>
@@ -434,8 +434,8 @@ function TableView({
 
   if (requests.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-2xl border border-white/20 bg-white/10 py-16">
-        <div className="rounded-2xl bg-white/15 p-4">
+      <div className="flex flex-col items-center justify-center rounded-2xl border border-white/20 bg-slate-900/40 py-16">
+        <div className="rounded-2xl bg-slate-900/50 p-4">
           <FiGrid className="h-8 w-8 text-white/50" />
         </div>
         <p className="mt-4 text-white/70">{t("لا توجد طلبات", "No requests found")}</p>
@@ -451,7 +451,7 @@ function TableView({
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-white/15 bg-white/10">
+            <tr className="border-b border-white/15 bg-slate-900/40">
               <th className="px-4 py-4 text-start text-xs font-semibold uppercase tracking-wider text-white/70">
                 #
               </th>
@@ -497,14 +497,14 @@ function TableView({
                     </td>
                     <td className="px-4 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-cyan-500/30 to-blue-500/30 ring-1 ring-cyan-400/40">
+                        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-cyan-500/30 to-blue-500/30">
                           <FiUser className="h-4 w-4 text-cyan-200" />
                         </div>
                         <span className="font-medium text-white">{r.guest_name}</span>
                       </div>
                     </td>
                     <td className="px-4 py-4">
-                      <span className="inline-flex items-center gap-1.5 rounded-lg bg-white/15 px-2.5 py-1 font-mono text-xs text-white">
+                      <span className="inline-flex items-center gap-1.5 rounded-lg bg-slate-900/50 px-2.5 py-1 font-mono text-xs text-white">
                         <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
                         {r.room_number}
                       </span>
@@ -535,10 +535,10 @@ function TableView({
                             <img
                               src={r.assigned_to_avatar}
                               alt={r.assigned_to_name}
-                              className="h-6 w-6 rounded-full object-cover ring-1 ring-purple-400/30"
+                              className="h-6 w-6 rounded-full object-cover"
                             />
                           ) : (
-                            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-purple-500/40 to-pink-500/40 text-[10px] font-bold text-purple-200 ring-1 ring-purple-400/40">
+                            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-purple-500/40 to-pink-500/40 text-[10px] font-bold text-purple-200">
                               {r.assigned_to_name.charAt(0).toUpperCase()}
                             </div>
                           )}
@@ -564,7 +564,7 @@ function TableView({
                         <button
                           type="button"
                           onClick={() => setExpandedRow(isExpanded ? null : r.id)}
-                          className="rounded-lg p-2 text-white/70 transition hover:bg-white/15 hover:text-white"
+                          className="rounded-lg p-2 text-white/70 transition hover:bg-slate-900/50 hover:text-white"
                         >
                           <FiChevronDown
                             className={`h-4 w-4 transition-transform ${isExpanded ? "rotate-180" : ""}`}
@@ -615,7 +615,7 @@ function KanbanView({
   const t = (ar: string, en: string) => (lang === "ar" ? ar : en);
 
   return (
-    <div className="grid gap-4 lg:grid-cols-4 xl:grid-cols-5">
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
       {statusOrder.slice(0, 4).map((status) => {
         const config = statusConfig[status];
         const Icon = config.icon;
@@ -634,7 +634,7 @@ function KanbanView({
                 </div>
                 <span className="font-semibold text-white">{config.label[lang]}</span>
               </div>
-              <span className="flex h-6 min-w-[24px] items-center justify-center rounded-full bg-white/20 px-2 text-xs font-bold text-white">
+              <span className="flex h-6 min-w-[24px] items-center justify-center rounded-full bg-slate-900/60 px-2 text-xs font-bold text-white">
                 {items.length}
               </span>
             </div>
@@ -683,7 +683,7 @@ function KanbanCard({
   const timeAgo = getTimeAgo(r.created_at, lang);
 
   return (
-    <div className="group rounded-xl border border-white/20 bg-white/10 p-3 backdrop-blur-sm transition hover:border-white/30 hover:bg-white/15">
+    <div className="group rounded-xl border border-white/20 bg-slate-900/40 p-3 backdrop-blur-sm transition hover:border-white/30 hover:bg-slate-900/50">
       {/* Header */}
       <div className="flex items-start justify-between gap-2">
         <div className="flex items-center gap-2">
@@ -698,7 +698,7 @@ function KanbanCard({
         <button
           type="button"
           onClick={() => setShowActions(!showActions)}
-          className="rounded p-1 text-white/50 opacity-0 transition group-hover:opacity-100 hover:bg-white/15 hover:text-white"
+          className="rounded p-1 text-white/50 opacity-0 transition group-hover:opacity-100 hover:bg-slate-900/50 hover:text-white"
         >
           <FiMoreVertical className="h-4 w-4" />
         </button>
@@ -715,7 +715,7 @@ function KanbanCard({
 
       {/* Notes */}
       {r.notes && (
-        <p className="mt-2 truncate rounded bg-white/10 px-2 py-1 text-xs text-white/80">
+        <p className="mt-2 truncate rounded bg-slate-900/40 px-2 py-1 text-xs text-white/80">
           {r.notes}
         </p>
       )}

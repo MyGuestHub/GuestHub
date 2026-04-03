@@ -125,7 +125,7 @@ function SortCard({ item }: SortCardProps) {
             ref={setActivatorNodeRef}
             {...attributes}
             {...listeners}
-            className="touch-none cursor-grab active:cursor-grabbing rounded-lg bg-white/20 p-1 text-white/80 transition hover:bg-white/30"
+            className="touch-none cursor-grab active:cursor-grabbing rounded-lg bg-slate-900/60 p-1 text-white/80 transition hover:bg-slate-900/80"
           >
             <FiMove className="h-4 w-4" />
           </button>
@@ -147,7 +147,7 @@ function DroppableColumn({ id, title, children }: ColumnProps) {
     <section
       ref={setNodeRef}
       className={`min-h-52 rounded-2xl p-3 ${
-        isOver ? "bg-[rgba(34,211,238,0.2)] ring-2 ring-cyan-300/50" : "bg-[rgba(255,255,255,0.14)] ring-1 ring-white/20"
+        isOver ? "bg-[rgba(34,211,238,0.2)] ring-2 ring-cyan-300/50" : "bg-[rgba(255,255,255,0.14)]"
       }`}
     >
       <h3 className="mb-2 text-sm font-semibold text-white">{title}</h3>

@@ -39,17 +39,17 @@ export default async function LoginPage({ params, searchParams }: Props) {
       <div className="absolute inset-0 bg-black/40" />
 
       {/* Glassmorphism card */}
-      <section className="relative z-10 w-full max-w-md rounded-3xl bg-white/10 p-6 shadow-2xl backdrop-blur-xl sm:p-8">
+      <section className="relative z-10 w-full max-w-md rounded-3xl bg-slate-900/40 p-6 shadow-2xl backdrop-blur-xl sm:p-8">
         <div className="mb-4 flex items-center justify-end gap-2 text-sm">
           <Link
             href="/ar/login"
-            className={`rounded-lg px-3 py-1 transition ${lang === "ar" ? "bg-white/90 text-slate-900 shadow-sm" : "bg-white/10 text-white/80 hover:bg-white/20"}`}
+            className={`rounded-lg px-3 py-1 transition ${lang === "ar" ? "bg-white/90 text-slate-900 shadow-sm" : "bg-slate-900/40 text-white/80 hover:bg-slate-900/60"}`}
           >
             العربية
           </Link>
           <Link
             href="/en/login"
-            className={`rounded-lg px-3 py-1 transition ${lang === "en" ? "bg-white/90 text-slate-900 shadow-sm" : "bg-white/10 text-white/80 hover:bg-white/20"}`}
+            className={`rounded-lg px-3 py-1 transition ${lang === "en" ? "bg-white/90 text-slate-900 shadow-sm" : "bg-slate-900/40 text-white/80 hover:bg-slate-900/60"}`}
           >
             English
           </Link>
@@ -88,7 +88,7 @@ export default async function LoginPage({ params, searchParams }: Props) {
             <input
               name="username"
               required
-              className="w-full rounded-xl border border-white/20 bg-white/10 px-3 py-2 text-white placeholder-white/40 outline-none backdrop-blur-sm transition focus:border-white/40 focus:bg-white/15"
+              className="w-full rounded-xl border border-white/20 bg-slate-900/40 px-3 py-2 text-white placeholder-white/40 outline-none backdrop-blur-sm transition focus:border-white/40 focus:bg-slate-900/50"
               placeholder="admin"
             />
           </label>
@@ -101,14 +101,14 @@ export default async function LoginPage({ params, searchParams }: Props) {
               name="password"
               type="password"
               required
-              className="w-full rounded-xl border border-white/20 bg-white/10 px-3 py-2 text-white placeholder-white/40 outline-none backdrop-blur-sm transition focus:border-white/40 focus:bg-white/15"
+              className="w-full rounded-xl border border-white/20 bg-slate-900/40 px-3 py-2 text-white placeholder-white/40 outline-none backdrop-blur-sm transition focus:border-white/40 focus:bg-slate-900/50"
               placeholder="••••••••"
             />
           </label>
 
           <button
             type="submit"
-            className="w-full rounded-xl bg-white/20 px-4 py-2.5 font-medium text-white shadow-lg backdrop-blur-sm transition hover:bg-white/30 active:scale-[0.98]"
+            className="w-full rounded-xl bg-slate-900/60 px-4 py-2.5 font-medium text-white shadow-lg backdrop-blur-sm transition hover:bg-slate-900/80 active:scale-[0.98]"
           >
             {tr(lang, "دخول", "Sign in")}
           </button>

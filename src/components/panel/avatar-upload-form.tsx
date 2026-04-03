@@ -42,19 +42,19 @@ export function AvatarUploadForm({
         }}
       />
 
-      <div className="flex min-w-0 items-center gap-2 rounded-xl border border-slate-300 bg-white p-2">
+      <div className="flex min-w-0 items-center gap-2 rounded-xl bg-slate-900/70 p-2">
         <label
           htmlFor={inputId}
-          className="shrink-0 cursor-pointer rounded-lg bg-blue-600 px-3 py-1 text-xs font-semibold text-white"
+          className="shrink-0 cursor-pointer rounded-lg bg-cyan-500 px-3 py-1 text-xs font-semibold text-slate-950 transition hover:bg-cyan-400"
         >
           {chooseFileText}
         </label>
-        <span className="min-w-0 truncate text-sm text-slate-600" title={fileName || noFileText}>
+        <span className="min-w-0 truncate text-sm text-white/70" title={fileName || noFileText}>
           {fileName || noFileText}
         </span>
       </div>
 
-      <button className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white">
+      <button className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:brightness-110">
         <FiUpload className="h-4 w-4" />
         {uploadText}
       </button>

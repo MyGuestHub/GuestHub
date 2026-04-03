@@ -22,20 +22,30 @@ export function Pagination({ lang, basePath, page, pageSize, total }: Props) {
   const t = (ar: string, en: string) => tr(lang, ar, en);
 
   return (
-    <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm">
-      <p className="text-slate-600">
-        {t("الصفحة", "Page")} {safePage} / {totalPages} - {t("الإجمالي", "Total")} {total}
+    <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-slate-900/50 px-4 py-3 text-sm shadow-lg">
+      <p className="text-white/70">
+        {t("الصفحة", "Page")} <span className="font-semibold text-white">{safePage}</span> / {totalPages} 
+        <span className="mx-2 text-white/30">•</span>
+        {t("الإجمالي", "Total")} <span className="font-semibold text-white">{total}</span>
       </p>
       <div className="flex items-center gap-2">
         <Link
           href={hrefFor(basePath, Math.max(1, safePage - 1), pageSize)}
-          className="rounded-xl border border-slate-300 px-3 py-1.5 text-slate-700"
+          className={`rounded-lg px-3 py-1.5 text-sm font-medium transition ${
+            safePage <= 1
+              ? "pointer-events-none bg-white/5 text-white/30"
+              : "bg-white/10 text-white hover:bg-white/20"
+          }`}
         >
           {t("السابق", "Prev")}
         </Link>
         <Link
           href={hrefFor(basePath, Math.min(totalPages, safePage + 1), pageSize)}
-          className="rounded-xl border border-slate-300 px-3 py-1.5 text-slate-700"
+          className={`rounded-lg px-3 py-1.5 text-sm font-medium transition ${
+            safePage >= totalPages
+              ? "pointer-events-none bg-white/5 text-white/30"
+              : "bg-white/10 text-white hover:bg-white/20"
+          }`}
         >
           {t("التالي", "Next")}
         </Link>
