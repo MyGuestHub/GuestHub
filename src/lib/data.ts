@@ -2372,3 +2372,158 @@ export async function getGuestFacilityBookings(reservationId: number): Promise<F
   );
   return r.rows;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   API Keys
+   ═══════════════════════════════════════════════════════════════════════ */
+
+export type ApiKeyRow = {
+  id: number;
+  label: string;
+  key_prefix: string;
+  scopes: string[];
+  is_active: boolean;
+  expires_at: string | null;
+  last_used_at: string | null;
+  request_count: number;
+  rate_limit: number;
+  created_by: number;
+  created_by_name: string;
+  created_at: string;
+  revoked_at: string | null;
+};
+
+export async function listApiKeys(): Promise<ApiKeyRow[]> {
+  const r = await query<ApiKeyRow>(
+    `SELECT k.id, k.label, k.key_prefix, k.scopes, k.is_active,
+            k.expires_at::text, k.last_used_at::text, k.request_count,
+            k.rate_limit, k.created_by, u.full_name AS created_by_name,
+            k.created_at::text, k.revoked_at::text
+     FROM api_keys k
+     JOIN app_users u ON u.id = k.created_by
+     ORDER BY k.created_at DESC`,
+    [],
+  );
+  return r.rows;
+}
+
+export async function createApiKey(
+  label: string,
+  keyHash: string,
+  keyPrefix: string,
+  scopes: string[],
+  rateLimit: number,
+  expiresAt: string | null,
+  createdBy: number,
+): Promise<number> {
+  const r = await query<{ id: number }>(
+    `INSERT INTO api_keys (label, key_hash, key_prefix, scopes, rate_limit, expires_at, created_by)
+     VALUES ($1, $2, $3, $4, $5, $6::timestamptz, $7)
+     RETURNING id`,
+    [label, keyHash, keyPrefix, scopes, rateLimit, expiresAt, createdBy],
+  );
+  return r.rows[0].id;
+}
+
+export async function revokeApiKey(id: number): Promise<void> {
+  await query(
+    `UPDATE api_keys SET is_active = FALSE, revoked_at = NOW() WHERE id = $1`,
+    [id],
+  );
+}
+
+export async function deleteApiKey(id: number): Promise<void> {
+  await query(`DELETE FROM api_keys WHERE id = $1`, [id]);
+}
+
+export async function updateApiKey(
+  id: number,
+  label: string,
+  scopes: string[],
+  rateLimit: number,
+  expiresAt: string | null,
+): Promise<void> {
+  await query(
+    `UPDATE api_keys SET label = $1, scopes = $2, rate_limit = $3, expires_at = $4::timestamptz WHERE id = $5`,
+    [label, scopes, rateLimit, expiresAt, id],
+  );
+}
+
+export type ApiKeyAuth = {
+  id: number;
+  scopes: string[];
+  rate_limit: number;
+};
+
+export async function validateApiKey(keyHash: string): Promise<ApiKeyAuth | null> {
+  const r = await query<ApiKeyAuth>(
+    `SELECT id, scopes, rate_limit
+     FROM api_keys
+     WHERE key_hash = $1
+       AND is_active = TRUE
+       AND (expires_at IS NULL OR expires_at > NOW())`,
+    [keyHash],
+  );
+  if (!r.rowCount) return null;
+
+  // Touch last_used_at + bump counter (fire-and-forget, no await needed for perf)
+  query(
+    `UPDATE api_keys SET last_used_at = NOW(), request_count = request_count + 1 WHERE id = $1`,
+    [r.rows[0].id],
+  ).catch(() => {});
+
+  return r.rows[0];
+}
+
+export async function checkRateLimit(keyId: number, limit: number): Promise<boolean> {
+  // Sliding window: 1-minute buckets
+  const windowStart = new Date();
+  windowStart.setSeconds(0, 0); // truncate to minute
+
+  const r = await query<{ hit_count: number }>(
+    `INSERT INTO api_rate_limits (key_id, window_start, hit_count)
+     VALUES ($1, $2, 1)
+     ON CONFLICT (key_id, window_start)
+     DO UPDATE SET hit_count = api_rate_limits.hit_count + 1
+     RETURNING hit_count`,
+    [keyId, windowStart.toISOString()],
+  );
+
+  return r.rows[0].hit_count <= limit;
+}
+
+export async function logApiRequest(
+  keyId: number,
+  method: string,
+  path: string,
+  statusCode: number,
+  ipAddress: string | null,
+  userAgent: string | null,
+  responseMs: number,
+): Promise<void> {
+  await query(
+    `INSERT INTO api_audit_log (key_id, method, path, status_code, ip_address, user_agent, response_ms)
+     VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+    [keyId, method, path, statusCode, ipAddress, userAgent, responseMs],
+  );
+}
+
+export type ApiAuditEntry = {
+  id: number;
+  method: string;
+  path: string;
+  status_code: number;
+  ip_address: string | null;
+  response_ms: number;
+  created_at: string;
+};
+
+export async function listApiAuditLog(keyId: number, limit = 50): Promise<ApiAuditEntry[]> {
+  const r = await query<ApiAuditEntry>(
+    `SELECT id, method, path, status_code, ip_address, response_ms, created_at::text
+     FROM api_audit_log WHERE key_id = $1
+     ORDER BY created_at DESC LIMIT $2`,
+    [keyId, limit],
+  );
+  return r.rows;
+}

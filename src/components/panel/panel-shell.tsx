@@ -28,7 +28,8 @@ type NavKey =
   | "complaints"
   | "lost-found"
   | "facilities"
-  | "invoices";
+  | "invoices"
+  | "api-keys";
 
 type Props = {
   lang: AppLang;

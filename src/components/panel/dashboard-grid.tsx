@@ -24,6 +24,7 @@ import {
   FiBox,
   FiMapPin,
   FiDollarSign,
+  FiCode,
 } from "react-icons/fi";
 
 interface DashboardGridProps {
@@ -501,6 +502,20 @@ export function DashboardGrid({
       glowColor: "rgba(16, 185, 129, 0.15)",
       groupAr: "الخدمات والضيوف",
       groupEn: "Services & Guests",
+    },
+    {
+      id: "api-keys",
+      href: `/${lang}/api-keys`,
+      labelAr: "مفاتيح API",
+      labelEn: "API Keys",
+      icon: FiCode,
+      metaAr: "إدارة الوصول",
+      metaEn: "Access management",
+      cardClass: "bg-gradient-to-br from-cyan-900/40 via-slate-900/70 to-slate-900/70 hover:from-cyan-800/45",
+      iconClass: "bg-cyan-500/20 text-cyan-300",
+      glowColor: "rgba(6, 182, 212, 0.15)",
+      groupAr: "الإعدادات",
+      groupEn: "Settings",
     },
     {
       id: "profile",
