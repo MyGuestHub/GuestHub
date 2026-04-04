@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { FiMessageCircle, FiSend, FiX, FiChevronDown } from "react-icons/fi";
+import { FiMessageCircle, FiSend, FiChevronDown, FiSmile } from "react-icons/fi";
 import type { AppLang } from "@/lib/i18n";
 
 type ChatMsg = {
@@ -10,6 +10,7 @@ type ChatMsg = {
   sender_name: string;
   message: string;
   created_at: string;
+  is_read?: boolean;
 };
 
 type Props = {
@@ -25,28 +26,38 @@ export function GuestChat({ token, lang, guestSessionToken }: Props) {
   const [unread, setUnread] = useState(0);
   const [connected, setConnected] = useState(false);
   const [typing, setTyping] = useState(false);
+  const [emojiOpen, setEmojiOpen] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const wsRef = useRef<WebSocket | null>(null);
   const typingTimeout = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const quickEmojis = ["😀", "😍", "🙏", "👍", "👌", "🎉", "❤️", "😊"];
 
   const t = (ar: string, en: string) => (lang === "ar" ? ar : en);
 
   // Load chat history via REST
-  const loadHistory = useCallback(async () => {
-    const res = await fetch(`/api/guest/chat?lang=${lang}`);
+  const loadHistory = useCallback(async (markRead = true) => {
+    const res = await fetch(`/api/guest/chat?lang=${lang}&markRead=${markRead ? "1" : "0"}`);
     if (res.ok) {
       const data = await res.json();
-      setMessages(data.messages ?? []);
+      const normalized: ChatMsg[] = (data.messages ?? []).map((m: ChatMsg) => ({
+        ...m,
+        id: Number(m.id),
+      }));
+      setMessages(normalized);
+      if (markRead) setUnread(0);
     }
   }, [lang]);
 
   // Connect WebSocket
   useEffect(() => {
     if (!open) return;
-    loadHistory();
+    loadHistory(true);
 
-    const wsHost = typeof window !== "undefined" ? window.location.hostname : "localhost";
-    const wsUrl = `ws://${wsHost}:3001?token=${guestSessionToken}`;
+    const wsBase = process.env.NEXT_PUBLIC_WS_URL
+      || (window.location.protocol === "https:"
+        ? `wss://${window.location.host}/ws`
+        : `ws://${window.location.hostname}:3001`);
+    const wsUrl = `${wsBase}?token=${guestSessionToken}`;
     const ws = new WebSocket(wsUrl);
     wsRef.current = ws;
 
@@ -55,18 +66,20 @@ export function GuestChat({ token, lang, guestSessionToken }: Props) {
     ws.onmessage = (evt) => {
       const msg = JSON.parse(evt.data);
       if (msg.type === "chat:message") {
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: msg.id,
+        setMessages((prev) => {
+          const nextMsg: ChatMsg = {
+            id: Number(msg.id),
             sender_type: msg.sender_type,
             sender_name: msg.sender_name,
             message: msg.message,
             created_at: msg.created_at,
-          },
-        ]);
-        // Mark as read if chat is open
-        ws.send(JSON.stringify({ type: "chat:read" }));
+            is_read: msg.sender_type === "staff" ? false : true,
+          };
+          return [...prev, nextMsg];
+        });
+        if (msg.sender_type === "staff") {
+          ws.send(JSON.stringify({ type: "chat:read" }));
+        }
       }
       if (msg.type === "chat:typing" && msg.sender_type === "staff") {
         setTyping(true);
@@ -90,18 +103,21 @@ export function GuestChat({ token, lang, guestSessionToken }: Props) {
   useEffect(() => {
     if (open) { setUnread(0); return; }
     const iv = setInterval(async () => {
-      const res = await fetch(`/api/guest/chat?lang=${lang}`);
+      const res = await fetch(`/api/guest/chat?lang=${lang}&markRead=0`);
       if (res.ok) {
         const data = await res.json();
-        const staffMsgs = (data.messages ?? []).filter(
-          (m: ChatMsg) => m.sender_type === "staff",
+        const unreadStaff = (data.messages ?? []).filter(
+          (m: ChatMsg) => m.sender_type === "staff" && !m.is_read,
         );
-        // Simple heuristic: count msgs since last open
-        setUnread(staffMsgs.length > 0 ? Math.min(staffMsgs.length, 9) : 0);
+        setUnread(unreadStaff.length > 0 ? Math.min(unreadStaff.length, 99) : 0);
       }
-    }, 30000);
+    }, 12000);
     return () => clearInterval(iv);
   }, [open, lang]);
+
+  function addEmoji(emoji: string) {
+    setText((prev) => `${prev}${emoji}`);
+  }
 
   function sendMessage() {
     const trimmed = text.trim();
@@ -122,7 +138,7 @@ export function GuestChat({ token, lang, guestSessionToken }: Props) {
       {!open && (
         <button
           onClick={() => setOpen(true)}
-          className="fixed bottom-5 end-5 z-40 grid h-14 w-14 place-items-center rounded-full bg-blue-600 text-white shadow-lg shadow-blue-600/30 transition hover:scale-105 hover:bg-blue-700"
+          className="fixed bottom-5 end-5 z-40 grid h-14 w-14 place-items-center rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg shadow-cyan-500/30 transition hover:scale-105 hover:from-cyan-400 hover:to-blue-500"
         >
           <FiMessageCircle className="h-6 w-6" />
           {unread > 0 && (
@@ -135,9 +151,9 @@ export function GuestChat({ token, lang, guestSessionToken }: Props) {
 
       {/* Chat Panel */}
       {open && (
-        <div className="fixed bottom-0 end-0 z-50 flex h-[480px] w-full max-w-sm flex-col rounded-t-2xl border border-slate-200 bg-white shadow-2xl sm:bottom-5 sm:end-5 sm:rounded-2xl">
+        <div className="fixed bottom-0 end-0 z-50 flex h-[480px] w-full max-w-sm flex-col rounded-t-2xl border border-white/10 bg-slate-900/95 shadow-2xl backdrop-blur-xl sm:bottom-5 sm:end-5 sm:rounded-2xl">
           {/* Header */}
-          <div className="flex items-center justify-between rounded-t-2xl bg-blue-600 px-4 py-3 text-white">
+          <div className="flex items-center justify-between rounded-t-2xl bg-gradient-to-r from-cyan-600 to-blue-700 px-4 py-3 text-white">
             <div className="flex items-center gap-2">
               <FiMessageCircle className="h-5 w-5" />
               <div>
@@ -157,7 +173,7 @@ export function GuestChat({ token, lang, guestSessionToken }: Props) {
           {/* Messages */}
           <div className="flex-1 overflow-y-auto px-3 py-3 space-y-2">
             {messages.length === 0 && (
-              <p className="mt-10 text-center text-xs text-slate-400">
+              <p className="mt-10 text-center text-xs text-white/40">
                 {t("ابدأ المحادثة…", "Start a conversation…")}
               </p>
             )}
@@ -169,17 +185,17 @@ export function GuestChat({ token, lang, guestSessionToken }: Props) {
                 <div
                   className={`max-w-[75%] rounded-2xl px-3 py-2 text-sm ${
                     msg.sender_type === "guest"
-                      ? "rounded-ee-sm bg-blue-600 text-white"
-                      : "rounded-es-sm bg-slate-100 text-slate-800"
+                      ? "rounded-ee-sm bg-gradient-to-r from-cyan-600 to-blue-600 text-white"
+                      : "rounded-es-sm bg-white/10 text-white/90"
                   }`}
                 >
                   {msg.sender_type === "staff" && (
-                    <p className="mb-0.5 text-[10px] font-semibold text-blue-500">{msg.sender_name || t("الاستقبال", "Reception")}</p>
+                    <p className="mb-0.5 text-[10px] font-semibold text-cyan-400">{msg.sender_name || t("الاستقبال", "Reception")}</p>
                   )}
                   <p className="whitespace-pre-wrap break-words">{msg.message}</p>
                   <p
                     className={`mt-0.5 text-[10px] ${
-                      msg.sender_type === "guest" ? "text-white/60" : "text-slate-400"
+                      msg.sender_type === "guest" ? "text-white/60" : "text-white/40"
                     }`}
                   >
                     {new Date(msg.created_at).toLocaleTimeString(lang === "ar" ? "ar" : "en", {
@@ -187,16 +203,21 @@ export function GuestChat({ token, lang, guestSessionToken }: Props) {
                       minute: "2-digit",
                     })}
                   </p>
+                  {msg.sender_type === "staff" && !msg.is_read && (
+                    <span className="mt-1 inline-block rounded-full bg-cyan-500/20 px-2 py-0.5 text-[10px] font-semibold text-cyan-300">
+                      {t("جديد", "New")}
+                    </span>
+                  )}
                 </div>
               </div>
             ))}
             {typing && (
               <div className="flex justify-start">
-                <div className="rounded-2xl rounded-es-sm bg-slate-100 px-3 py-2 animate-pulse">
+                <div className="rounded-2xl rounded-es-sm bg-white/10 px-3 py-2 animate-pulse">
                   <div className="flex gap-1">
-                    <span className="h-1.5 w-1.5 rounded-full bg-slate-400 animate-bounce" />
-                    <span className="h-1.5 w-1.5 rounded-full bg-slate-400 animate-bounce [animation-delay:0.1s]" />
-                    <span className="h-1.5 w-1.5 rounded-full bg-slate-400 animate-bounce [animation-delay:0.2s]" />
+                    <span className="h-1.5 w-1.5 rounded-full bg-white/40 animate-bounce" />
+                    <span className="h-1.5 w-1.5 rounded-full bg-white/40 animate-bounce [animation-delay:0.1s]" />
+                    <span className="h-1.5 w-1.5 rounded-full bg-white/40 animate-bounce [animation-delay:0.2s]" />
                   </div>
                 </div>
               </div>
@@ -205,8 +226,30 @@ export function GuestChat({ token, lang, guestSessionToken }: Props) {
           </div>
 
           {/* Input */}
-          <div className="border-t border-slate-200 px-3 py-2">
+          <div className="border-t border-white/10 px-3 py-2">
+            {emojiOpen && (
+              <div className="mb-2 flex flex-wrap gap-1 rounded-xl border border-white/10 bg-slate-800/60 p-2">
+                {quickEmojis.map((emoji) => (
+                  <button
+                    key={emoji}
+                    type="button"
+                    onClick={() => addEmoji(emoji)}
+                    className="rounded-lg px-2 py-1 text-base transition hover:bg-white/10"
+                  >
+                    {emoji}
+                  </button>
+                ))}
+              </div>
+            )}
             <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setEmojiOpen((v) => !v)}
+                className="grid h-9 w-9 place-items-center rounded-xl border border-white/15 bg-slate-800/60 text-white/70 transition hover:bg-white/10 hover:text-white"
+                aria-label={t("إيموجي", "Emoji")}
+              >
+                <FiSmile className="h-4 w-4" />
+              </button>
               <input
                 value={text}
                 onChange={(e) => {
@@ -220,12 +263,12 @@ export function GuestChat({ token, lang, guestSessionToken }: Props) {
                   }
                 }}
                 placeholder={t("اكتب رسالتك…", "Type a message…")}
-                className="flex-1 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:border-blue-400"
+                className="flex-1 rounded-xl border border-white/15 bg-slate-800/60 px-3 py-2 text-sm text-white/90 placeholder:text-white/30 outline-none focus:border-cyan-500/50"
               />
               <button
                 onClick={sendMessage}
                 disabled={!text.trim()}
-                className="grid h-9 w-9 place-items-center rounded-xl bg-blue-600 text-white transition hover:bg-blue-700 disabled:opacity-40"
+                className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white transition hover:from-cyan-400 hover:to-blue-500 disabled:opacity-40"
               >
                 <FiSend className="h-4 w-4" />
               </button>

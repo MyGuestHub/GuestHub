@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { FiMessageCircle, FiSend, FiUser } from "react-icons/fi";
+import { FiMessageCircle, FiSend, FiUser, FiSmile } from "react-icons/fi";
 
 type ChatSummary = {
   reservation_id: number;
@@ -23,6 +23,11 @@ type ChatMsg = {
 
 type Props = { lang: string; sessionToken: string };
 
+function toNum(value: unknown): number {
+  const n = Number(value);
+  return Number.isFinite(n) ? n : 0;
+}
+
 export function ChatInbox({ lang, sessionToken }: Props) {
   const [chats, setChats] = useState<ChatSummary[]>([]);
   const [activeResId, setActiveResId] = useState<number | null>(null);
@@ -30,26 +35,52 @@ export function ChatInbox({ lang, sessionToken }: Props) {
   const [text, setText] = useState("");
   const [connected, setConnected] = useState(false);
   const [typing, setTyping] = useState<number | null>(null);
+  const [emojiOpen, setEmojiOpen] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const wsRef = useRef<WebSocket | null>(null);
   const typingTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const activeResIdRef = useRef<number | null>(null);
+  const optimisticIdRef = useRef(-1);
+  const quickEmojis = ["😀", "😍", "🙏", "👍", "👌", "🎉", "❤️", "😊"];
 
   const t = (ar: string, en: string) => (lang === "ar" ? ar : en);
 
   const loadChats = useCallback(async () => {
     const res = await fetch("/api/admin/chat");
-    if (res.ok) setChats((await res.json()).chats ?? []);
+    if (res.ok) {
+      const data = await res.json();
+      const normalized: ChatSummary[] = (data.chats ?? []).map((c: ChatSummary) => ({
+        ...c,
+        reservation_id: toNum(c.reservation_id),
+        unread_count: toNum(c.unread_count),
+      }));
+      setChats(normalized);
+    }
   }, []);
 
   const loadMessages = useCallback(async (resId: number) => {
     const res = await fetch(`/api/admin/chat?reservationId=${resId}`);
-    if (res.ok) setMessages((await res.json()).messages ?? []);
+    if (res.ok) {
+      const data = await res.json();
+      const normalized: ChatMsg[] = (data.messages ?? []).map((m: ChatMsg) => ({
+        ...m,
+        id: toNum(m.id),
+      }));
+      setMessages(normalized);
+    }
   }, []);
+
+  useEffect(() => {
+    activeResIdRef.current = activeResId;
+  }, [activeResId]);
 
   // Connect WebSocket
   useEffect(() => {
-    const wsHost = typeof window !== "undefined" ? window.location.hostname : "localhost";
-    const ws = new WebSocket(`ws://${wsHost}:3001?session=${sessionToken}`);
+    const wsBase = process.env.NEXT_PUBLIC_WS_URL
+      || (window.location.protocol === "https:"
+        ? `wss://${window.location.host}/ws`
+        : `ws://${window.location.hostname}:3001`);
+    const ws = new WebSocket(`${wsBase}?session=${sessionToken}`);
     wsRef.current = ws;
 
     ws.onopen = () => setConnected(true);
@@ -57,12 +88,35 @@ export function ChatInbox({ lang, sessionToken }: Props) {
     ws.onmessage = (evt) => {
       const msg = JSON.parse(evt.data);
       if (msg.type === "chat:message") {
-        // Update chat list
-        loadChats();
+        const reservationId = toNum(msg.reservation_id);
+        const isActive = toNum(activeResIdRef.current) === reservationId;
+
+        // Update chat list immediately for better UX
+        setChats((prev) => {
+          const idx = prev.findIndex((c) => toNum(c.reservation_id) === reservationId);
+          if (idx === -1) return prev;
+          const current = prev[idx];
+          const nextItem: ChatSummary = {
+            ...current,
+            last_message: msg.message,
+            last_at: msg.created_at,
+            unread_count:
+              msg.sender_type === "guest" && !isActive
+                ? current.unread_count + 1
+                : isActive
+                  ? 0
+                  : current.unread_count,
+          };
+          const next = [...prev];
+          next.splice(idx, 1);
+          next.unshift(nextItem);
+          return next;
+        });
+
         // If in active conversation, add message
-        if (msg.reservation_id === activeResId) {
+        if (isActive) {
           setMessages((prev) => [...prev, {
-            id: msg.id,
+            id: toNum(msg.id),
             sender_type: msg.sender_type,
             sender_name: msg.sender_name,
             message: msg.message,
@@ -70,18 +124,21 @@ export function ChatInbox({ lang, sessionToken }: Props) {
             created_at: msg.created_at,
           }]);
           // Mark as read
-          ws.send(JSON.stringify({ type: "chat:read", reservationId: msg.reservation_id }));
+          ws.send(JSON.stringify({ type: "chat:read", reservationId }));
         }
+
+        // Keep list synced if conversation wasn't in sidebar yet
+        loadChats();
       }
       if (msg.type === "chat:typing" && msg.sender_type === "guest") {
-        setTyping(msg.reservation_id);
+        setTyping(toNum(msg.reservation_id));
         clearTimeout(typingTimer.current);
         typingTimer.current = setTimeout(() => setTyping(null), 2000);
       }
     };
 
     return () => ws.close();
-  }, [sessionToken, activeResId, loadChats]);
+  }, [sessionToken, loadChats]);
 
   // Load chats on mount
   useEffect(() => { loadChats(); }, [loadChats]);
@@ -95,22 +152,55 @@ export function ChatInbox({ lang, sessionToken }: Props) {
   }, [loadChats]);
 
   function openChat(resId: number) {
-    setActiveResId(resId);
-    loadMessages(resId);
-    wsRef.current?.send(JSON.stringify({ type: "chat:read", reservationId: resId }));
+    const normalizedResId = toNum(resId);
+    setActiveResId(normalizedResId);
+    setChats((prev) => prev.map((c) => (
+      toNum(c.reservation_id) === normalizedResId ? { ...c, unread_count: 0 } : c
+    )));
+    loadMessages(normalizedResId);
+    wsRef.current?.send(JSON.stringify({ type: "chat:read", reservationId: normalizedResId }));
   }
 
   function sendMessage() {
     const trimmed = text.trim();
     if (!trimmed || !wsRef.current || wsRef.current.readyState !== 1 || !activeResId) return;
+
+    // Optimistic message so staff sees own message instantly.
+    const optimisticId = optimisticIdRef.current;
+    optimisticIdRef.current -= 1;
+    const optimisticNow = new Date().toISOString();
+    setMessages((prev) => [...prev, {
+      id: optimisticId,
+      sender_type: "staff",
+      sender_name: "",
+      message: trimmed,
+      is_read: true,
+      created_at: optimisticNow,
+    }]);
+    setChats((prev) => prev.map((c) => (
+      c.reservation_id === activeResId
+        ? { ...c, last_message: trimmed, last_at: optimisticNow }
+        : c
+    )));
+
     wsRef.current.send(JSON.stringify({ type: "chat:send", text: trimmed, reservationId: activeResId }));
     setText("");
+
+    // Replace optimistic entry with canonical DB row to avoid duplicates/drift.
+    window.setTimeout(() => {
+      loadMessages(activeResId);
+      loadChats();
+    }, 250);
   }
 
   function handleKeyTyping() {
     if (wsRef.current?.readyState === 1 && activeResId) {
       wsRef.current.send(JSON.stringify({ type: "chat:typing", reservationId: activeResId }));
     }
+  }
+
+  function addEmoji(emoji: string) {
+    setText((prev) => `${prev}${emoji}`);
   }
 
   const activeChat = chats.find((c) => c.reservation_id === activeResId);
@@ -130,10 +220,14 @@ export function ChatInbox({ lang, sessionToken }: Props) {
         )}
         {chats.map((chat) => (
           <button
-            key={chat.reservation_id}
-            onClick={() => openChat(chat.reservation_id)}
+            key={toNum(chat.reservation_id)}
+            onClick={() => openChat(toNum(chat.reservation_id))}
             className={`w-full border-b border-white/5 px-4 py-3 text-start transition hover:bg-white/5 ${
-              activeResId === chat.reservation_id ? "bg-white/10" : ""
+              toNum(activeResId) === toNum(chat.reservation_id)
+                ? "bg-white/10"
+                : chat.unread_count > 0
+                  ? "bg-cyan-500/5"
+                  : ""
             }`}
           >
             <div className="flex items-center justify-between">
@@ -145,7 +239,7 @@ export function ChatInbox({ lang, sessionToken }: Props) {
                   <p className="truncate text-sm font-medium text-white">{chat.guest_name}</p>
                   <p className="text-[11px] text-white/50">
                     {t("غرفة", "Room")} {chat.room_number}
-                    {typing === chat.reservation_id && (
+                    {toNum(typing) === toNum(chat.reservation_id) && (
                       <span className="ms-1 text-emerald-400">{t("يكتب…", "typing…")}</span>
                     )}
                   </p>
@@ -189,7 +283,7 @@ export function ChatInbox({ lang, sessionToken }: Props) {
                   </div>
                 </div>
               ))}
-              {typing === activeResId && (
+              {toNum(typing) === toNum(activeResId) && (
                 <div className="flex justify-start">
                   <div className="rounded-2xl rounded-es-sm bg-white/10 px-3 py-2 animate-pulse">
                     <div className="flex gap-1">
@@ -204,7 +298,29 @@ export function ChatInbox({ lang, sessionToken }: Props) {
             </div>
 
             <div className="border-t border-white/10 px-4 py-3">
+              {emojiOpen && (
+                <div className="mb-2 flex flex-wrap gap-1 rounded-xl border border-white/10 bg-white/5 p-2">
+                  {quickEmojis.map((emoji) => (
+                    <button
+                      key={emoji}
+                      type="button"
+                      onClick={() => addEmoji(emoji)}
+                      className="rounded-lg px-2 py-1 text-base transition hover:bg-white/10"
+                    >
+                      {emoji}
+                    </button>
+                  ))}
+                </div>
+              )}
               <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setEmojiOpen((v) => !v)}
+                  className="grid h-9 w-9 place-items-center rounded-xl border border-white/10 bg-white/5 text-white/70 transition hover:bg-white/10 hover:text-white"
+                  aria-label={t("إيموجي", "Emoji")}
+                >
+                  <FiSmile className="h-4 w-4" />
+                </button>
                 <input
                   value={text}
                   onChange={(e) => { setText(e.target.value); handleKeyTyping(); }}

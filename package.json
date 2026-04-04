@@ -3,9 +3,9 @@
   "version": "0.1.1",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "bash scripts/run-with-ws.sh next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "bash scripts/run-with-ws.sh next start",
     "lint": "eslint",
     "db:setup": "bash scripts/create_db.sh",
     "db:seed-admin": "node scripts/seed-admin.mjs",

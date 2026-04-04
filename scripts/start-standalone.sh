@@ -72,4 +72,4 @@ if [[ -d "public" ]]; then
   cp -R "public" ".next/standalone/public"
 fi
 
-exec node ".next/standalone/server.js"
+exec "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/run-with-ws.sh" node ".next/standalone/server.js"

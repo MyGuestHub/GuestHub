@@ -53,19 +53,25 @@ export function GuestSessionGate({ token, lang, expired }: Props) {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-50 p-6">
-      <div className="w-full max-w-sm rounded-2xl bg-white p-8 shadow-lg">
+    <div className="relative flex min-h-screen items-center justify-center bg-slate-950 p-6">
+      {/* Background image + blur overlay (same as portal) */}
+      <div className="pointer-events-none absolute inset-0 z-0">
+        <img src="/back.jpeg" alt="" className="h-full w-full object-cover opacity-30" />
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-950/80 via-slate-900/70 to-slate-950/90 backdrop-blur-sm" />
+      </div>
+
+      <div className="relative z-10 w-full max-w-sm rounded-2xl border border-white/10 bg-slate-900/80 p-8 shadow-2xl backdrop-blur-xl">
         <div className="text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-blue-100">
-            <svg className="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-cyan-500/15">
+            <svg className="h-8 w-8 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
             </svg>
           </div>
-          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-blue-600">GuestHub</p>
-          <h1 className="mt-1 text-lg font-bold text-slate-800">
+          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-cyan-400">GuestHub</p>
+          <h1 className="mt-1 text-lg font-bold text-white">
             {t("التحقق من رقم الهاتف", "Phone Verification")}
           </h1>
-          <p className="mt-2 text-sm text-slate-500">
+          <p className="mt-2 text-sm text-white/50">
             {t(
               "أدخل رقم هاتفك المسجل في الحجز للوصول إلى الخدمات.",
               "Enter the phone number registered with your reservation to access services.",
@@ -75,7 +81,7 @@ export function GuestSessionGate({ token, lang, expired }: Props) {
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
           <div>
-            <label htmlFor="phone" className="mb-1.5 block text-xs font-medium text-slate-600">
+            <label htmlFor="phone" className="mb-1.5 block text-xs font-medium text-white/50">
               {t("رقم الهاتف", "Phone Number")}
             </label>
             <input
@@ -88,20 +94,20 @@ export function GuestSessionGate({ token, lang, expired }: Props) {
               placeholder={t("مثال: 0501234567", "e.g. 0501234567")}
               required
               dir="ltr"
-              className="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-base text-slate-800 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+              className="w-full rounded-xl border border-white/15 bg-slate-800/60 px-4 py-3 text-base text-white/90 placeholder:text-white/30 outline-none transition focus:border-cyan-500/50 focus:ring-2 focus:ring-cyan-500/20"
             />
           </div>
 
           {error && (
-            <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3">
-              <p className="text-sm text-rose-700">{error}</p>
+            <div className="rounded-xl border border-rose-500/20 bg-rose-500/10 px-4 py-3">
+              <p className="text-sm text-rose-400">{error}</p>
             </div>
           )}
 
           <button
             type="submit"
             disabled={submitting || !phone.trim()}
-            className="w-full rounded-xl bg-blue-600 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:opacity-50"
+            className="w-full rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 py-3 text-sm font-semibold text-white shadow-lg shadow-cyan-500/20 transition hover:from-cyan-400 hover:to-blue-500 disabled:opacity-50"
           >
             {submitting
               ? t("جاري التحقق…", "Verifying…")

@@ -31,8 +31,8 @@ node "$ROOT_DIR/scripts/dev-preflight.js"
 DEV_BUNDLER="${AMEEN_DEV_BUNDLER:-turbopack}"
 if [[ "$DEV_BUNDLER" == "webpack" ]]; then
   echo "[dev-stable] Starting Next.js dev server with webpack (compat mode)"
-  exec "$ROOT_DIR/node_modules/.bin/next" dev --webpack
+  exec "$ROOT_DIR/scripts/run-with-ws.sh" "$ROOT_DIR/node_modules/.bin/next" dev --webpack
 fi
 
 echo "[dev-stable] Starting Next.js dev server with turbopack (fast mode)"
-exec "$ROOT_DIR/node_modules/.bin/next" dev --turbopack
+exec "$ROOT_DIR/scripts/run-with-ws.sh" "$ROOT_DIR/node_modules/.bin/next" dev --turbopack

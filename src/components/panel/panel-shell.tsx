@@ -4,6 +4,7 @@ import type { SessionUser } from "@/lib/auth";
 import { hasPermission } from "@/lib/auth";
 import { dirForLang, tr, type AppLang } from "@/lib/i18n";
 import { NotificationBell } from "./notification-bell";
+import { ChatUnreadBell } from "./chat-unread-bell";
 import { HtmlDirSetter } from "@/components/html-dir-setter";
 import { BackNavButton } from "./back-nav-button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -103,6 +104,7 @@ export function PanelShell({ lang, user, active, title, subtitle, backgroundImag
 
             {/* Right: Actions */}
             <div className="flex items-center gap-2">
+              <ChatUnreadBell lang={lang} hasPermission={hasPermission(user, "chat.manage")} />
               <NotificationBell lang={lang} hasPermission={hasPermission(user, "services.manage")} />
 
               {/* Profile Menu */}

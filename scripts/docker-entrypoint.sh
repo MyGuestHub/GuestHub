@@ -53,5 +53,10 @@ if [ "${AUTO_SEED_ADMIN:-true}" = "true" ]; then
   fi
 fi
 
+echo "[Entrypoint] Starting WebSocket chat server on port ${WS_PORT:-3001}..."
+node ./scripts/ws-chat-server.mjs &
+WS_PID=$!
+echo "[Entrypoint] WS chat server started (PID=$WS_PID)."
+
 echo "[Entrypoint] Starting application: $*"
 exec "$@"

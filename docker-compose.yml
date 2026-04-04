@@ -95,6 +95,7 @@ services:
       UPLOAD_DIR: /app/public/uploads
     expose:
       - "3000"
+      - "3001"
     volumes:
       # Persist uploads (images, files, etc.)
       - uploads-data:/app/public/uploads

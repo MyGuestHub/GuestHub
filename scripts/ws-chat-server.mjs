@@ -35,15 +35,20 @@ const guestConns = new Map();
 // staffConns: Set<ws>
 const staffConns = new Set();
 
+function roomKeyOf(reservationId) {
+  if (reservationId === null || reservationId === undefined) return null;
+  return String(reservationId);
+}
+
 /* ── Auth helpers ──────────────────────────────────────────── */
 async function authGuest(token) {
   if (!token) return null;
   const res = await pool.query(
-    `SELECT gs.guest_id, gs.reservation_id, g.first_name, g.last_name,
-            r.room_id, rm.room_number, gs.qr_token AS token
+    `SELECT r.guest_id, gs.reservation_id, g.first_name, g.last_name,
+            r.room_id, rm.room_number, gs.room_qr_token AS token
      FROM guest_sessions gs
-     JOIN guests g ON g.id = gs.guest_id
      JOIN reservations r ON r.id = gs.reservation_id
+     JOIN guests g ON g.id = r.guest_id
      JOIN rooms rm ON rm.id = r.room_id
      WHERE gs.session_token = $1 AND gs.expires_at > NOW()
      LIMIT 1`,
@@ -71,7 +76,9 @@ function sendJSON(ws, data) {
 }
 
 function broadcastToRoom(reservationId, data, excludeWs) {
-  const conns = guestConns.get(reservationId);
+  const roomKey = roomKeyOf(reservationId);
+  if (!roomKey) return;
+  const conns = guestConns.get(roomKey);
   if (conns) {
     for (const ws of conns) {
       if (ws !== excludeWs) sendJSON(ws, data);
@@ -106,11 +113,16 @@ wss.on("connection", async (ws, req) => {
       return;
     }
     role = "guest";
-    // Register in room
-    if (!guestConns.has(guestCtx.reservation_id)) {
-      guestConns.set(guestCtx.reservation_id, new Set());
+    const roomKey = roomKeyOf(guestCtx.reservation_id);
+    if (!roomKey) {
+      ws.close(4001, "Unauthorized");
+      return;
     }
-    guestConns.get(guestCtx.reservation_id).add(ws);
+    // Register in room
+    if (!guestConns.has(roomKey)) {
+      guestConns.set(roomKey, new Set());
+    }
+    guestConns.get(roomKey).add(ws);
     sendJSON(ws, {
       type: "connected",
       role: "guest",
@@ -168,7 +180,7 @@ wss.on("connection", async (ws, req) => {
         broadcastToStaff(payload, null);
       } else if (role === "staff") {
         // Staff sends message — needs target reservation_id
-        const reservationId = msg.reservationId;
+        const reservationId = roomKeyOf(msg.reservationId);
         if (!reservationId) return;
 
         const result = await pool.query(
@@ -188,8 +200,8 @@ wss.on("connection", async (ws, req) => {
         };
         // Broadcast to guest room
         broadcastToRoom(reservationId, payload, null);
-        // Broadcast to other staff
-        broadcastToStaff(payload, ws);
+        // Broadcast to ALL staff (including sender so they see their own message)
+        broadcastToStaff(payload, null);
       }
     }
 
@@ -200,9 +212,11 @@ wss.on("connection", async (ws, req) => {
           null,
         );
       } else if (role === "staff" && msg.reservationId) {
+        const reservationId = roomKeyOf(msg.reservationId);
+        if (!reservationId) return;
         broadcastToRoom(
-          msg.reservationId,
-          { type: "chat:typing", sender_type: "staff", reservation_id: msg.reservationId },
+          reservationId,
+          { type: "chat:typing", sender_type: "staff", reservation_id: reservationId },
           null,
         );
       }
@@ -220,14 +234,16 @@ wss.on("connection", async (ws, req) => {
           null,
         );
       } else if (role === "staff" && msg.reservationId) {
+        const reservationId = roomKeyOf(msg.reservationId);
+        if (!reservationId) return;
         await pool.query(
           `UPDATE chat_messages SET is_read = TRUE
            WHERE reservation_id = $1 AND sender_type = 'guest' AND NOT is_read`,
-          [msg.reservationId],
+          [reservationId],
         );
         broadcastToRoom(
-          msg.reservationId,
-          { type: "chat:read", reservation_id: msg.reservationId },
+          reservationId,
+          { type: "chat:read", reservation_id: reservationId },
           null,
         );
       }
@@ -237,10 +253,10 @@ wss.on("connection", async (ws, req) => {
   /* ── Cleanup on disconnect ─────────────────────────────────── */
   ws.on("close", () => {
     if (role === "guest" && guestCtx) {
-      const set = guestConns.get(guestCtx.reservation_id);
+      const set = guestConns.get(roomKeyOf(guestCtx.reservation_id));
       if (set) {
         set.delete(ws);
-        if (set.size === 0) guestConns.delete(guestCtx.reservation_id);
+        if (set.size === 0) guestConns.delete(roomKeyOf(guestCtx.reservation_id));
       }
     } else if (role === "staff") {
       staffConns.delete(ws);

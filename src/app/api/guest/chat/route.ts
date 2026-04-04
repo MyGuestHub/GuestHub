@@ -12,13 +12,16 @@ import {
 export async function GET(request: Request) {
   const url = new URL(request.url);
   const lang = resolveLang(url.searchParams.get("lang"));
+  const markRead = url.searchParams.get("markRead") !== "0";
   const cookieStore = await cookies();
   const session = cookieStore.get("guest_session")?.value;
   const guest = session ? await validateGuestSession(session) : null;
   if (!guest) return NextResponse.json({ error: tr(lang, "غير مصرح", "Unauthorized") }, { status: 403 });
 
   const messages = await listChatMessages(guest.reservationId);
-  await markChatRead(guest.reservationId, "guest");
+  if (markRead) {
+    await markChatRead(guest.reservationId, "guest");
+  }
   return NextResponse.json({ messages });
 }
 
