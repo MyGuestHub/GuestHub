@@ -14,10 +14,12 @@ export function GuestQuickActions({ lang }: Props) {
   const [wakeUp, setWakeUp] = useState<WakeUp | null>(null);
   const [showWakeForm, setShowWakeForm] = useState(false);
   const [wakeTime, setWakeTime] = useState("07:00");
-  const [wakeDate, setWakeDate] = useState(
-    new Date(Date.now() + 86400000).toISOString().slice(0, 10),
-  );
+  const [wakeDate, setWakeDate] = useState("");
   const [wakeLoading, setWakeLoading] = useState(false);
+
+  useEffect(() => {
+    if (!wakeDate) setWakeDate(new Date(Date.now() + 86400000).toISOString().slice(0, 10));
+  }, [wakeDate]);
   const [toast, setToast] = useState<string | null>(null);
 
   const t = (ar: string, en: string) => (lang === "ar" ? ar : en);

@@ -68,23 +68,6 @@ COPY --from=builder /app/scripts/ws-chat-server.mjs ./scripts/ws-chat-server.mjs
 
 # Copy ws + pg packages for the standalone WS chat server (not traced by Next.js standalone)
 COPY --from=builder /app/node_modules/ws ./node_modules/ws
-COPY --from=builder /app/node_modules/pg ./node_modules/pg
-COPY --from=builder /app/node_modules/pg-types ./node_modules/pg-types
-COPY --from=builder /app/node_modules/pg-connection-string ./node_modules/pg-connection-string
-COPY --from=builder /app/node_modules/pg-pool ./node_modules/pg-pool
-COPY --from=builder /app/node_modules/pg-protocol ./node_modules/pg-protocol
-COPY --from=builder /app/node_modules/pgpass ./node_modules/pgpass
-COPY --from=builder /app/node_modules/pg-cloudflare ./node_modules/pg-cloudflare
-COPY --from=builder /app/node_modules/pg-int8 ./node_modules/pg-int8
-COPY --from=builder /app/node_modules/postgres-array ./node_modules/postgres-array
-COPY --from=builder /app/node_modules/postgres-bytea ./node_modules/postgres-bytea
-COPY --from=builder /app/node_modules/postgres-date ./node_modules/postgres-date
-COPY --from=builder /app/node_modules/postgres-interval ./node_modules/postgres-interval
-COPY --from=builder /app/node_modules/postgres-range ./node_modules/postgres-range
-COPY --from=builder /app/node_modules/obuf ./node_modules/obuf
-COPY --from=builder /app/node_modules/split2 ./node_modules/split2
-COPY --from=builder /app/node_modules/buffer-writer ./node_modules/buffer-writer
-COPY --from=builder /app/node_modules/packet-reader ./node_modules/packet-reader
 
 # Create directories for persistent data and Next.js cache (will be mounted as volumes)
 RUN mkdir -p /app/public/uploads /app/data /app/logs /app/backups /app/.next/cache \

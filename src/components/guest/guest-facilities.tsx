@@ -45,7 +45,7 @@ export function GuestFacilities({ lang }: Props) {
   const [facilities, setFacilities] = useState<Facility[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [selected, setSelected] = useState<Facility | null>(null);
-  const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
+  const [date, setDate] = useState("");
   const [slots, setSlots] = useState<Slot[]>([]);
   const [chosenSlot, setChosenSlot] = useState<Slot | null>(null);
   const [guestsCount, setGuestsCount] = useState(1);
@@ -53,6 +53,10 @@ export function GuestFacilities({ lang }: Props) {
   const [result, setResult] = useState<string | null>(null);
 
   const t = (ar: string, en: string) => (lang === "ar" ? ar : en);
+
+  useEffect(() => {
+    if (!date) setDate(new Date().toISOString().slice(0, 10));
+  }, [date]);
 
   const loadFacilities = useCallback(async () => {
     const res = await fetch(`/api/guest/facilities?lang=${lang}`);
