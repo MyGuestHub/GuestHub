@@ -17,7 +17,9 @@ type NavKey =
   | "reservations"
   | "service-requests"
   | "qr-codes"
-  | "profile";
+  | "profile"
+  | "services"
+  | "settings";
 
 type Props = {
   lang: AppLang;

@@ -1,6 +1,7 @@
 import { PanelShell } from "@/components/panel/panel-shell";
 import { Pagination } from "@/components/panel/pagination";
 import {
+  getAvgResponseTime,
   getServiceRequestStats,
   listActiveReservations,
   listServiceItemOptions,
@@ -31,12 +32,13 @@ export default async function ServiceRequestsPage({ params, searchParams }: Prop
   const pager = readPager(query, { pageSize: 20 });
   const statusFilter = query.status || undefined;
 
-  const [requests, stats, staffList, reservations, serviceItems] = await Promise.all([
+  const [requests, stats, staffList, reservations, serviceItems, avgResponseTime] = await Promise.all([
     listServiceRequestsPaginated(pager.page, pager.pageSize, { status: statusFilter }),
     getServiceRequestStats(),
     listStaffUsers(),
     listActiveReservations(),
     listServiceItemOptions(),
+    getAvgResponseTime(),
   ]);
 
   return (
@@ -76,6 +78,7 @@ export default async function ServiceRequestsPage({ params, searchParams }: Prop
         staffList={staffList}
         statusFilter={statusFilter}
         basePath={`/${ctx.lang}/service-requests`}
+        avgResponseTime={avgResponseTime}
       />
 
       {/* Create new request button */}

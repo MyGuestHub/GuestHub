@@ -543,6 +543,7 @@ export type ServiceItem = {
   estimated_cost: string | null;
   sort_order: number;
   is_active: boolean;
+  estimated_duration_minutes: number | null;
 };
 
 export type ServiceRequestRow = {
@@ -602,7 +603,7 @@ export async function listServiceItems(categoryId?: number): Promise<ServiceItem
   if (categoryId) {
     const result = await query<ServiceItem>(
       `SELECT id, category_id, slug, name_en, name_ar, description_en, description_ar,
-              estimated_cost::text, sort_order, is_active
+              estimated_cost::text, sort_order, is_active, estimated_duration_minutes
        FROM service_items
        WHERE category_id = $1 AND is_active = TRUE
        ORDER BY sort_order`,
@@ -613,7 +614,7 @@ export async function listServiceItems(categoryId?: number): Promise<ServiceItem
 
   const result = await query<ServiceItem>(
     `SELECT id, category_id, slug, name_en, name_ar, description_en, description_ar,
-            estimated_cost::text, sort_order, is_active
+            estimated_cost::text, sort_order, is_active, estimated_duration_minutes
      FROM service_items
      WHERE is_active = TRUE
      ORDER BY sort_order`,
@@ -711,8 +712,8 @@ export async function listServiceRequestsPaginated(
 
 export async function listServiceRequestsByReservation(
   reservationId: number,
-): Promise<ServiceRequestRow[]> {
-  const result = await query<ServiceRequestRow>(
+): Promise<(ServiceRequestRow & { estimated_duration_minutes: number | null })[]> {
+  const result = await query<ServiceRequestRow & { estimated_duration_minutes: number | null }>(
     `SELECT
        sr.id,
        g.first_name || ' ' || g.last_name AS guest_name,
@@ -729,7 +730,8 @@ export async function listServiceRequestsByReservation(
        au.full_name AS assigned_to_name,
        au.avatar_url AS assigned_to_avatar,
        sr.created_at::text,
-       sr.completed_at::text
+       sr.completed_at::text,
+       si.estimated_duration_minutes
      FROM service_requests sr
      JOIN guests g ON g.id = sr.guest_id
      JOIN rooms rm ON rm.id = sr.room_id
@@ -1095,6 +1097,121 @@ export async function revokeGuestSessionsByReservation(reservationId: number): P
   await query(
     `DELETE FROM guest_sessions WHERE reservation_id = $1`,
     [reservationId],
+  );
+}
+
+/* ───── Admin: Service categories & items CRUD ─────────────────────── */
+
+export async function listAllServiceCategories(): Promise<ServiceCategory[]> {
+  const result = await query<ServiceCategory>(
+    `SELECT id, slug, name_en, name_ar, icon, sort_order, is_active
+     FROM service_categories
+     ORDER BY sort_order`,
+  );
+  return result.rows;
+}
+
+export async function listAllServiceItems(): Promise<
+  Array<ServiceItem & { category_name_en: string; category_name_ar: string }>
+> {
+  const result = await query<ServiceItem & { category_name_en: string; category_name_ar: string }>(
+    `SELECT si.id, si.category_id, si.slug, si.name_en, si.name_ar,
+            si.description_en, si.description_ar, si.estimated_cost::text,
+            si.sort_order, si.is_active, si.estimated_duration_minutes,
+            sc.name_en AS category_name_en, sc.name_ar AS category_name_ar
+     FROM service_items si
+     JOIN service_categories sc ON sc.id = si.category_id
+     ORDER BY sc.sort_order, si.sort_order`,
+  );
+  return result.rows;
+}
+
+export async function getCategoryById(id: number): Promise<ServiceCategory | null> {
+  const result = await query<ServiceCategory>(
+    `SELECT id, slug, name_en, name_ar, icon, sort_order, is_active
+     FROM service_categories WHERE id = $1`,
+    [id],
+  );
+  return result.rows[0] ?? null;
+}
+
+export async function getServiceItemById(id: number): Promise<ServiceItem | null> {
+  const result = await query<ServiceItem>(
+    `SELECT id, category_id, slug, name_en, name_ar, description_en, description_ar,
+            estimated_cost::text, sort_order, is_active, estimated_duration_minutes
+     FROM service_items WHERE id = $1`,
+    [id],
+  );
+  return result.rows[0] ?? null;
+}
+
+/* ───── Request tracking / logs ────────────────────────────────────── */
+
+export type ServiceRequestLog = {
+  id: number;
+  service_request_id: number;
+  old_status: string | null;
+  new_status: string;
+  changed_by_name: string | null;
+  note: string | null;
+  created_at: string;
+};
+
+export async function listRequestLogs(requestId: number): Promise<ServiceRequestLog[]> {
+  const result = await query<ServiceRequestLog>(
+    `SELECT srl.id, srl.service_request_id,
+            srl.old_status, srl.new_status,
+            au.full_name AS changed_by_name,
+            srl.note,
+            srl.created_at::text
+     FROM service_request_logs srl
+     LEFT JOIN app_users au ON au.id = srl.changed_by
+     WHERE srl.service_request_id = $1
+     ORDER BY srl.created_at ASC`,
+    [requestId],
+  );
+  return result.rows;
+}
+
+export async function getAvgResponseTime(): Promise<string> {
+  const result = await query<{ avg_minutes: string }>(
+    `SELECT COALESCE(
+       ROUND(AVG(EXTRACT(EPOCH FROM (
+         COALESCE(sr.completed_at, NOW()) - sr.created_at
+       )) / 60))::text, '0'
+     ) AS avg_minutes
+     FROM service_requests sr
+     WHERE sr.request_status IN ('completed', 'in_progress')
+       AND sr.created_at > NOW() - INTERVAL '7 days'`,
+  );
+  const mins = Number(result.rows[0]?.avg_minutes ?? "0");
+  if (mins < 60) return `${mins}m`;
+  return `${Math.floor(mins / 60)}h ${mins % 60}m`;
+}
+
+/* ───── Dashboard settings for widgets ─────────────────────────────── */
+
+export type DashboardSetting = {
+  id: number;
+  setting_key: string;
+  setting_value: unknown;
+  updated_at: string;
+};
+
+export async function getDashboardSetting(key: string): Promise<unknown | null> {
+  const result = await query<{ setting_value: unknown }>(
+    `SELECT setting_value FROM dashboard_settings WHERE setting_key = $1`,
+    [key],
+  );
+  return result.rows[0]?.setting_value ?? null;
+}
+
+export async function upsertDashboardSetting(key: string, value: unknown, userId: number): Promise<void> {
+  await query(
+    `INSERT INTO dashboard_settings (setting_key, setting_value, updated_by, updated_at)
+     VALUES ($1, $2::jsonb, $3, NOW())
+     ON CONFLICT (setting_key) DO UPDATE SET setting_value = $2::jsonb, updated_by = $3, updated_at = NOW()`,
+    [key, JSON.stringify(value), userId],
   );
 }
 

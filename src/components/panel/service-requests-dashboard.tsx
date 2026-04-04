@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, Fragment, useTransition } from "react";
+import { useState, useMemo, Fragment, useTransition, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
   FiActivity,
@@ -19,6 +19,7 @@ import {
   FiTrendingUp,
   FiUser,
   FiXCircle,
+  FiFileText,
 } from "react-icons/fi";
 import { AppSelect } from "@/components/ui/app-select";
 
@@ -57,6 +58,7 @@ type Props = {
   staffList: Staff[];
   statusFilter?: string;
   basePath: string;
+  avgResponseTime?: string;
 };
 
 const statusConfig = {
@@ -116,6 +118,7 @@ export function ServiceRequestsDashboard({
   staffList,
   statusFilter,
   basePath,
+  avgResponseTime: avgResponseTimeProp,
 }: Props) {
   const [viewMode, setViewMode] = useState<"table" | "kanban">("table");
   const [searchQuery, setSearchQuery] = useState("");
@@ -126,7 +129,7 @@ export function ServiceRequestsDashboard({
 
   const totalActive = stats.pending + stats.accepted + stats.in_progress;
   const completionRate = stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0;
-  const avgResponseTime = "12m"; // This would come from real data
+  const avgResponseTime = avgResponseTimeProp || "—";
 
   const filteredRequests = useMemo(() => {
     if (!searchQuery.trim()) return requests;
@@ -912,6 +915,124 @@ function RequestActionPanel({
         <div className="ms-auto max-w-xs rounded-lg bg-white/5 px-3 py-2">
           <p className="text-xs text-white/40">{t("ملاحظات", "Notes")}</p>
           <p className="mt-1 text-sm text-white/70">{r.notes}</p>
+        </div>
+      )}
+
+      {/* Request Logs / Timeline */}
+      {!compact && (
+        <RequestLogsTimeline requestId={r.id} lang={lang} />
+      )}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Request Logs Timeline
+   ═══════════════════════════════════════════════════════════════════════════ */
+function RequestLogsTimeline({ requestId, lang }: { requestId: number; lang: "ar" | "en" }) {
+  const [logs, setLogs] = useState<Array<{
+    id: number;
+    old_status: string | null;
+    new_status: string;
+    changed_by_name: string | null;
+    note: string | null;
+    created_at: string;
+  }>>([]);
+  const [loading, setLoading] = useState(true);
+  const [open, setOpen] = useState(false);
+  const t = (ar: string, en: string) => (lang === "ar" ? ar : en);
+
+  useEffect(() => {
+    if (!open) return;
+    setLoading(true);
+    fetch(`/api/service-requests/logs?requestId=${requestId}`)
+      .then((res) => res.json())
+      .then((data) => {
+        setLogs(data.logs || []);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, [requestId, open]);
+
+  const statusLabel = (s: string) => {
+    const cfg = statusConfig[s as keyof typeof statusConfig];
+    return cfg ? cfg.label[lang] : s;
+  };
+
+  // Calculate duration from first to last log
+  const getDuration = () => {
+    if (logs.length < 2) return null;
+    const first = new Date(logs[0].created_at).getTime();
+    const last = new Date(logs[logs.length - 1].created_at).getTime();
+    const mins = Math.floor((last - first) / 60000);
+    if (mins < 60) return `${mins} ${t("دقيقة", "min")}`;
+    const hrs = Math.floor(mins / 60);
+    const rem = mins % 60;
+    return `${hrs}${t("س", "h")} ${rem}${t("د", "m")}`;
+  };
+
+  return (
+    <div className="w-full">
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        className="flex items-center gap-2 rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-xs font-medium text-white/70 transition hover:bg-white/10 hover:text-white"
+      >
+        <FiFileText className="h-3.5 w-3.5" />
+        {t("سجل التتبع", "Activity Log")}
+        <FiChevronDown className={`h-3.5 w-3.5 transition-transform ${open ? "rotate-180" : ""}`} />
+      </button>
+
+      {open && (
+        <div className="mt-3 rounded-xl border border-white/10 bg-slate-900/60 p-4">
+          {loading ? (
+            <div className="flex items-center justify-center py-4">
+              <FiLoader className="h-5 w-5 animate-spin text-white/50" />
+            </div>
+          ) : logs.length === 0 ? (
+            <p className="text-center text-xs text-white/50">{t("لا يوجد سجل", "No logs")}</p>
+          ) : (
+            <>
+              {getDuration() && (
+                <div className="mb-3 flex items-center gap-2 rounded-lg bg-cyan-500/10 px-3 py-2">
+                  <FiClock className="h-4 w-4 text-cyan-300" />
+                  <span className="text-xs font-medium text-cyan-200">
+                    {t("المدة الإجمالية:", "Total Duration:")} {getDuration()}
+                  </span>
+                </div>
+              )}
+              <div className="relative space-y-3 ps-6 before:absolute before:start-2 before:top-2 before:h-[calc(100%-1rem)] before:w-px before:bg-white/15">
+                {logs.map((log) => {
+                  const newCfg = statusConfig[log.new_status as keyof typeof statusConfig];
+                  return (
+                    <div key={log.id} className="relative">
+                      <div className={`absolute -start-[18px] top-1 h-3 w-3 rounded-full border-2 border-slate-900 ${
+                        newCfg ? `bg-${newCfg.color}-400` : "bg-slate-400"
+                      }`} style={{ backgroundColor: newCfg ? `var(--color-${newCfg.color}-400, #94a3b8)` : undefined }} />
+                      <div className="flex flex-wrap items-center gap-2">
+                        {log.old_status && (
+                          <span className="rounded bg-white/10 px-1.5 py-0.5 text-[10px] text-white/60">{statusLabel(log.old_status)}</span>
+                        )}
+                        <span className="text-[10px] text-white/40">→</span>
+                        <span className={`rounded px-1.5 py-0.5 text-[10px] font-medium ${newCfg?.badge ?? "bg-slate-500/30 text-slate-200"}`}>
+                          {statusLabel(log.new_status)}
+                        </span>
+                        {log.changed_by_name && (
+                          <span className="flex items-center gap-1 text-[10px] text-white/50">
+                            <FiUser className="h-2.5 w-2.5" /> {log.changed_by_name}
+                          </span>
+                        )}
+                        <span className="text-[10px] text-white/40">
+                          {new Date(log.created_at).toLocaleString(lang, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+                        </span>
+                      </div>
+                      {log.note && <p className="mt-1 text-[10px] text-white/50">📝 {log.note}</p>}
+                    </div>
+                  );
+                })}
+              </div>
+            </>
+          )}
         </div>
       )}
     </div>

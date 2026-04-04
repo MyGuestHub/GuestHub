@@ -7,6 +7,7 @@ import {
   FiCheck,
   FiChevronLeft,
   FiChevronRight,
+  FiClock,
   FiCoffee,
   FiDroplet,
   FiFileText,
@@ -205,6 +206,12 @@ export function GuestServiceForm({ token, categories, lang }: Props) {
                   {(lang === "ar" ? item.description_ar : item.description_en) ? (
                     <p className="text-xs text-slate-400">
                       {lang === "ar" ? item.description_ar : item.description_en}
+                    </p>
+                  ) : null}
+                  {item.estimated_duration_minutes ? (
+                    <p className="mt-0.5 inline-flex items-center gap-1 text-[11px] text-blue-500">
+                      <FiClock className="h-3 w-3" />
+                      ~{item.estimated_duration_minutes} {t("دقيقة", "min")}
                     </p>
                   ) : null}
                 </div>

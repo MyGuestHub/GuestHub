@@ -12,6 +12,8 @@ type Request = {
   notes: string | null;
   request_status: string;
   created_at: string;
+  estimated_duration_minutes?: number | null;
+  assigned_to_name?: string | null;
 };
 
 type Props = {
@@ -149,9 +151,20 @@ export function GuestRequestsLive({ token, lang, initialRequests }: Props) {
                     minute: "2-digit",
                   })}
                 </p>
-                {r.notes ? (
-                  <p className="text-[10px] text-slate-400 truncate max-w-[50%]">{r.notes}</p>
-                ) : null}
+                <div className="flex items-center gap-2">
+                  {r.estimated_duration_minutes && r.request_status !== "completed" && r.request_status !== "cancelled" ? (
+                    <span className="inline-flex items-center gap-0.5 rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-medium text-blue-600">
+                      <FiClock className="h-2.5 w-2.5" />
+                      ~{r.estimated_duration_minutes}{t("د", "m")}
+                    </span>
+                  ) : null}
+                  {r.assigned_to_name && r.request_status !== "completed" ? (
+                    <span className="text-[10px] text-slate-400 truncate max-w-[80px]">{r.assigned_to_name}</span>
+                  ) : null}
+                  {r.notes ? (
+                    <p className="text-[10px] text-slate-400 truncate max-w-[50%]">{r.notes}</p>
+                  ) : null}
+                </div>
               </div>
             </div>
           );

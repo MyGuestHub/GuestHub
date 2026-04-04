@@ -1,28 +1,38 @@
 import { PanelShell } from "@/components/panel/panel-shell";
 import { DashboardGrid } from "@/components/panel/dashboard-grid";
-import { getRoomStats, getServiceRequestStats } from "@/lib/data";
+import { getRoomStats, getServiceRequestStats, getDashboardSetting } from "@/lib/data";
 import { hasPermission } from "@/lib/auth";
 import { requirePanelContext } from "@/lib/panel";
+import { WorldClockWidget } from "@/components/panel/world-clock-widget";
+import { WeatherWidget } from "@/components/panel/weather-widget";
 
 type Props = {
   params: Promise<{ lang: string }>;
   searchParams: Promise<{ error?: string; ok?: string }>;
 };
 
+type ClockEntry = { city_en: string; city_ar: string; timezone: string };
+type WeatherEntry = { city_en: string; city_ar: string; lat: number; lon: number };
+
 export default async function DashboardPage({ params, searchParams }: Props) {
   const routeParams = await params;
   const query = await searchParams;
   const ctx = await requirePanelContext(routeParams.lang);
 
-  const [stats, srStats] = await Promise.all([
+  const [stats, srStats, clocksRaw, weatherRaw] = await Promise.all([
     getRoomStats(),
     hasPermission(ctx.user, "services.manage")
       ? getServiceRequestStats()
       : Promise.resolve(null),
+    getDashboardSetting("world_clocks"),
+    getDashboardSetting("weather_locations"),
   ]);
 
   const serviceOpen = srStats ? srStats.pending + srStats.accepted + srStats.in_progress : 0;
   const hasServicePermission = hasPermission(ctx.user, "services.manage");
+
+  const clocks = (Array.isArray(clocksRaw) ? clocksRaw : []) as ClockEntry[];
+  const weatherLocations = (Array.isArray(weatherRaw) ? weatherRaw : []) as WeatherEntry[];
 
   return (
     <PanelShell
@@ -61,6 +71,16 @@ export default async function DashboardPage({ params, searchParams }: Props) {
             srStats={srStats}
             hasServicePermission={hasServicePermission}
           />
+
+          {/* World Clock Widget */}
+          {clocks.length > 0 && (
+            <WorldClockWidget lang={ctx.lang} clocks={clocks} />
+          )}
+
+          {/* Weather Widget */}
+          {weatherLocations.length > 0 && (
+            <WeatherWidget lang={ctx.lang} locations={weatherLocations} />
+          )}
       </div>
     </PanelShell>
   );
