@@ -409,6 +409,16 @@ export function GuestRequestsLive({ token, lang, initialRequests }: Props) {
   );
   const t = (ar: string, en: string) => (lang === "ar" ? ar : en);
 
+  /* deterministic short date — avoids locale ICU mismatch between Node and browser */
+  const fmtDate = (iso: string) => {
+    const d = new Date(iso);
+    const mon = d.getMonth() + 1;
+    const day = d.getDate();
+    const h = d.getHours().toString().padStart(2, "0");
+    const m = d.getMinutes().toString().padStart(2, "0");
+    return `${day}/${mon} ${h}:${m}`;
+  };
+
   // Fetch existing ratings on mount
   useEffect(() => {
     fetch("/api/guest/rating")
@@ -691,15 +701,7 @@ export function GuestRequestsLive({ token, lang, initialRequests }: Props) {
 
               <div className="mt-1.5 flex items-center justify-between">
                 <p className="text-[10px] text-slate-400">
-                  {new Date(r.created_at).toLocaleDateString(
-                    lang === "ar" ? "ar" : "en",
-                    {
-                      month: "short",
-                      day: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    },
-                  )}
+                  {fmtDate(r.created_at)}
                 </p>
                 <div className="flex items-center gap-2">
                   {r.estimated_duration_minutes &&
