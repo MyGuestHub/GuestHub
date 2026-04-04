@@ -402,22 +402,52 @@ export function ApiKeysManagement({ lang, keys, newKey, basePath, scopes }: Prop
           {[
             { method: "GET", path: "/api/v1/rooms", scope: "rooms.read" },
             { method: "GET", path: "/api/v1/rooms/:id", scope: "rooms.read" },
+            { method: "POST", path: "/api/v1/rooms", scope: "rooms.write" },
+            { method: "PUT", path: "/api/v1/rooms/:id", scope: "rooms.write" },
+            { method: "DELETE", path: "/api/v1/rooms/:id", scope: "rooms.write" },
             { method: "GET", path: "/api/v1/guests", scope: "guests.read" },
+            { method: "GET", path: "/api/v1/guests/:id", scope: "guests.read" },
+            { method: "POST", path: "/api/v1/guests", scope: "guests.write" },
+            { method: "PUT", path: "/api/v1/guests/:id", scope: "guests.write" },
+            { method: "DELETE", path: "/api/v1/guests/:id", scope: "guests.write" },
             { method: "GET", path: "/api/v1/reservations", scope: "reservations.read" },
+            { method: "GET", path: "/api/v1/reservations/:id", scope: "reservations.read" },
+            { method: "POST", path: "/api/v1/reservations", scope: "reservations.write" },
+            { method: "PUT", path: "/api/v1/reservations/:id", scope: "reservations.write" },
+            { method: "DELETE", path: "/api/v1/reservations/:id", scope: "reservations.write" },
             { method: "GET", path: "/api/v1/services", scope: "services.read" },
             { method: "GET", path: "/api/v1/service-requests", scope: "requests.read" },
+            { method: "GET", path: "/api/v1/service-requests/:id", scope: "requests.read" },
+            { method: "POST", path: "/api/v1/service-requests", scope: "requests.write" },
+            { method: "PUT", path: "/api/v1/service-requests/:id", scope: "requests.write" },
             { method: "GET", path: "/api/v1/housekeeping", scope: "housekeeping.read" },
+            { method: "GET", path: "/api/v1/housekeeping/:id", scope: "housekeeping.read" },
+            { method: "POST", path: "/api/v1/housekeeping", scope: "housekeeping.write" },
+            { method: "PUT", path: "/api/v1/housekeeping/:id", scope: "housekeeping.write" },
+            { method: "DELETE", path: "/api/v1/housekeeping/:id", scope: "housekeeping.write" },
             { method: "GET", path: "/api/v1/facilities", scope: "facilities.read" },
+            { method: "POST", path: "/api/v1/facilities", scope: "facilities.write" },
             { method: "GET", path: "/api/v1/invoices", scope: "invoices.read" },
-          ].map((ep) => (
-            <div key={ep.path} className="flex items-center gap-3 rounded-xl bg-slate-900/40 px-3 py-2">
-              <span className="rounded bg-emerald-500/25 px-2 py-0.5 text-[10px] font-bold text-emerald-300">
+            { method: "GET", path: "/api/v1/invoices/:id", scope: "invoices.read" },
+            { method: "POST", path: "/api/v1/invoices", scope: "invoices.write" },
+            { method: "PUT", path: "/api/v1/invoices/:id", scope: "invoices.write" },
+          ].map((ep) => {
+            const methodColor: Record<string, string> = {
+              GET: "bg-emerald-500/25 text-emerald-300",
+              POST: "bg-blue-500/25 text-blue-300",
+              PUT: "bg-amber-500/25 text-amber-300",
+              DELETE: "bg-rose-500/25 text-rose-300",
+            };
+            return (
+            <div key={`${ep.method}-${ep.path}`} className="flex items-center gap-3 rounded-xl bg-slate-900/40 px-3 py-2">
+              <span className={`rounded px-2 py-0.5 text-[10px] font-bold ${methodColor[ep.method] ?? "bg-slate-500/25 text-slate-300"}`}>
                 {ep.method}
               </span>
               <code className="flex-1 text-xs text-white/80">{ep.path}</code>
               <span className="rounded bg-cyan-500/15 px-2 py-0.5 text-[10px] text-cyan-300">{ep.scope}</span>
             </div>
-          ))}
+            );
+          })}
         </div>
 
         <div className="mt-4 space-y-2">

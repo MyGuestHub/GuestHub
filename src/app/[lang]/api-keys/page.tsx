@@ -1,12 +1,13 @@
 import { PanelShell } from "@/components/panel/panel-shell";
 import { ApiKeysManagement } from "@/components/panel/api-keys-management";
+import { ApiPlayground } from "@/components/panel/api-playground";
 import { listApiKeys } from "@/lib/data";
 import { API_SCOPES } from "@/lib/api-auth";
 import { requirePanelContext, requirePermissionOrRedirect } from "@/lib/panel";
 
 type Props = {
   params: Promise<{ lang: string }>;
-  searchParams: Promise<{ newKey?: string; ok?: string; error?: string }>;
+  searchParams: Promise<{ newKey?: string; ok?: string; error?: string; tab?: string }>;
 };
 
 export default async function ApiKeysPage({ params, searchParams }: Props) {
@@ -52,6 +53,12 @@ export default async function ApiKeysPage({ params, searchParams }: Props) {
         basePath={`/${ctx.lang}/api-keys`}
         scopes={API_SCOPES as unknown as Record<string, string>}
       />
+
+      {/* Divider */}
+      <div className="my-8 h-px bg-gradient-to-r from-transparent via-white/15 to-transparent" />
+
+      {/* API Playground */}
+      <ApiPlayground lang={ctx.lang} />
     </PanelShell>
   );
 }

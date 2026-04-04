@@ -8,18 +8,20 @@ const BEARER_PREFIX = "Bearer ";
 /** Available API scopes and their descriptions */
 export const API_SCOPES = {
   "rooms.read": "List and view rooms",
-  "rooms.write": "Create and update rooms",
+  "rooms.write": "Create, update, and delete rooms",
   "guests.read": "List and view guests",
   "guests.write": "Create and update guests",
   "reservations.read": "List and view reservations",
-  "reservations.write": "Create and update reservations",
+  "reservations.write": "Create, update status, and manage reservations",
   "services.read": "List service categories and items",
   "requests.read": "List and view service requests",
-  "requests.write": "Create service requests",
+  "requests.write": "Create and update service requests",
   "housekeeping.read": "View housekeeping tasks",
-  "housekeeping.write": "Manage housekeeping tasks",
+  "housekeeping.write": "Create, assign, and update housekeeping tasks",
   "facilities.read": "View facilities and bookings",
+  "facilities.write": "Manage facility bookings",
   "invoices.read": "View invoices",
+  "invoices.write": "Create and manage invoices",
 } as const;
 
 export type ApiScope = keyof typeof API_SCOPES;
@@ -48,7 +50,7 @@ function extractKey(req: NextRequest): string | null {
 }
 
 /** Error response helper */
-function apiError(status: number, code: string, message: string) {
+export function apiError(status: number, code: string, message: string) {
   return NextResponse.json(
     { error: { code, message } },
     {
