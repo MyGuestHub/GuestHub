@@ -100,69 +100,69 @@ export function GuestCart({ token, lang }: Props) {
       />
       {/* Panel – slides from end side */}
       <div
-        className="relative ms-auto flex h-full w-full max-w-sm flex-col bg-white shadow-2xl"
+        className="relative ms-auto flex h-full w-full max-w-sm flex-col border-s border-white/10 bg-slate-900/95 shadow-2xl backdrop-blur-xl"
         style={{
           animation: "cart-slide-in .25s ease-out both",
         }}
       >
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3">
-          <h2 className="flex items-center gap-2 text-base font-bold text-slate-900">
-            <FiShoppingCart className="h-5 w-5 text-blue-600" />
+        <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
+          <h2 className="flex items-center gap-2 text-base font-bold text-white">
+            <FiShoppingCart className="h-5 w-5 text-cyan-400" />
             {t("سلة الطلبات", "Cart")} ({items.length})
           </h2>
           <button
             onClick={() => setOpen(false)}
-            className="rounded-lg p-1.5 transition hover:bg-slate-100"
+            className="rounded-lg p-1.5 transition hover:bg-white/10"
           >
-            <FiX className="h-5 w-5 text-slate-500" />
+            <FiX className="h-5 w-5 text-white/50" />
           </button>
         </div>
 
         {/* Checkout success */}
         {checkoutResult && (
-          <div className="mx-4 mt-3 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-center">
-            <FiCheck className="mx-auto mb-1 h-8 w-8 text-emerald-600" />
-            <p className="text-sm font-medium text-emerald-800">{checkoutResult}</p>
+          <div className="mx-4 mt-3 rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-3 text-center">
+            <FiCheck className="mx-auto mb-1 h-8 w-8 text-emerald-400" />
+            <p className="text-sm font-medium text-emerald-300">{checkoutResult}</p>
           </div>
         )}
 
         {/* Items */}
         <div className="flex-1 overflow-y-auto px-4 py-3">
           {items.length === 0 && !checkoutResult && (
-            <div className="flex h-full flex-col items-center justify-center gap-3 text-slate-300">
+            <div className="flex h-full flex-col items-center justify-center gap-3 text-white/20">
               <FiShoppingCart className="h-12 w-12" />
-              <p className="text-sm text-slate-400">{t("السلة فارغة", "Your cart is empty")}</p>
+              <p className="text-sm text-white/40">{t("السلة فارغة", "Your cart is empty")}</p>
             </div>
           )}
           <div className="space-y-2">
             {items.map((item) => (
               <div
                 key={item.id}
-                className="flex items-start gap-3 rounded-xl border border-slate-100 bg-slate-50 p-3"
+                className="flex items-start gap-3 rounded-xl border border-white/10 bg-slate-800/50 p-3"
               >
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium text-slate-800">
+                  <p className="truncate text-sm font-medium text-white/90">
                     {lang === "ar" ? item.item_name_ar : item.item_name_en}
                   </p>
-                  <p className="text-xs text-slate-400">
+                  <p className="text-xs text-white/40">
                     {lang === "ar" ? item.category_name_ar : item.category_name_en}
                   </p>
                   <div className="mt-1 flex items-center gap-2">
-                    <span className="text-xs text-slate-500">×{item.quantity}</span>
+                    <span className="text-xs text-white/50">×{item.quantity}</span>
                     {item.estimated_cost && (
-                      <span className="text-xs font-medium text-blue-600">
+                      <span className="text-xs font-medium text-cyan-400">
                         ${(parseFloat(item.estimated_cost) * item.quantity).toFixed(2)}
                       </span>
                     )}
                   </div>
                   {item.notes && (
-                    <p className="mt-0.5 truncate text-[11px] italic text-slate-400">{item.notes}</p>
+                    <p className="mt-0.5 truncate text-[11px] italic text-white/35">{item.notes}</p>
                   )}
                 </div>
                 <button
                   onClick={() => removeItem(item.id)}
-                  className="rounded-lg p-1.5 text-rose-400 transition hover:bg-rose-50 hover:text-rose-600"
+                  className="rounded-lg p-1.5 text-rose-400 transition hover:bg-rose-500/10 hover:text-rose-300"
                 >
                   <FiTrash2 className="h-4 w-4" />
                 </button>
@@ -173,15 +173,15 @@ export function GuestCart({ token, lang }: Props) {
 
         {/* Footer */}
         {items.length > 0 && (
-          <div className="border-t border-slate-200 px-4 py-3">
+          <div className="border-t border-white/10 px-4 py-3">
             <div className="mb-3 flex items-center justify-between text-sm">
-              <span className="text-slate-500">{t("المجموع التقريبي", "Est. Total")}</span>
-              <span className="text-lg font-bold text-slate-900">${totalCost.toFixed(2)}</span>
+              <span className="text-white/50">{t("المجموع التقريبي", "Est. Total")}</span>
+              <span className="text-lg font-bold text-cyan-400">${totalCost.toFixed(2)}</span>
             </div>
             <button
               onClick={checkout}
               disabled={loading}
-              className="w-full rounded-xl bg-blue-600 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:opacity-50"
+              className="w-full rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 py-3 text-sm font-semibold text-white shadow-lg shadow-cyan-500/20 transition hover:from-cyan-400 hover:to-blue-500 disabled:opacity-50"
             >
               {loading
                 ? t("جارٍ الإرسال…", "Submitting…")
@@ -207,11 +207,11 @@ export function GuestCart({ token, lang }: Props) {
       {/* Cart Badge Button */}
       <button
         onClick={() => setOpen(true)}
-        className="relative rounded-full border border-slate-200 p-2 text-slate-600 transition hover:bg-slate-100"
+        className="relative rounded-full border border-white/15 bg-slate-900/50 p-2 text-white/70 backdrop-blur-xl transition hover:bg-white/[0.06]"
       >
         <FiShoppingCart className="h-4 w-4" />
         {items.length > 0 && (
-          <span className="absolute -end-1 -top-1 grid h-[18px] w-[18px] place-items-center rounded-full bg-blue-600 text-[10px] font-bold text-white">
+          <span className="absolute -end-1 -top-1 grid h-[18px] w-[18px] place-items-center rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 text-[10px] font-bold text-white shadow-lg shadow-cyan-500/25">
             {items.length}
           </span>
         )}

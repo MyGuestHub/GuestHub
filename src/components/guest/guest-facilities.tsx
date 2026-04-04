@@ -106,30 +106,30 @@ export function GuestFacilities({ lang }: Props) {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+        className="flex items-center gap-2 rounded-xl border border-white/15 bg-slate-900/50 px-3 py-2 text-sm font-medium text-white/70 backdrop-blur-xl transition hover:bg-white/[0.06]"
       >
-        <FiMapPin className="h-4 w-4 text-emerald-500" />
+        <FiMapPin className="h-4 w-4 text-emerald-400" />
         {t("حجز المرافق", "Facilities")}
       </button>
 
       {open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/40" onClick={() => setOpen(false)} />
-          <div className="relative w-full max-w-md max-h-[85vh] overflow-y-auto rounded-2xl bg-white shadow-2xl">
+          <div className="relative w-full max-w-md max-h-[85vh] overflow-y-auto rounded-2xl border border-white/10 bg-slate-900/90 shadow-2xl backdrop-blur-xl">
             {/* Header */}
-            <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3">
-              <h2 className="text-base font-bold text-slate-900">
-                <FiMapPin className="me-2 inline h-5 w-5 text-emerald-500" />
+            <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
+              <h2 className="text-base font-bold text-white">
+                <FiMapPin className="me-2 inline h-5 w-5 text-emerald-400" />
                 {t("حجز المرافق", "Book Facilities")}
               </h2>
-              <button onClick={() => { setOpen(false); setSelected(null); }} className="rounded-lg p-1.5 hover:bg-slate-100 text-slate-500">
+              <button onClick={() => { setOpen(false); setSelected(null); }} className="rounded-lg p-1.5 hover:bg-white/10 text-white/50">
                 <FiX className="h-5 w-5" />
               </button>
             </div>
 
             {/* Success toast */}
             {result && (
-              <div className="mx-4 mt-3 rounded-xl border border-emerald-200 bg-emerald-50 p-2.5 text-center text-sm font-medium text-emerald-700">
+              <div className="mx-4 mt-3 rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-2.5 text-center text-sm font-medium text-emerald-400">
                 <FiCheck className="me-1 inline h-4 w-4" /> {result}
               </div>
             )}
@@ -138,21 +138,21 @@ export function GuestFacilities({ lang }: Props) {
               {/* My bookings */}
               {bookings.length > 0 && (
                 <div>
-                  <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-slate-400">
+                  <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-white/40">
                     {t("حجوزاتي", "My Bookings")}
                   </h3>
                   <div className="space-y-2">
                     {bookings.map((b) => (
-                      <div key={b.id} className="flex items-center justify-between rounded-xl border border-emerald-100 bg-emerald-50 p-2.5">
+                      <div key={b.id} className="flex items-center justify-between rounded-xl border border-emerald-500/15 bg-emerald-500/5 p-2.5">
                         <div>
-                          <p className="text-sm font-medium text-slate-800">
+                          <p className="text-sm font-medium text-white/90">
                             {lang === "ar" ? b.facility_name_ar : b.facility_name_en}
                           </p>
-                          <p className="text-xs text-slate-500">
+                          <p className="text-xs text-white/50">
                             {b.booking_date} • {b.start_time.slice(0, 5)} – {b.end_time.slice(0, 5)}
                           </p>
                         </div>
-                        <button onClick={() => cancelBooking(b.id)} className="text-xs text-rose-500 hover:text-rose-700">
+                        <button onClick={() => cancelBooking(b.id)} className="text-xs text-rose-400 hover:text-rose-300">
                           {t("إلغاء", "Cancel")}
                         </button>
                       </div>
@@ -168,13 +168,13 @@ export function GuestFacilities({ lang }: Props) {
                     <button
                       key={f.id}
                       onClick={() => setSelected(f)}
-                      className="flex flex-col items-center gap-1.5 rounded-xl border border-slate-200 bg-white p-3 text-center transition hover:border-emerald-300 hover:shadow"
+                      className="flex flex-col items-center gap-1.5 rounded-xl border border-white/10 bg-slate-800/50 p-3 text-center transition hover:border-emerald-500/30 hover:bg-white/[0.06]"
                     >
                       <span className="text-2xl">{facilityIcons[f.slug] ?? "🏨"}</span>
-                      <p className="text-sm font-medium text-slate-800">
+                      <p className="text-sm font-medium text-white/90">
                         {lang === "ar" ? f.name_ar : f.name_en}
                       </p>
-                      <p className="text-[10px] text-slate-400">
+                      <p className="text-[10px] text-white/40">
                         {f.open_time.slice(0, 5)} – {f.close_time.slice(0, 5)}
                       </p>
                     </button>
@@ -184,17 +184,17 @@ export function GuestFacilities({ lang }: Props) {
                 <>
                   <button
                     onClick={() => { setSelected(null); setSlots([]); setChosenSlot(null); }}
-                    className="text-sm text-blue-600"
+                    className="text-sm text-cyan-400"
                   >
                     ← {t("كل المرافق", "All Facilities")}
                   </button>
 
-                  <h3 className="text-sm font-semibold text-slate-800">
+                  <h3 className="text-sm font-semibold text-white">
                     {facilityIcons[selected.slug] ?? "🏨"} {lang === "ar" ? selected.name_ar : selected.name_en}
                   </h3>
 
                   <div>
-                    <label className="mb-1 block text-xs font-medium text-slate-500">
+                    <label className="mb-1 block text-xs font-medium text-white/50">
                       <FiCalendar className="me-1 inline h-3 w-3" />{t("التاريخ", "Date")}
                     </label>
                     <input
@@ -202,7 +202,7 @@ export function GuestFacilities({ lang }: Props) {
                       value={date}
                       onChange={(e) => setDate(e.target.value)}
                       min={new Date().toISOString().slice(0, 10)}
-                      className="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-sm"
+                      className="w-full rounded-xl border border-white/15 bg-slate-800/60 px-3 py-2 text-sm text-white/90"
                     />
                   </div>
 
@@ -215,20 +215,20 @@ export function GuestFacilities({ lang }: Props) {
                         onClick={() => setChosenSlot(chosenSlot?.start === s.start ? null : s)}
                         className={`rounded-xl border p-2 text-center text-xs transition ${
                           chosenSlot?.start === s.start
-                            ? "border-emerald-400 bg-emerald-50 ring-1 ring-emerald-400"
+                            ? "border-emerald-500/40 bg-emerald-500/10 ring-1 ring-emerald-500/40 text-emerald-300"
                             : s.available > 0
-                              ? "border-slate-200 bg-white hover:border-emerald-300"
-                              : "border-slate-100 bg-slate-50 text-slate-300 cursor-not-allowed"
+                              ? "border-white/10 bg-slate-800/50 text-white/80 hover:border-emerald-500/25"
+                              : "border-white/5 bg-slate-800/20 text-white/20 cursor-not-allowed"
                         }`}
                       >
                         <p className="font-medium">{s.start.slice(0, 5)}</p>
-                        <p className={`text-[10px] ${s.available > 3 ? "text-emerald-500" : s.available > 0 ? "text-amber-500" : "text-slate-300"}`}>
+                        <p className={`text-[10px] ${s.available > 3 ? "text-emerald-400" : s.available > 0 ? "text-amber-400" : "text-white/20"}`}>
                           {s.available > 0 ? `${s.available} ${t("متاح", "spots")}` : t("ممتلئ", "Full")}
                         </p>
                       </button>
                     ))}
                     {slots.length === 0 && (
-                      <p className="col-span-full text-center text-xs text-slate-400 py-4">
+                      <p className="col-span-full text-center text-xs text-white/40 py-4">
                         {t("لا توجد فترات متاحة", "No available slots")}
                       </p>
                     )}
@@ -238,7 +238,7 @@ export function GuestFacilities({ lang }: Props) {
                   {chosenSlot && (
                     <div className="space-y-2">
                       <div>
-                        <label className="mb-1 block text-xs font-medium text-slate-500">
+                        <label className="mb-1 block text-xs font-medium text-white/50">
                           <FiUsers className="me-1 inline h-3 w-3" />{t("عدد الأشخاص", "Guests")}
                         </label>
                         <input
@@ -247,13 +247,13 @@ export function GuestFacilities({ lang }: Props) {
                           onChange={(e) => setGuestsCount(Math.max(1, Number(e.target.value)))}
                           min={1}
                           max={chosenSlot.available}
-                          className="w-20 rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-sm"
+                          className="w-20 rounded-xl border border-white/15 bg-slate-800/60 px-3 py-2 text-sm text-white/90"
                         />
                       </div>
                       <button
                         onClick={book}
                         disabled={loading}
-                        className="w-full rounded-xl bg-emerald-600 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:opacity-50"
+                        className="w-full rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-500/20 transition hover:from-emerald-400 hover:to-teal-500 disabled:opacity-50"
                       >
                         {loading
                           ? t("جارٍ الحجز…", "Booking…")
