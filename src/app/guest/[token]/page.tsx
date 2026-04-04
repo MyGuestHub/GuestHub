@@ -31,13 +31,14 @@ export default async function GuestPortalPage({ params, searchParams }: Props) {
 
   if (sessionCookie) {
     const guest = await validateGuestSession(sessionCookie);
-    if (guest) {
+    if (guest && guest.token === token) {
       return renderPortal(guest, token, lang);
     }
-    // Session expired → show phone form; it will clear stale cookie on next verify
+    // Session invalid, expired, or belongs to a different token/room
+    // → require fresh phone verification for this token
   }
 
-  // No session (or stale session) → show phone verification
+  // No session (or mismatched session) → show phone verification
   return <GuestSessionGate token={token} lang={lang} expired={!!sessionCookie} />;
 }
 
