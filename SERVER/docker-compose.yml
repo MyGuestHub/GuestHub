@@ -17,7 +17,7 @@ services:
       - certs:/etc/nginx/certs:ro
       - /var/run/docker.sock:/tmp/docker.sock:ro
       - ./nginx.conf:/etc/nginx/conf.d/blockcore.conf:ro
-      - ./ws-location.conf:/etc/nginx/vhost.d/default:ro
+      - ./ws-location.conf:/etc/nginx/vhost.d/gh.sbc.om:ro
     restart: unless-stopped
     networks: 
       - proxy
