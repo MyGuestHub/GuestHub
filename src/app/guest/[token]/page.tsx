@@ -11,12 +11,12 @@ import { HtmlDirSetter } from "@/components/html-dir-setter";
 import { GuestSessionGate } from "@/components/guest/guest-session-gate";
 import { GuestSessionFixer } from "@/components/guest/guest-session-fixer";
 import { GuestCart } from "@/components/guest/guest-cart";
-import { GuestChat } from "@/components/guest/guest-chat";
 import { GuestInvoice } from "@/components/guest/guest-invoice";
 import { GuestQuickActions } from "@/components/guest/guest-quick-actions";
 import { GuestFavorites } from "@/components/guest/guest-favorites";
 import { GuestComplaintForm } from "@/components/guest/guest-complaints";
 import { GuestFacilities } from "@/components/guest/guest-facilities";
+import { GuestChatClientOnly } from "@/components/guest/guest-chat-client-only";
 
 type Props = {
   params: Promise<{ token: string }>;
@@ -165,7 +165,7 @@ async function renderPortal(guest: GuestContext, token: string, lang: AppLang, s
       </footer>
 
       {/* ── Floating Chat ── */}
-      <GuestChat token={token} lang={lang} guestSessionToken={sessionToken} />
+      <GuestChatClientOnly token={token} lang={lang} guestSessionToken={sessionToken} />
     </div>
   );
 }

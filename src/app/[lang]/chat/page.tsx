@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { PanelShell } from "@/components/panel/panel-shell";
-import { ChatInbox } from "@/components/panel/chat-inbox";
+import { ChatInboxClientOnly } from "@/components/panel/chat-inbox-client-only";
 import { requirePanelContext, requirePermissionOrRedirect } from "@/lib/panel";
 import { SESSION_COOKIE } from "@/lib/auth";
 
@@ -21,7 +21,7 @@ export default async function ChatPage({ params }: Props) {
       active="chat"
       title={ctx.t("الدردشة مع الضيوف", "Guest Chat")}
     >
-      <ChatInbox lang={ctx.lang} sessionToken={sessionToken} />
+      <ChatInboxClientOnly lang={ctx.lang} sessionToken={sessionToken} />
     </PanelShell>
   );
 }
