@@ -19,7 +19,10 @@ type NavKey =
   | "qr-codes"
   | "profile"
   | "services"
-  | "settings";
+  | "settings"
+  | "analytics"
+  | "housekeeping"
+  | "activity-log";
 
 type Props = {
   lang: AppLang;

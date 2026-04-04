@@ -1419,3 +1419,287 @@ export async function getRecentReviews(limit = 10): Promise<RecentReview[]> {
   );
   return result.rows;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Housekeeping tasks
+   ═══════════════════════════════════════════════════════════════════════ */
+
+export type HousekeepingTask = {
+  id: number;
+  room_id: number;
+  room_number: string;
+  floor: number | null;
+  task_type: string;
+  task_status: string;
+  priority: string;
+  assigned_to: number | null;
+  assigned_to_name: string | null;
+  notes: string | null;
+  created_at: string;
+  started_at: string | null;
+  completed_at: string | null;
+};
+
+export async function listHousekeepingTasks(): Promise<HousekeepingTask[]> {
+  const result = await query<HousekeepingTask>(
+    `SELECT ht.id, ht.room_id, r.room_number, r.floor,
+            ht.task_type, ht.task_status, ht.priority,
+            ht.assigned_to, au.full_name AS assigned_to_name,
+            ht.notes,
+            ht.created_at::text, ht.started_at::text, ht.completed_at::text
+     FROM housekeeping_tasks ht
+     JOIN rooms r ON r.id = ht.room_id
+     LEFT JOIN app_users au ON au.id = ht.assigned_to
+     ORDER BY
+       CASE ht.priority WHEN 'urgent' THEN 0 WHEN 'high' THEN 1 WHEN 'normal' THEN 2 ELSE 3 END,
+       ht.created_at DESC`,
+  );
+  return result.rows;
+}
+
+export async function createHousekeepingTask(
+  roomId: number,
+  taskType: string,
+  priority: string,
+  assignedTo: number | null,
+  notes: string | null,
+): Promise<number> {
+  const result = await query<{ id: number }>(
+    `INSERT INTO housekeeping_tasks (room_id, task_type, priority, assigned_to, notes)
+     VALUES ($1, $2, $3, $4, $5) RETURNING id`,
+    [roomId, taskType, priority, assignedTo, notes],
+  );
+  return result.rows[0].id;
+}
+
+export async function updateHousekeepingTaskStatus(
+  taskId: number,
+  status: string,
+): Promise<void> {
+  const extras =
+    status === "in_progress"
+      ? ", started_at = NOW()"
+      : status === "done" || status === "verified"
+        ? ", completed_at = NOW()"
+        : "";
+  await query(
+    `UPDATE housekeeping_tasks SET task_status = $1${extras} WHERE id = $2`,
+    [status, taskId],
+  );
+}
+
+export async function deleteHousekeepingTask(taskId: number): Promise<void> {
+  await query(`DELETE FROM housekeeping_tasks WHERE id = $1`, [taskId]);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Analytics queries
+   ═══════════════════════════════════════════════════════════════════════ */
+
+export type OccupancyPoint = { date: string; occupied: number; total: number };
+
+export async function getOccupancyTrend(days = 14): Promise<OccupancyPoint[]> {
+  const result = await query<OccupancyPoint>(
+    `WITH dates AS (
+       SELECT generate_series(
+         CURRENT_DATE - ($1 - 1) * INTERVAL '1 day',
+         CURRENT_DATE,
+         '1 day'
+       )::date AS d
+     ),
+     total AS (SELECT COUNT(*)::int AS cnt FROM rooms WHERE status = 'active')
+     SELECT
+       d::text AS date,
+       COALESCE(COUNT(res.id), 0)::int AS occupied,
+       total.cnt AS total
+     FROM dates
+     CROSS JOIN total
+     LEFT JOIN reservations res
+       ON res.room_id IS NOT NULL
+       AND res.reservation_status IN ('booked','checked_in')
+       AND d >= res.check_in::date AND d < res.check_out::date
+     GROUP BY d, total.cnt
+     ORDER BY d`,
+    [days],
+  );
+  return result.rows;
+}
+
+export type CategoryRevenue = {
+  category_en: string;
+  category_ar: string;
+  total_requests: number;
+  total_revenue: number;
+};
+
+export async function getRevenueByCategory(): Promise<CategoryRevenue[]> {
+  const result = await query<CategoryRevenue>(
+    `SELECT
+       sc.name_en AS category_en,
+       sc.name_ar AS category_ar,
+       COUNT(sr.id)::int AS total_requests,
+       COALESCE(SUM(sr.estimated_cost), 0)::float AS total_revenue
+     FROM service_requests sr
+     JOIN service_items si ON si.id = sr.service_item_id
+     JOIN service_categories sc ON sc.id = si.category_id
+     WHERE sr.request_status != 'cancelled'
+     GROUP BY sc.name_en, sc.name_ar
+     ORDER BY total_revenue DESC`,
+  );
+  return result.rows;
+}
+
+export type PopularItem = {
+  item_en: string;
+  item_ar: string;
+  category_en: string;
+  category_ar: string;
+  order_count: number;
+};
+
+export async function getPopularItems(limit = 10): Promise<PopularItem[]> {
+  const result = await query<PopularItem>(
+    `SELECT
+       si.name_en AS item_en, si.name_ar AS item_ar,
+       sc.name_en AS category_en, sc.name_ar AS category_ar,
+       COUNT(sr.id)::int AS order_count
+     FROM service_requests sr
+     JOIN service_items si ON si.id = sr.service_item_id
+     JOIN service_categories sc ON sc.id = si.category_id
+     WHERE sr.request_status != 'cancelled'
+     GROUP BY si.name_en, si.name_ar, sc.name_en, sc.name_ar
+     ORDER BY order_count DESC
+     LIMIT $1`,
+    [limit],
+  );
+  return result.rows;
+}
+
+export type HourlyDistribution = { hour: number; count: number };
+
+export async function getRequestsByHour(): Promise<HourlyDistribution[]> {
+  const result = await query<HourlyDistribution>(
+    `SELECT EXTRACT(HOUR FROM created_at)::int AS hour, COUNT(*)::int AS count
+     FROM service_requests
+     GROUP BY hour
+     ORDER BY hour`,
+  );
+  const map = new Map(result.rows.map((r) => [r.hour, r.count]));
+  return Array.from({ length: 24 }, (_, i) => ({
+    hour: i,
+    count: map.get(i) ?? 0,
+  }));
+}
+
+export type StaffPerformance = {
+  staff_name: string;
+  completed_count: number;
+  avg_minutes: number;
+};
+
+export async function getStaffPerformance(): Promise<StaffPerformance[]> {
+  const result = await query<StaffPerformance>(
+    `SELECT
+       au.full_name AS staff_name,
+       COUNT(sr.id)::int AS completed_count,
+       COALESCE(ROUND(AVG(EXTRACT(EPOCH FROM (sr.completed_at - sr.created_at)) / 60)::numeric, 0), 0)::int AS avg_minutes
+     FROM service_requests sr
+     JOIN app_users au ON au.id = sr.assigned_to
+     WHERE sr.request_status = 'completed' AND sr.assigned_to IS NOT NULL
+     GROUP BY au.full_name
+     ORDER BY completed_count DESC`,
+  );
+  return result.rows;
+}
+
+export type SatisfactionTrend = { date: string; avg_stars: number; count: number };
+
+export async function getSatisfactionTrend(days = 14): Promise<SatisfactionTrend[]> {
+  const result = await query<SatisfactionTrend>(
+    `WITH dates AS (
+       SELECT generate_series(
+         CURRENT_DATE - ($1 - 1) * INTERVAL '1 day',
+         CURRENT_DATE,
+         '1 day'
+       )::date AS d
+     )
+     SELECT
+       d::text AS date,
+       COALESCE(ROUND(AVG(r.stars)::numeric, 1), 0)::float AS avg_stars,
+       COUNT(r.id)::int AS count
+     FROM dates
+     LEFT JOIN service_request_ratings r ON r.created_at::date = d
+     GROUP BY d
+     ORDER BY d`,
+    [days],
+  );
+  return result.rows;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Activity feed
+   ═══════════════════════════════════════════════════════════════════════ */
+
+export type ActivityEvent = {
+  id: string;
+  event_type: string;
+  title_en: string;
+  title_ar: string;
+  subtitle_en: string;
+  subtitle_ar: string;
+  room_number: string | null;
+  created_at: string;
+};
+
+export async function getRecentActivity(limit = 50): Promise<ActivityEvent[]> {
+  const result = await query<ActivityEvent>(
+    `(
+       SELECT
+         'sr-' || sr.id AS id,
+         CASE sr.request_status
+           WHEN 'pending' THEN 'new_request'
+           WHEN 'completed' THEN 'completed'
+           WHEN 'cancelled' THEN 'cancelled'
+           ELSE 'updated'
+         END AS event_type,
+         si.name_en AS title_en,
+         si.name_ar AS title_ar,
+         g.first_name || ' ' || g.last_name || ' — ' || sr.request_status AS subtitle_en,
+         g.first_name || ' ' || g.last_name || ' — ' || sr.request_status AS subtitle_ar,
+         rm.room_number,
+         sr.created_at::text
+       FROM service_requests sr
+       JOIN guests g ON g.id = sr.guest_id
+       JOIN rooms rm ON rm.id = sr.room_id
+       JOIN service_items si ON si.id = sr.service_item_id
+       ORDER BY sr.created_at DESC
+       LIMIT $1
+     )
+     UNION ALL
+     (
+       SELECT
+         'res-' || res.id AS id,
+         CASE res.reservation_status
+           WHEN 'checked_in' THEN 'check_in'
+           WHEN 'checked_out' THEN 'check_out'
+           WHEN 'booked' THEN 'booking'
+           ELSE 'reservation'
+         END AS event_type,
+         g.first_name || ' ' || g.last_name AS title_en,
+         g.first_name || ' ' || g.last_name AS title_ar,
+         res.reservation_status || ' — Room ' || rm.room_number AS subtitle_en,
+         res.reservation_status || ' — غرفة ' || rm.room_number AS subtitle_ar,
+         rm.room_number,
+         res.created_at::text
+       FROM reservations res
+       JOIN guests g ON g.id = res.guest_id
+       JOIN rooms rm ON rm.id = res.room_id
+       ORDER BY res.created_at DESC
+       LIMIT $1
+     )
+     ORDER BY created_at DESC
+     LIMIT $1`,
+    [limit],
+  );
+  return result.rows;
+}
