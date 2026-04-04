@@ -54,97 +54,97 @@ export function GuestInvoice({ lang }: Props) {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+        className="flex items-center gap-2 rounded-xl border border-white/15 bg-slate-900/50 px-3 py-2 text-sm font-medium text-white/70 backdrop-blur-xl transition hover:bg-white/[0.06]"
       >
-        <FiFileText className="h-4 w-4 text-indigo-500" />
+        <FiFileText className="h-4 w-4 text-indigo-400" />
         {t("الفاتورة", "Invoice")}
       </button>
 
       {open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/40" onClick={() => setOpen(false)} />
-          <div className="relative w-full max-w-md max-h-[85vh] overflow-y-auto rounded-2xl bg-white shadow-2xl">
-            <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3">
-              <h2 className="text-base font-bold text-slate-900">
-                <FiFileText className="me-2 inline h-5 w-5 text-indigo-500" />
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-[2px]" onClick={() => setOpen(false)} />
+          <div className="relative w-full max-w-md max-h-[85vh] overflow-y-auto rounded-2xl border border-white/10 bg-slate-900/90 shadow-2xl backdrop-blur-xl">
+            <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
+              <h2 className="text-base font-bold text-white">
+                <FiFileText className="me-2 inline h-5 w-5 text-indigo-400" />
                 {t("فاتورتك", "Your Invoice")}
               </h2>
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => window.print()}
-                  className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+                  className="rounded-lg p-1.5 text-white/40 hover:bg-white/10 hover:text-white/70"
                 >
                   <FiPrinter className="h-4 w-4" />
                 </button>
-                <button onClick={() => setOpen(false)} className="rounded-lg p-1.5 hover:bg-slate-100">
-                  <FiX className="h-5 w-5 text-slate-500" />
+                <button onClick={() => setOpen(false)} className="rounded-lg p-1.5 hover:bg-white/10">
+                  <FiX className="h-5 w-5 text-white/50" />
                 </button>
               </div>
             </div>
 
             {loading ? (
-              <div className="p-8 text-center text-sm text-slate-400">{t("جارٍ التحميل…", "Loading…")}</div>
+              <div className="p-8 text-center text-sm text-white/40">{t("جارٍ التحميل…", "Loading…")}</div>
             ) : invoice ? (
               <div className="p-4 space-y-4 print:p-2">
                 {/* Guest info */}
-                <div className="rounded-xl bg-slate-50 p-3 text-sm">
+                <div className="rounded-xl bg-white/5 p-3 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-slate-500">{t("الضيف", "Guest")}</span>
-                    <span className="font-medium text-slate-800">{invoice.guest_name}</span>
+                    <span className="text-white/50">{t("الضيف", "Guest")}</span>
+                    <span className="font-medium text-white/90">{invoice.guest_name}</span>
                   </div>
                   <div className="mt-1 flex justify-between">
-                    <span className="text-slate-500">{t("الغرفة", "Room")}</span>
-                    <span className="font-medium text-slate-800">{invoice.room_number}</span>
+                    <span className="text-white/50">{t("الغرفة", "Room")}</span>
+                    <span className="font-medium text-white/90">{invoice.room_number}</span>
                   </div>
                   <div className="mt-1 flex justify-between">
-                    <span className="text-slate-500">{t("الحالة", "Status")}</span>
+                    <span className="text-white/50">{t("الحالة", "Status")}</span>
                     <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
-                      invoice.status === "paid" ? "bg-emerald-100 text-emerald-700"
-                        : invoice.status === "closed" ? "bg-amber-100 text-amber-700"
-                        : "bg-blue-100 text-blue-700"
+                      invoice.status === "paid" ? "bg-emerald-500/15 text-emerald-400"
+                        : invoice.status === "closed" ? "bg-amber-500/15 text-amber-400"
+                        : "bg-blue-500/15 text-blue-400"
                     }`}>{invoice.status.toUpperCase()}</span>
                   </div>
                 </div>
 
                 {/* Items */}
                 {items.length > 0 ? (
-                  <div className="divide-y divide-slate-100 rounded-xl border border-slate-200 overflow-hidden">
-                    <div className="grid grid-cols-[1fr_auto_auto] gap-2 bg-slate-50 px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+                  <div className="divide-y divide-white/5 rounded-xl border border-white/10 overflow-hidden">
+                    <div className="grid grid-cols-[1fr_auto_auto] gap-2 bg-white/5 px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-white/40">
                       <span>{t("الخدمة", "Service")}</span>
                       <span>{t("الكمية", "Qty")}</span>
                       <span>{t("المبلغ", "Amount")}</span>
                     </div>
                     {items.map((item) => (
                       <div key={item.id} className="grid grid-cols-[1fr_auto_auto] gap-2 px-3 py-2 text-sm">
-                        <span className="text-slate-700">{lang === "ar" ? item.description_ar : item.description_en}</span>
-                        <span className="text-slate-500 text-center">{item.quantity}</span>
-                        <span className="font-medium text-slate-800">${item.total}</span>
+                        <span className="text-white/80">{lang === "ar" ? item.description_ar : item.description_en}</span>
+                        <span className="text-white/50 text-center">{item.quantity}</span>
+                        <span className="font-medium text-white/90">${item.total}</span>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <p className="text-center text-sm text-slate-400">{t("لا توجد بنود بعد", "No charges yet")}</p>
+                  <p className="text-center text-sm text-white/40">{t("لا توجد بنود بعد", "No charges yet")}</p>
                 )}
 
                 {/* Totals */}
-                <div className="rounded-xl border border-slate-200 p-3 space-y-1">
+                <div className="rounded-xl border border-white/10 p-3 space-y-1">
                   <div className="flex justify-between text-sm">
-                    <span className="text-slate-500">{t("المجموع الفرعي", "Subtotal")}</span>
-                    <span className="text-slate-700">${invoice.subtotal}</span>
+                    <span className="text-white/50">{t("المجموع الفرعي", "Subtotal")}</span>
+                    <span className="text-white/80">${invoice.subtotal}</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-slate-500">{t("الضريبة", "Tax")}</span>
-                    <span className="text-slate-700">${invoice.tax_amount}</span>
+                    <span className="text-white/50">{t("الضريبة", "Tax")}</span>
+                    <span className="text-white/80">${invoice.tax_amount}</span>
                   </div>
-                  <div className="h-px bg-slate-200 my-1" />
+                  <div className="h-px bg-white/10 my-1" />
                   <div className="flex justify-between text-base">
-                    <span className="font-bold text-slate-900">{t("الإجمالي", "Total")}</span>
-                    <span className="font-bold text-blue-600">${invoice.total}</span>
+                    <span className="font-bold text-white">{t("الإجمالي", "Total")}</span>
+                    <span className="font-bold text-cyan-400">${invoice.total}</span>
                   </div>
                 </div>
               </div>
             ) : (
-              <div className="p-8 text-center text-sm text-slate-400">{t("لا توجد فاتورة", "No invoice")}</div>
+              <div className="p-8 text-center text-sm text-white/40">{t("لا توجد فاتورة", "No invoice")}</div>
             )}
           </div>
         </div>

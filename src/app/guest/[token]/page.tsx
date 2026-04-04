@@ -10,7 +10,6 @@ import { GuestRequestsLive } from "@/components/guest/guest-requests-live";
 import { HtmlDirSetter } from "@/components/html-dir-setter";
 import { GuestSessionGate } from "@/components/guest/guest-session-gate";
 import { GuestSessionFixer } from "@/components/guest/guest-session-fixer";
-import { GuestDarkModeToggle } from "@/components/guest/guest-dark-mode-toggle";
 import { GuestCart } from "@/components/guest/guest-cart";
 import { GuestChat } from "@/components/guest/guest-chat";
 import { GuestInvoice } from "@/components/guest/guest-invoice";
@@ -42,11 +41,8 @@ export default async function GuestPortalPage({ params, searchParams }: Props) {
     if (guest && guest.token === token) {
       return renderPortal(guest, token, lang, sessionCookie);
     }
-    // Session invalid, expired, or belongs to a different token/room
-    // → require fresh phone verification for this token
   }
 
-  // No session (or mismatched session) → show phone verification
   return <GuestSessionGate token={token} lang={lang} expired={!!sessionCookie} />;
 }
 
@@ -76,63 +72,73 @@ async function renderPortal(guest: GuestContext, token: string, lang: AppLang, s
   );
 
   return (
-    <div dir={lang === "ar" ? "rtl" : "ltr"} className="flex min-h-screen flex-col bg-slate-50 text-slate-800">
+    <div
+      dir={lang === "ar" ? "rtl" : "ltr"}
+      className="guest-glass relative flex min-h-screen flex-col bg-slate-950 text-slate-100"
+    >
       <HtmlDirSetter lang={lang} />
       <GuestSessionFixer />
 
+      {/* ── Blurred background ── */}
+      <div
+        className="pointer-events-none fixed inset-0 scale-105 bg-slate-950 bg-cover bg-center bg-no-repeat blur-[2px]"
+        style={{ backgroundImage: `url('/back.jpeg')` }}
+      />
+      <div className="pointer-events-none fixed inset-0 bg-gradient-to-br from-slate-950/82 via-slate-900/72 to-slate-900/78" />
+
       {/* ── Header ── */}
-      <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/95 backdrop-blur-md">
+      <header className="gh-surface-strong sticky top-0 z-20">
         <div className="mx-auto flex max-w-lg items-center justify-between px-4 py-3">
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-blue-600">GuestHub</p>
-            <p className="text-sm font-semibold text-slate-800">
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-cyan-400">GuestHub</p>
+            <p className="text-sm font-semibold text-white/90">
               {t("مرحبًا", "Welcome")}, {guest.guestName}
             </p>
           </div>
           <div className="flex items-center gap-2.5">
             <GuestCart token={token} lang={lang} />
-            <GuestDarkModeToggle />
             <a
               href={`/guest/${token}?lang=${otherLang}`}
-              className="rounded-full border border-slate-200 px-2.5 py-1 text-xs font-medium text-slate-600 transition hover:bg-slate-100"
+              className="rounded-full border border-white/15 px-2.5 py-1 text-xs font-medium text-white/70 transition hover:border-white/30 hover:text-white"
             >
               {lang === "ar" ? "EN" : "عربي"}
             </a>
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-600 text-xs font-bold text-white">
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 text-xs font-bold text-white shadow-lg shadow-cyan-500/25">
               {guest.roomNumber}
             </div>
           </div>
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-lg flex-1 px-4 py-5">
+      <main className="relative z-10 mx-auto w-full max-w-lg flex-1 px-4 py-5">
         {/* ── Stay info card ── */}
-        <section className="mb-5 overflow-hidden rounded-2xl border border-blue-100 bg-gradient-to-r from-blue-50 to-indigo-50">
+        <section className="mb-5 overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-r from-cyan-900/30 via-slate-900/50 to-indigo-900/30 backdrop-blur-xl">
           <div className="flex items-stretch">
             <div className="flex-1 p-4">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-blue-500">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-cyan-400">
                 {t("تسجيل الدخول", "Check-in")}
               </p>
-              <p className="mt-0.5 text-sm font-bold text-slate-800">{checkInDate}</p>
+              <p className="mt-0.5 text-sm font-bold text-white">{checkInDate}</p>
             </div>
             <div className="flex flex-col items-center justify-center px-3">
-              <div className="rounded-full bg-blue-600 px-2.5 py-1 text-[10px] font-bold text-white">
+              <div className="rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 px-2.5 py-1 text-[10px] font-bold text-white shadow-md shadow-cyan-500/20">
                 {nights} {t("ليلة", nights === 1 ? "night" : "nights")}
               </div>
-              <div className="mt-1 h-px w-8 bg-blue-200" />
+              <div className="mt-1 h-px w-8 bg-white/15" />
             </div>
             <div className="flex-1 p-4 text-end">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-blue-500">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-cyan-400">
                 {t("تسجيل الخروج", "Check-out")}
               </p>
-              <p className="mt-0.5 text-sm font-bold text-slate-800">{checkOutDate}</p>
+              <p className="mt-0.5 text-sm font-bold text-white">{checkOutDate}</p>
             </div>
           </div>
         </section>
 
-        {/* ── Quick Actions: DND, Wake-up, Invoice, Facilities, Complaints ── */}
+        {/* ── Quick Actions: DND, Wake-up ── */}
         <GuestQuickActions lang={lang} />
 
+        {/* ── Action buttons: Invoice, Facilities, Complaints ── */}
         <div className="mb-5 flex flex-wrap gap-2">
           <GuestInvoice lang={lang} />
           <GuestFacilities lang={lang} />
@@ -147,14 +153,14 @@ async function renderPortal(guest: GuestContext, token: string, lang: AppLang, s
 
         {/* ── Services ── */}
         <section>
-          <h2 className="mb-3 text-base font-bold text-slate-900">
+          <h2 className="mb-3 text-base font-bold text-white">
             {t("خدمات الفندق", "Hotel Services")}
           </h2>
           <GuestServiceForm token={token} categories={categories} lang={lang} />
         </section>
       </main>
 
-      <footer className="border-t border-slate-100 bg-white py-4 text-center text-[11px] text-slate-400">
+      <footer className="relative z-10 border-t border-white/10 py-4 text-center text-[11px] text-white/30">
         GuestHub &copy; {new Date().getFullYear()}
       </footer>
 

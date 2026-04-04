@@ -46,8 +46,8 @@ export function GuestFavorites({ lang }: Props) {
 
   return (
     <section className="mb-5">
-      <h2 className="mb-2 flex items-center gap-1.5 text-sm font-bold text-slate-900">
-        <FiHeart className="h-4 w-4 text-rose-500" />
+      <h2 className="mb-2 flex items-center gap-1.5 text-sm font-bold text-white">
+        <FiHeart className="h-4 w-4 text-rose-400" />
         {t("طلباتك المفضلة", "Your Favorites")}
       </h2>
       <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4">
@@ -56,22 +56,22 @@ export function GuestFavorites({ lang }: Props) {
             key={item.id}
             onClick={() => quickAdd(item)}
             disabled={addingId === item.service_item_id}
-            className="group flex min-w-[140px] shrink-0 flex-col items-center gap-1 rounded-xl border border-slate-200 bg-white p-3 text-center transition hover:border-blue-300 hover:shadow disabled:opacity-60"
+            className="group flex min-w-[140px] shrink-0 flex-col items-center gap-1 rounded-xl border border-white/10 bg-slate-900/50 p-3 text-center backdrop-blur-xl transition hover:border-cyan-500/25 hover:bg-white/[0.06] disabled:opacity-60"
           >
-            <div className="relative grid h-9 w-9 place-items-center rounded-lg bg-blue-50 text-blue-500 transition group-hover:bg-blue-100">
+            <div className="relative grid h-9 w-9 place-items-center rounded-lg bg-cyan-500/15 text-cyan-400 transition group-hover:bg-cyan-500/20">
               {addingId === item.service_item_id ? (
-                <span className="text-xs font-bold text-emerald-500">✓</span>
+                <span className="text-xs font-bold text-emerald-400">✓</span>
               ) : (
                 <FiPlus className="h-4 w-4" />
               )}
             </div>
-            <p className="max-w-[120px] truncate text-xs font-medium text-slate-800">
+            <p className="max-w-[120px] truncate text-xs font-medium text-white/90">
               {lang === "ar" ? item.item_name_ar : item.item_name_en}
             </p>
             {item.estimated_cost && (
-              <p className="text-[10px] text-slate-400">${item.estimated_cost}</p>
+              <p className="text-[10px] text-white/45">${item.estimated_cost}</p>
             )}
-            <p className="text-[10px] text-blue-400">
+            <p className="text-[10px] text-cyan-400">
               {t("طُلبت", "Ordered")} {item.order_count}×
             </p>
           </button>

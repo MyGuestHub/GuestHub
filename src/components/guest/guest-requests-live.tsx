@@ -41,11 +41,11 @@ const statusConfig: Record<
   string,
   { color: string; icon: React.ComponentType<{ className?: string }> }
 > = {
-  pending: { color: "bg-amber-100 text-amber-800", icon: FiClock },
-  accepted: { color: "bg-blue-100 text-blue-800", icon: FiClock },
-  in_progress: { color: "bg-indigo-100 text-indigo-800", icon: FiLoader },
-  completed: { color: "bg-emerald-100 text-emerald-800", icon: FiCheckCircle },
-  cancelled: { color: "bg-red-50 text-red-600", icon: FiXCircle },
+  pending: { color: "bg-amber-500/15 text-amber-400", icon: FiClock },
+  accepted: { color: "bg-blue-500/15 text-blue-400", icon: FiClock },
+  in_progress: { color: "bg-indigo-500/15 text-indigo-400", icon: FiLoader },
+  completed: { color: "bg-emerald-500/15 text-emerald-400", icon: FiCheckCircle },
+  cancelled: { color: "bg-red-500/10 text-red-400", icon: FiXCircle },
 };
 
 const statusLabels: Record<string, [string, string]> = {
@@ -150,7 +150,7 @@ function RatingWidget({
 
   if (submitted) {
     return (
-      <div className="mt-2 flex items-center gap-2 rounded-xl bg-emerald-50 px-3 py-2">
+      <div className="mt-2 flex items-center gap-2 rounded-xl bg-emerald-500/10 px-3 py-2">
         <div className="flex gap-0.5">
           {[1, 2, 3, 4, 5].map((s) => (
             <FiStar
@@ -166,7 +166,7 @@ function RatingWidget({
             {emojiMap[emoji as keyof typeof emojiMap]}
           </span>
         )}
-        <span className="text-xs text-emerald-600">
+        <span className="text-xs text-emerald-400">
           {t("شكراً لتقييمك!", "Thanks for your feedback!")}
         </span>
       </div>
@@ -199,8 +199,8 @@ function RatingWidget({
   };
 
   return (
-    <div className="mt-2 rounded-xl border border-amber-200 bg-amber-50/60 px-3 py-3">
-      <p className="mb-2 text-xs font-medium text-amber-800">
+    <div className="mt-2 rounded-xl border border-amber-500/15 bg-amber-500/8 px-3 py-3">
+      <p className="mb-2 text-xs font-medium text-amber-400">
         {t("كيف كانت تجربتك؟", "How was your experience?")}
       </p>
 
@@ -237,8 +237,8 @@ function RatingWidget({
                 onClick={() => setEmoji(emoji === key ? null : key)}
                 className={`rounded-full p-1.5 text-lg transition-all ${
                   emoji === key
-                    ? "scale-110 bg-white shadow-md ring-2 ring-amber-300"
-                    : "hover:bg-white/60"
+                    ? "scale-110 bg-white/10 shadow-md ring-2 ring-amber-500/40"
+                    : "hover:bg-white/5"
                 }`}
               >
                 {icon}
@@ -255,7 +255,7 @@ function RatingWidget({
             <button
               type="button"
               onClick={() => setShowComment(true)}
-              className="mb-2 text-xs text-amber-600 underline"
+              className="mb-2 text-xs text-amber-400 underline"
             >
               {t("أضف تعليقاً", "Add a comment")}
             </button>
@@ -265,7 +265,7 @@ function RatingWidget({
               onChange={(e) => setComment(e.target.value)}
               maxLength={500}
               rows={2}
-              className="mb-2 w-full resize-none rounded-lg border border-amber-200 bg-white px-3 py-2 text-xs text-slate-700 placeholder:text-slate-400 focus:border-amber-400 focus:outline-none"
+              className="mb-2 w-full resize-none rounded-lg border border-white/15 bg-slate-800/60 px-3 py-2 text-xs text-white/90 placeholder:text-white/30 focus:border-amber-500/40 focus:outline-none"
               placeholder={t("أخبرنا المزيد...", "Tell us more...")}
             />
           )}
@@ -317,29 +317,29 @@ function CancelModal({
         className="absolute inset-0 bg-black/40 backdrop-blur-sm"
         onClick={onClose}
       />
-      <div className="relative z-10 w-full max-w-md rounded-t-3xl bg-white p-6 shadow-2xl sm:rounded-3xl">
+      <div className="relative z-10 w-full max-w-md rounded-t-3xl border border-white/10 bg-slate-900/90 p-6 shadow-2xl backdrop-blur-xl sm:rounded-3xl">
         <button
           onClick={onClose}
-          className="absolute end-4 top-4 rounded-full p-1.5 text-slate-400 transition hover:bg-slate-100"
+          className="absolute end-4 top-4 rounded-full p-1.5 text-white/40 transition hover:bg-white/10"
         >
           <FiX className="h-5 w-5" />
         </button>
 
-        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-red-50">
-          <FiAlertTriangle className="h-7 w-7 text-red-500" />
+        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-red-500/15">
+          <FiAlertTriangle className="h-7 w-7 text-red-400" />
         </div>
 
-        <h3 className="mb-1 text-center text-lg font-bold text-slate-900">
+        <h3 className="mb-1 text-center text-lg font-bold text-white">
           {t("تأكيد الإلغاء", "Confirm Cancellation")}
         </h3>
-        <p className="mb-4 text-center text-sm text-slate-500">
+        <p className="mb-4 text-center text-sm text-white/60">
           {t(
             `هل أنت متأكد من إلغاء "${requestName}"؟`,
             `Are you sure you want to cancel "${requestName}"?`,
           )}
         </p>
 
-        <label className="mb-1.5 block text-xs font-medium text-slate-600">
+        <label className="mb-1.5 block text-xs font-medium text-white/60">
           {t("سبب الإلغاء (اختياري)", "Reason for cancellation (optional)")}
         </label>
         <textarea
@@ -347,15 +347,15 @@ function CancelModal({
           onChange={(e) => setReason(e.target.value)}
           maxLength={500}
           rows={3}
-          className="mb-4 w-full resize-none rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:border-red-300 focus:outline-none focus:ring-2 focus:ring-red-100"
+          className="mb-4 w-full resize-none rounded-xl border border-white/15 bg-slate-800/60 px-3 py-2.5 text-sm text-white/90 placeholder:text-white/30 focus:border-red-500/40 focus:outline-none"
           placeholder={t(
             "مثال: لم أعد بحاجة لهذه الخدمة",
             "e.g. I no longer need this service",
           )}
         />
 
-        <div className="mb-4 rounded-xl bg-amber-50 px-3 py-2.5">
-          <p className="text-xs text-amber-700">
+        <div className="mb-4 rounded-xl bg-amber-500/10 px-3 py-2.5">
+          <p className="text-xs text-amber-400">
             {t(
               "ملاحظة: يمكن إلغاء الطلبات المعلقة والمقبولة فقط. لا يمكن إلغاء الطلبات قيد التنفيذ.",
               "Note: Only pending and accepted requests can be cancelled. In-progress requests cannot be cancelled.",
@@ -367,7 +367,7 @@ function CancelModal({
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 rounded-xl border border-slate-200 bg-white py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+            className="flex-1 rounded-xl border border-white/15 bg-white/5 py-3 text-sm font-semibold text-white/80 transition hover:bg-white/10"
           >
             {t("تراجع", "Go Back")}
           </button>
@@ -570,19 +570,19 @@ export function GuestRequestsLive({ token, lang, initialRequests }: Props) {
 
       {/* Cancel success toast */}
       {cancelSuccess !== null && (
-        <div className="mb-3 flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+        <div className="mb-3 flex items-center gap-2 rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-300">
           <FiCheckCircle className="h-4 w-4 shrink-0" />
           {t("تم إلغاء الطلب بنجاح", "Request cancelled successfully")}
         </div>
       )}
 
       <div className="mb-3 flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-slate-900">
+        <h2 className="text-lg font-semibold text-white">
           {t("طلباتي", "My Requests")}
         </h2>
         <button
           onClick={fetchRequests}
-          className="rounded-lg p-1.5 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
+          className="rounded-lg p-1.5 text-white/40 transition hover:bg-white/10 hover:text-white/70"
           aria-label={t("تحديث", "Refresh")}
         >
           <FiRefreshCw className="h-4 w-4" />
@@ -603,12 +603,12 @@ export function GuestRequestsLive({ token, lang, initialRequests }: Props) {
           return (
             <div
               key={r.id}
-              className={`rounded-2xl border p-3 transition-all ${
+              className={`rounded-2xl border p-3 backdrop-blur-xl transition-all ${
                 r.request_status === "cancelled"
-                  ? "border-red-200 bg-red-50/50"
+                  ? "border-red-500/15 bg-red-500/5"
                   : isCompleted
-                    ? "border-emerald-200 bg-emerald-50/30"
-                    : "border-slate-200 bg-white"
+                    ? "border-emerald-500/15 bg-emerald-500/5"
+                    : "border-white/10 bg-slate-900/50"
               }`}
             >
               <div className="flex items-center justify-between">
@@ -636,8 +636,8 @@ export function GuestRequestsLive({ token, lang, initialRequests }: Props) {
 
               {/* Cancelled reason banner */}
               {r.request_status === "cancelled" && r.cancellation_reason && (
-                <div className="mt-2 rounded-lg bg-red-100/60 px-3 py-2">
-                  <p className="text-xs text-red-600">
+                <div className="mt-2 rounded-lg bg-red-500/10 px-3 py-2">
+                  <p className="text-xs text-red-400">
                     <span className="font-medium">
                       {isCancelledByGuest
                         ? t("سبب الإلغاء:", "Cancellation reason:")
@@ -675,7 +675,7 @@ export function GuestRequestsLive({ token, lang, initialRequests }: Props) {
                                 ? isCompleted
                                   ? "bg-emerald-500"
                                   : "bg-blue-500"
-                                : "bg-slate-200"
+                                : "bg-slate-700/50"
                             }`}
                           />
                         </div>
@@ -731,7 +731,7 @@ export function GuestRequestsLive({ token, lang, initialRequests }: Props) {
                 <button
                   type="button"
                   onClick={() => setCancelTarget(r)}
-                  className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-xl border border-red-200 bg-white py-2 text-xs font-medium text-red-500 transition hover:bg-red-50 active:scale-[0.98]"
+                  className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-xl border border-red-500/20 bg-red-500/5 py-2 text-xs font-medium text-red-400 transition hover:bg-red-500/10 active:scale-[0.98]"
                 >
                   <FiXCircle className="h-3.5 w-3.5" />
                   {t("إلغاء الطلب", "Cancel Request")}
@@ -752,7 +752,7 @@ export function GuestRequestsLive({ token, lang, initialRequests }: Props) {
                       type="button"
                       onClick={() => handleReorder(r)}
                       disabled={reorderingId === r.id}
-                      className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50 py-2 text-xs font-medium text-blue-600 transition hover:bg-blue-100 active:scale-[0.98] disabled:opacity-60"
+                      className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-xl border border-cyan-500/20 bg-cyan-500/10 py-2 text-xs font-medium text-cyan-400 transition hover:bg-cyan-500/15 active:scale-[0.98] disabled:opacity-60"
                     >
                       {reorderingId === r.id ? (
                         <FiLoader className="h-3.5 w-3.5 animate-spin" />

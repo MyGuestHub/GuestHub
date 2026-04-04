@@ -44,23 +44,23 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
 };
 
 const colorMap: Record<string, { bg: string; text: string; ring: string }> = {
-  food_beverage:   { bg: "bg-orange-100",  text: "text-orange-600",  ring: "hover:border-orange-300" },
-  housekeeping:    { bg: "bg-sky-100",     text: "text-sky-600",     ring: "hover:border-sky-300" },
-  laundry:         { bg: "bg-violet-100",  text: "text-violet-600",  ring: "hover:border-violet-300" },
-  facilities:      { bg: "bg-emerald-100", text: "text-emerald-600", ring: "hover:border-emerald-300" },
-  transport:       { bg: "bg-blue-100",    text: "text-blue-600",    ring: "hover:border-blue-300" },
-  wellness:        { bg: "bg-pink-100",    text: "text-pink-600",    ring: "hover:border-pink-300" },
-  stay_management: { bg: "bg-indigo-100",  text: "text-indigo-600",  ring: "hover:border-indigo-300" },
-  maintenance:     { bg: "bg-amber-100",   text: "text-amber-600",   ring: "hover:border-amber-300" },
-  business:        { bg: "bg-slate-100",   text: "text-slate-600",   ring: "hover:border-slate-400" },
-  entertainment:   { bg: "bg-purple-100",  text: "text-purple-600",  ring: "hover:border-purple-300" },
-  communication:   { bg: "bg-teal-100",    text: "text-teal-600",    ring: "hover:border-teal-300" },
-  room_settings:   { bg: "bg-gray-100",    text: "text-gray-600",    ring: "hover:border-gray-400" },
-  safety:          { bg: "bg-red-100",     text: "text-red-600",     ring: "hover:border-red-300" },
-  convenience:     { bg: "bg-cyan-100",    text: "text-cyan-600",    ring: "hover:border-cyan-300" },
-  feedback:        { bg: "bg-yellow-100",  text: "text-yellow-600",  ring: "hover:border-yellow-300" },
+  food_beverage:   { bg: "bg-orange-500/15",  text: "text-orange-400",  ring: "hover:border-orange-500/30" },
+  housekeeping:    { bg: "bg-sky-500/15",     text: "text-sky-400",     ring: "hover:border-sky-500/30" },
+  laundry:         { bg: "bg-violet-500/15",  text: "text-violet-400",  ring: "hover:border-violet-500/30" },
+  facilities:      { bg: "bg-emerald-500/15", text: "text-emerald-400", ring: "hover:border-emerald-500/30" },
+  transport:       { bg: "bg-blue-500/15",    text: "text-blue-400",    ring: "hover:border-blue-500/30" },
+  wellness:        { bg: "bg-pink-500/15",    text: "text-pink-400",    ring: "hover:border-pink-500/30" },
+  stay_management: { bg: "bg-indigo-500/15",  text: "text-indigo-400",  ring: "hover:border-indigo-500/30" },
+  maintenance:     { bg: "bg-amber-500/15",   text: "text-amber-400",   ring: "hover:border-amber-500/30" },
+  business:        { bg: "bg-slate-500/15",   text: "text-slate-300",   ring: "hover:border-slate-500/30" },
+  entertainment:   { bg: "bg-purple-500/15",  text: "text-purple-400",  ring: "hover:border-purple-500/30" },
+  communication:   { bg: "bg-teal-500/15",    text: "text-teal-400",    ring: "hover:border-teal-500/30" },
+  room_settings:   { bg: "bg-gray-500/15",    text: "text-gray-400",    ring: "hover:border-gray-500/30" },
+  safety:          { bg: "bg-red-500/15",     text: "text-red-400",     ring: "hover:border-red-500/30" },
+  convenience:     { bg: "bg-cyan-500/15",    text: "text-cyan-400",    ring: "hover:border-cyan-500/30" },
+  feedback:        { bg: "bg-yellow-500/15",  text: "text-yellow-400",  ring: "hover:border-yellow-500/30" },
 };
-const defaultColor = { bg: "bg-blue-100", text: "text-blue-600", ring: "hover:border-blue-300" };
+const defaultColor = { bg: "bg-blue-500/15", text: "text-blue-400", ring: "hover:border-blue-500/30" };
 
 type CategoryWithItems = ServiceCategory & { items: ServiceItem[] };
 
@@ -107,9 +107,9 @@ export function GuestServiceForm({ token, categories, lang }: Props) {
 
   if (result?.ok) {
     return (
-      <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-6 text-center">
-        <FiCheck className="mx-auto mb-2 h-10 w-10 text-emerald-600" />
-        <p className="text-sm font-medium text-emerald-800">{result.message}</p>
+      <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-6 text-center backdrop-blur-xl">
+        <FiCheck className="mx-auto mb-2 h-10 w-10 text-emerald-400" />
+        <p className="text-sm font-medium text-emerald-300">{result.message}</p>
         <button
           onClick={() => setResult(null)}
           className="mt-4 rounded-xl bg-emerald-600 px-5 py-2 text-sm font-semibold text-white"
@@ -125,7 +125,7 @@ export function GuestServiceForm({ token, categories, lang }: Props) {
     return (
       <div className="grid gap-3 grid-cols-2 sm:grid-cols-3">
         {result && !result.ok ? (
-          <p className="col-span-full rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
+          <p className="col-span-full rounded-xl border border-rose-500/20 bg-rose-500/10 px-3 py-2 text-sm text-rose-300">
             {result.message}
           </p>
         ) : null}
@@ -136,16 +136,16 @@ export function GuestServiceForm({ token, categories, lang }: Props) {
             <button
               key={cat.id}
               onClick={() => setSelectedCategory(cat)}
-              className={`flex flex-col items-center gap-2 rounded-2xl border border-slate-200 bg-white p-4 text-center transition hover:shadow ${color.ring}`}
+              className={`flex flex-col items-center gap-2 rounded-2xl border border-white/10 bg-slate-900/50 p-4 text-center backdrop-blur-xl transition hover:bg-white/[0.06] hover:shadow-lg hover:shadow-black/20 ${color.ring}`}
             >
               <div className={`grid h-12 w-12 place-items-center rounded-xl ${color.bg} ${color.text}`}>
                 <Icon className="h-6 w-6" />
               </div>
               <div>
-                <p className="text-sm font-medium text-slate-900">
+                <p className="text-sm font-medium text-white/90">
                   {lang === "ar" ? cat.name_ar : cat.name_en}
                 </p>
-                <p className="text-[11px] text-slate-400">
+                <p className="text-[11px] text-white/45">
                   {cat.items.length} {t("خدمة", "services")}
                 </p>
               </div>
@@ -164,18 +164,18 @@ export function GuestServiceForm({ token, categories, lang }: Props) {
           setSelectedCategory(null);
           setResult(null);
         }}
-        className="mb-3 inline-flex items-center gap-1 text-sm text-blue-600"
+        className="mb-3 inline-flex items-center gap-1 text-sm text-cyan-400 hover:text-cyan-300 transition"
       >
         <BackIcon className="h-4 w-4" />
         {t("رجوع للفئات", "Back to categories")}
       </button>
 
-      <h3 className="mb-3 text-base font-semibold text-slate-900">
+      <h3 className="mb-3 text-base font-semibold text-white">
         {lang === "ar" ? selectedCategory.name_ar : selectedCategory.name_en}
       </h3>
 
       {result && !result.ok ? (
-        <p className="mb-3 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
+        <p className="mb-3 rounded-xl border border-rose-500/20 bg-rose-500/10 px-3 py-2 text-sm text-rose-300">
           {result.message}
         </p>
       ) : null}
@@ -183,44 +183,44 @@ export function GuestServiceForm({ token, categories, lang }: Props) {
       <form onSubmit={handleSubmit} className="space-y-3">
         {/* Service item */}
         <div>
-          <label className="mb-1 block text-xs font-medium text-slate-500">
+          <label className="mb-1 block text-xs font-medium text-white/50">
             {t("اختر الخدمة", "Choose service")}
           </label>
           <div className="space-y-2">
             {selectedCategory.items.map((item) => (
               <label
                 key={item.id}
-                className="flex cursor-pointer items-start gap-3 rounded-2xl border border-slate-200 bg-white p-3 transition has-[:checked]:border-blue-400 has-[:checked]:bg-blue-50"
+                className="flex cursor-pointer items-start gap-3 rounded-2xl border border-white/10 bg-slate-900/50 p-3 backdrop-blur-xl transition has-[:checked]:border-cyan-500/40 has-[:checked]:bg-cyan-500/10"
               >
                 <input
                   type="radio"
                   name="serviceItemId"
                   value={item.id}
                   required
-                  className="mt-1 accent-blue-600"
+                  className="mt-1 accent-cyan-500"
                 />
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-slate-800">
+                  <p className="text-sm font-medium text-white/90">
                     {lang === "ar" ? item.name_ar : item.name_en}
                   </p>
                   {(lang === "ar" ? item.description_ar : item.description_en) ? (
-                    <p className="text-xs text-slate-400">
+                    <p className="text-xs text-white/45">
                       {lang === "ar" ? item.description_ar : item.description_en}
                     </p>
                   ) : null}
                   {item.estimated_duration_minutes ? (
-                    <p className="mt-0.5 inline-flex items-center gap-1 text-[11px] text-blue-500">
+                    <p className="mt-0.5 inline-flex items-center gap-1 text-[11px] text-cyan-400">
                       <FiClock className="h-3 w-3" />
                       ~{item.estimated_duration_minutes} {t("دقيقة", "min")}
                     </p>
                   ) : null}
                 </div>
                 {item.estimated_cost ? (
-                  <span className="rounded-lg bg-slate-100 px-2 py-1 text-xs font-medium text-slate-600">
+                  <span className="rounded-lg bg-white/10 px-2 py-1 text-xs font-medium text-white/70">
                     ${item.estimated_cost}
                   </span>
                 ) : (
-                  <span className="rounded-lg bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-600">
+                  <span className="rounded-lg bg-emerald-500/15 px-2 py-1 text-xs font-medium text-emerald-400">
                     {t("مجاني", "Free")}
                   </span>
                 )}
@@ -231,7 +231,7 @@ export function GuestServiceForm({ token, categories, lang }: Props) {
 
         {/* Quantity */}
         <div>
-          <label className="mb-1 block text-xs font-medium text-slate-500">
+          <label className="mb-1 block text-xs font-medium text-white/50">
             {t("الكمية", "Quantity")}
           </label>
           <input
@@ -240,25 +240,25 @@ export function GuestServiceForm({ token, categories, lang }: Props) {
             defaultValue={1}
             min={1}
             max={10}
-            className="w-24 rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-sm"
+            className="w-24 rounded-xl border border-white/15 bg-slate-900/60 px-3 py-2 text-sm text-white/90 backdrop-blur-xl"
           />
         </div>
 
         {/* Scheduled time (optional) */}
         <div>
-          <label className="mb-1 block text-xs font-medium text-slate-500">
+          <label className="mb-1 block text-xs font-medium text-white/50">
             {t("وقت التوصيل المفضل (اختياري)", "Preferred time (optional)")}
           </label>
           <input
             type="datetime-local"
             name="scheduledAt"
-            className="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-sm"
+            className="w-full rounded-xl border border-white/15 bg-slate-900/60 px-3 py-2 text-sm text-white/90 backdrop-blur-xl"
           />
         </div>
 
         {/* Notes */}
         <div>
-          <label className="mb-1 block text-xs font-medium text-slate-500">
+          <label className="mb-1 block text-xs font-medium text-white/50">
             {t("ملاحظات إضافية", "Additional notes")}
           </label>
           <textarea
@@ -266,14 +266,14 @@ export function GuestServiceForm({ token, categories, lang }: Props) {
             rows={2}
             maxLength={500}
             placeholder={t("مثال: بدون ملح، حار جداً", "e.g. no salt, extra spicy")}
-            className="w-full resize-none rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-sm"
+            className="w-full resize-none rounded-xl border border-white/15 bg-slate-900/60 px-3 py-2 text-sm text-white/90 placeholder:text-white/30 backdrop-blur-xl"
           />
         </div>
 
         <button
           type="submit"
           disabled={submitting}
-          className="w-full rounded-xl bg-blue-600 py-3 text-sm font-semibold text-white transition disabled:opacity-50"
+          className="w-full rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 py-3 text-sm font-semibold text-white shadow-lg shadow-cyan-500/20 transition hover:shadow-cyan-500/30 disabled:opacity-50"
         >
           {submitting
             ? t("جارٍ الإرسال…", "Submitting…")

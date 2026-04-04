@@ -52,41 +52,41 @@ export function GuestComplaintForm({ lang }: Props) {
     <>
       <button
         onClick={() => { setOpen(true); setResult(null); }}
-        className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+        className="flex items-center gap-2 rounded-xl border border-white/15 bg-slate-900/50 px-3 py-2 text-sm font-medium text-white/70 backdrop-blur-xl transition hover:bg-white/[0.06]"
       >
-        <FiAlertTriangle className="h-4 w-4 text-rose-500" />
+        <FiAlertTriangle className="h-4 w-4 text-rose-400" />
         {t("شكوى / ملاحظة", "Complaint")}
       </button>
 
       {open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/40" onClick={() => setOpen(false)} />
-          <div className="relative w-full max-w-md max-h-[85vh] overflow-y-auto rounded-2xl bg-white shadow-2xl">
-            <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3">
-              <h2 className="text-base font-bold text-slate-900">
-                <FiAlertTriangle className="me-2 inline h-5 w-5 text-rose-500" />
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-[2px]" onClick={() => setOpen(false)} />
+          <div className="relative w-full max-w-md max-h-[85vh] overflow-y-auto rounded-2xl border border-white/10 bg-slate-900/90 shadow-2xl backdrop-blur-xl">
+            <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
+              <h2 className="text-base font-bold text-white">
+                <FiAlertTriangle className="me-2 inline h-5 w-5 text-rose-400" />
                 {t("تقديم شكوى", "Submit Complaint")}
               </h2>
-              <button onClick={() => setOpen(false)} className="rounded-lg p-1.5 hover:bg-slate-100 text-slate-500">✕</button>
+              <button onClick={() => setOpen(false)} className="rounded-lg p-1.5 hover:bg-white/10 text-white/50">✕</button>
             </div>
 
             {result?.ok ? (
               <div className="p-6 text-center">
-                <FiCheck className="mx-auto mb-2 h-10 w-10 text-emerald-600" />
-                <p className="text-sm font-medium text-emerald-800">{result.message}</p>
-                <button onClick={() => setOpen(false)} className="mt-4 rounded-xl bg-slate-100 px-5 py-2 text-sm font-medium text-slate-700">
+                <FiCheck className="mx-auto mb-2 h-10 w-10 text-emerald-400" />
+                <p className="text-sm font-medium text-emerald-300">{result.message}</p>
+                <button onClick={() => setOpen(false)} className="mt-4 rounded-xl bg-white/10 px-5 py-2 text-sm font-medium text-white/70">
                   {t("إغلاق", "Close")}
                 </button>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="p-4 space-y-3">
                 {result && !result.ok && (
-                  <p className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">{result.message}</p>
+                  <p className="rounded-xl border border-rose-500/20 bg-rose-500/10 px-3 py-2 text-sm text-rose-300">{result.message}</p>
                 )}
 
                 <div>
-                  <label className="mb-1 block text-xs font-medium text-slate-500">{t("الفئة", "Category")}</label>
-                  <select name="category" required className="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-sm">
+                  <label className="mb-1 block text-xs font-medium text-white/50">{t("الفئة", "Category")}</label>
+                  <select name="category" required className="w-full rounded-xl border border-white/15 bg-slate-800/60 px-3 py-2 text-sm text-white/90">
                     {CATEGORIES.map((c) => (
                       <option key={c.value} value={c.value}>{lang === "ar" ? c.ar : c.en}</option>
                     ))}
@@ -94,30 +94,30 @@ export function GuestComplaintForm({ lang }: Props) {
                 </div>
 
                 <div>
-                  <label className="mb-1 block text-xs font-medium text-slate-500">{t("الموضوع", "Subject")}</label>
+                  <label className="mb-1 block text-xs font-medium text-white/50">{t("الموضوع", "Subject")}</label>
                   <input
                     name="subject"
                     required
                     maxLength={200}
-                    className="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-sm"
+                    className="w-full rounded-xl border border-white/15 bg-slate-800/60 px-3 py-2 text-sm text-white/90 placeholder:text-white/30"
                     placeholder={t("موضوع الشكوى", "Complaint subject")}
                   />
                 </div>
 
                 <div>
-                  <label className="mb-1 block text-xs font-medium text-slate-500">{t("التفاصيل", "Description")}</label>
+                  <label className="mb-1 block text-xs font-medium text-white/50">{t("التفاصيل", "Description")}</label>
                   <textarea
                     name="description"
                     required
                     rows={3}
                     maxLength={1000}
-                    className="w-full resize-none rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-sm"
+                    className="w-full resize-none rounded-xl border border-white/15 bg-slate-800/60 px-3 py-2 text-sm text-white/90 placeholder:text-white/30"
                     placeholder={t("اشرح المشكلة بالتفصيل", "Describe the issue in detail")}
                   />
                 </div>
 
                 <div>
-                  <label className="mb-1 block text-xs font-medium text-slate-500">{t("مستوى الأهمية", "Severity")}</label>
+                  <label className="mb-1 block text-xs font-medium text-white/50">{t("مستوى الأهمية", "Severity")}</label>
                   <div className="flex gap-2">
                     {SEVERITY.map((s) => (
                       <label key={s.value} className={`flex-1 cursor-pointer rounded-lg border border-transparent px-2 py-1.5 text-center text-xs font-medium transition has-[:checked]:border-current has-[:checked]:ring-1 has-[:checked]:ring-current ${s.color}`}>
@@ -131,7 +131,7 @@ export function GuestComplaintForm({ lang }: Props) {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="w-full rounded-xl bg-rose-600 py-3 text-sm font-semibold text-white transition hover:bg-rose-700 disabled:opacity-50"
+                  className="w-full rounded-xl bg-rose-600 py-3 text-sm font-semibold text-white shadow-lg shadow-rose-500/20 transition hover:bg-rose-500 disabled:opacity-50"
                 >
                   <FiSend className="me-1 inline h-4 w-4" />
                   {submitting ? t("جارٍ الإرسال…", "Submitting…") : t("إرسال الشكوى", "Submit Complaint")}
