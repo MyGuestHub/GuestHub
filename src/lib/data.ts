@@ -2032,6 +2032,51 @@ export async function cancelWakeUp(id: number): Promise<void> {
   await query(`UPDATE wake_up_calls SET status='cancelled' WHERE id=$1`, [id]);
 }
 
+/* ── Admin: list all active DND rooms ── */
+export type DndRoom = {
+  reservation_id: number;
+  room_number: string;
+  guest_name: string;
+};
+
+export async function listActiveDndRooms(): Promise<DndRoom[]> {
+  const r = await query<DndRoom>(
+    `SELECT r.id AS reservation_id, rm.room_number, g.full_name AS guest_name
+     FROM reservations r
+     JOIN rooms rm ON rm.id = r.room_id
+     JOIN guests g ON g.id = r.guest_id
+     WHERE r.dnd_active = TRUE AND r.reservation_status = 'checked_in'
+     ORDER BY rm.room_number`,
+    [],
+  );
+  return r.rows;
+}
+
+/* ── Admin: list all active wake-up calls ── */
+export type AdminWakeUp = {
+  id: number;
+  room_number: string;
+  guest_name: string;
+  wake_time: string;
+  wake_date: string;
+  created_at: string;
+};
+
+export async function listActiveWakeUpCalls(): Promise<AdminWakeUp[]> {
+  const r = await query<AdminWakeUp>(
+    `SELECT w.id, rm.room_number, g.full_name AS guest_name,
+            w.wake_time::text, w.wake_date::text, w.created_at::text
+     FROM wake_up_calls w
+     JOIN reservations res ON res.id = w.reservation_id
+     JOIN rooms rm ON rm.id = w.room_id
+     JOIN guests g ON g.id = res.guest_id
+     WHERE w.status = 'active'
+     ORDER BY w.wake_date, w.wake_time`,
+    [],
+  );
+  return r.rows;
+}
+
 /* ═══════════════════════════════════════════════════════════════════════
    Favorites
    ═══════════════════════════════════════════════════════════════════════ */

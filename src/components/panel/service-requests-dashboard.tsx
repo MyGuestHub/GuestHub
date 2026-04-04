@@ -6,6 +6,7 @@ import {
   FiActivity,
   FiAlertCircle,
   FiBarChart2,
+  FiBell,
   FiCheckCircle,
   FiChevronDown,
   FiClock,
@@ -13,6 +14,7 @@ import {
   FiGrid,
   FiList,
   FiLoader,
+  FiMoon,
   FiMoreVertical,
   FiRefreshCw,
   FiSearch,
@@ -54,6 +56,21 @@ type Stats = {
   total: number;
 };
 
+type DndRoom = {
+  reservation_id: number;
+  room_number: string;
+  guest_name: string;
+};
+
+type AdminWakeUp = {
+  id: number;
+  room_number: string;
+  guest_name: string;
+  wake_time: string;
+  wake_date: string;
+  created_at: string;
+};
+
 type Props = {
   lang: "ar" | "en";
   requests: ServiceRequest[];
@@ -62,6 +79,8 @@ type Props = {
   statusFilter?: string;
   basePath: string;
   avgResponseTime?: string;
+  dndRooms?: DndRoom[];
+  wakeUpCalls?: AdminWakeUp[];
 };
 
 const statusConfig = {
@@ -122,6 +141,8 @@ export function ServiceRequestsDashboard({
   statusFilter,
   basePath,
   avgResponseTime: avgResponseTimeProp,
+  dndRooms = [],
+  wakeUpCalls = [],
 }: Props) {
   const [viewMode, setViewMode] = useState<"table" | "kanban">("table");
   const [searchQuery, setSearchQuery] = useState("");
@@ -287,6 +308,77 @@ export function ServiceRequestsDashboard({
           </div>
         </div>
       </section>
+
+      {/* ═══════════════════════════════════════════════════════════════════
+          Room Settings: DND & Wake-up Calls
+          ═══════════════════════════════════════════════════════════════════ */}
+      {(dndRooms.length > 0 || wakeUpCalls.length > 0) && (
+        <section className="grid gap-4 sm:grid-cols-2">
+          {/* DND Active Rooms */}
+          {dndRooms.length > 0 && (
+            <div className="rounded-2xl border border-violet-400/30 bg-gradient-to-br from-violet-500/10 to-purple-500/10 p-4 backdrop-blur-sm">
+              <div className="mb-3 flex items-center gap-2">
+                <div className="rounded-lg bg-violet-500/30 p-1.5">
+                  <FiMoon className="h-4 w-4 text-violet-300" />
+                </div>
+                <h3 className="text-sm font-semibold text-violet-200">
+                  {t("عدم الإزعاج", "Do Not Disturb")}
+                </h3>
+                <span className="ms-auto flex h-5 min-w-[20px] items-center justify-center rounded-full bg-violet-500/30 px-1.5 text-xs font-bold text-violet-200">
+                  {dndRooms.length}
+                </span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {dndRooms.map((r) => (
+                  <div
+                    key={r.reservation_id}
+                    className="flex items-center gap-2 rounded-xl border border-violet-400/20 bg-slate-900/50 px-3 py-2"
+                  >
+                    <span className="text-sm font-bold text-white">{r.room_number}</span>
+                    <span className="text-xs text-white/60">{r.guest_name}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Active Wake-up Calls */}
+          {wakeUpCalls.length > 0 && (
+            <div className="rounded-2xl border border-amber-400/30 bg-gradient-to-br from-amber-500/10 to-orange-500/10 p-4 backdrop-blur-sm">
+              <div className="mb-3 flex items-center gap-2">
+                <div className="rounded-lg bg-amber-500/30 p-1.5">
+                  <FiBell className="h-4 w-4 text-amber-300" />
+                </div>
+                <h3 className="text-sm font-semibold text-amber-200">
+                  {t("منبهات الاستيقاظ", "Wake-up Calls")}
+                </h3>
+                <span className="ms-auto flex h-5 min-w-[20px] items-center justify-center rounded-full bg-amber-500/30 px-1.5 text-xs font-bold text-amber-200">
+                  {wakeUpCalls.length}
+                </span>
+              </div>
+              <div className="space-y-2">
+                {wakeUpCalls.map((w) => (
+                  <div
+                    key={w.id}
+                    className="flex items-center justify-between rounded-xl border border-amber-400/20 bg-slate-900/50 px-3 py-2"
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-sm font-bold text-white">{w.room_number}</span>
+                      <span className="text-xs text-white/60">{w.guest_name}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-white/50">{w.wake_date}</span>
+                      <span className="rounded-lg bg-amber-500/20 px-2 py-0.5 text-sm font-semibold text-amber-200">
+                        {w.wake_time.slice(0, 5)}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </section>
+      )}
 
       {/* ═══════════════════════════════════════════════════════════════════
           Status Filter Pills

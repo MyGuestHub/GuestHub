@@ -3,7 +3,9 @@ import { Pagination } from "@/components/panel/pagination";
 import {
   getAvgResponseTime,
   getServiceRequestStats,
+  listActiveDndRooms,
   listActiveReservations,
+  listActiveWakeUpCalls,
   listServiceItemOptions,
   listServiceRequestsPaginated,
   listStaffUsers,
@@ -32,13 +34,15 @@ export default async function ServiceRequestsPage({ params, searchParams }: Prop
   const pager = readPager(query, { pageSize: 20 });
   const statusFilter = query.status || undefined;
 
-  const [requests, stats, staffList, reservations, serviceItems, avgResponseTime] = await Promise.all([
+  const [requests, stats, staffList, reservations, serviceItems, avgResponseTime, dndRooms, wakeUpCalls] = await Promise.all([
     listServiceRequestsPaginated(pager.page, pager.pageSize, { status: statusFilter }),
     getServiceRequestStats(),
     listStaffUsers(),
     listActiveReservations(),
     listServiceItemOptions(),
     getAvgResponseTime(),
+    listActiveDndRooms(),
+    listActiveWakeUpCalls(),
   ]);
 
   return (
@@ -79,6 +83,8 @@ export default async function ServiceRequestsPage({ params, searchParams }: Prop
         statusFilter={statusFilter}
         basePath={`/${ctx.lang}/service-requests`}
         avgResponseTime={avgResponseTime}
+        dndRooms={dndRooms}
+        wakeUpCalls={wakeUpCalls}
       />
 
       {/* Create new request button */}
