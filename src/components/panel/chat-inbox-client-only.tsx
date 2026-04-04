@@ -16,7 +16,7 @@ export function ChatInboxClientOnly({ lang, sessionToken }: Props) {
   }, []);
 
   if (!mounted) {
-    return <div className="h-[calc(100vh-120px)] rounded-2xl bg-slate-900/60" />;
+    return <div className="h-[calc(100dvh-7rem)] rounded-2xl border border-white/[0.06] bg-slate-900/40" />;
   }
 
   return <ChatInbox lang={lang} sessionToken={sessionToken} />;

@@ -16,6 +16,7 @@ import { GuestQuickActions } from "@/components/guest/guest-quick-actions";
 import { GuestFavorites } from "@/components/guest/guest-favorites";
 import { GuestComplaintForm } from "@/components/guest/guest-complaints";
 import { GuestFacilities } from "@/components/guest/guest-facilities";
+import { GuestScrollArea } from "@/components/guest/guest-scroll-area";
 import { GuestChatClientOnly } from "@/components/guest/guest-chat-client-only";
 
 type Props = {
@@ -74,7 +75,7 @@ async function renderPortal(guest: GuestContext, token: string, lang: AppLang, s
   return (
     <div
       dir={lang === "ar" ? "rtl" : "ltr"}
-      className="guest-glass relative flex min-h-screen flex-col bg-slate-950 text-slate-100"
+      className="guest-glass relative flex h-screen flex-col overflow-hidden bg-slate-950 text-slate-100"
     >
       <HtmlDirSetter lang={lang} />
       <GuestSessionFixer />
@@ -110,7 +111,8 @@ async function renderPortal(guest: GuestContext, token: string, lang: AppLang, s
         </div>
       </header>
 
-      <main className="relative z-10 mx-auto w-full max-w-lg flex-1 px-4 py-5">
+      <GuestScrollArea>
+        <main className="mx-auto w-full max-w-lg flex-1 px-4 py-5">
         {/* ── Stay info card ── */}
         <section className="mb-5 overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-r from-cyan-900/30 via-slate-900/50 to-indigo-900/30 backdrop-blur-xl">
           <div className="flex items-stretch">
@@ -160,9 +162,10 @@ async function renderPortal(guest: GuestContext, token: string, lang: AppLang, s
         </section>
       </main>
 
-      <footer className="relative z-10 border-t border-white/10 py-4 text-center text-[11px] text-white/30">
+      <footer className="border-t border-white/10 py-4 text-center text-[11px] text-white/30">
         GuestHub &copy; {new Date().getFullYear()}
       </footer>
+      </GuestScrollArea>
 
       {/* ── Floating Chat ── */}
       <GuestChatClientOnly token={token} lang={lang} guestSessionToken={sessionToken} />

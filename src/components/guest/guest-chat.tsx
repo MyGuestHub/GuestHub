@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
+import type { OverlayScrollbarsComponentRef } from "overlayscrollbars-react";
 import { FiMessageCircle, FiSend, FiChevronDown, FiSmile } from "react-icons/fi";
 import type { AppLang } from "@/lib/i18n";
 
@@ -28,7 +30,7 @@ export function GuestChat({ token, lang, guestSessionToken }: Props) {
   const [connected, setConnected] = useState(false);
   const [typing, setTyping] = useState(false);
   const [emojiOpen, setEmojiOpen] = useState(false);
-  const bottomRef = useRef<HTMLDivElement>(null);
+  const messagesRef = useRef<OverlayScrollbarsComponentRef>(null);
   const wsRef = useRef<WebSocket | null>(null);
   const reconnectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const reconnectAttemptRef = useRef(0);
@@ -122,9 +124,13 @@ export function GuestChat({ token, lang, guestSessionToken }: Props) {
     };
   }, [mounted, open, guestSessionToken, loadHistory]);
 
-  // Auto-scroll
+  // Auto-scroll — only scroll messages container
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    const inst = messagesRef.current?.osInstance();
+    if (inst) {
+      const { viewport } = inst.elements();
+      viewport.scrollTop = viewport.scrollHeight;
+    }
   }, [messages, typing]);
 
   // WS not open unread count via polling
@@ -201,7 +207,16 @@ export function GuestChat({ token, lang, guestSessionToken }: Props) {
           </div>
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto px-3 py-3 space-y-2">
+          <OverlayScrollbarsComponent
+            ref={messagesRef}
+            className="flex-1 overscroll-contain px-3 py-3"
+            defer
+            options={{
+              scrollbars: { theme: "os-theme-light", autoHide: "move", autoHideDelay: 800 },
+              overflow: { x: "hidden" },
+            }}
+          >
+            <div className="space-y-2">
             {messages.length === 0 && (
               <p className="mt-10 text-center text-xs text-white/40">
                 {t("ابدأ المحادثة…", "Start a conversation…")}
@@ -252,8 +267,8 @@ export function GuestChat({ token, lang, guestSessionToken }: Props) {
                 </div>
               </div>
             )}
-            <div ref={bottomRef} />
-          </div>
+            </div>
+          </OverlayScrollbarsComponent>
 
           {/* Input */}
           <div className="border-t border-white/10 px-3 py-2">
