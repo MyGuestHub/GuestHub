@@ -10,6 +10,7 @@ import { GuestRequestsLive } from "@/components/guest/guest-requests-live";
 import { HtmlDirSetter } from "@/components/html-dir-setter";
 import { GuestSessionGate } from "@/components/guest/guest-session-gate";
 import { GuestSessionFixer } from "@/components/guest/guest-session-fixer";
+import { GuestDarkModeToggle } from "@/components/guest/guest-dark-mode-toggle";
 
 type Props = {
   params: Promise<{ token: string }>;
@@ -82,6 +83,7 @@ async function renderPortal(guest: GuestContext, token: string, lang: AppLang) {
             </p>
           </div>
           <div className="flex items-center gap-2.5">
+            <GuestDarkModeToggle />
             <a
               href={`/guest/${token}?lang=${otherLang}`}
               className="rounded-full border border-slate-200 px-2.5 py-1 text-xs font-medium text-slate-600 transition hover:bg-slate-100"

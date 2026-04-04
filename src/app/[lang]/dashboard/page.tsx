@@ -1,10 +1,11 @@
 import { PanelShell } from "@/components/panel/panel-shell";
 import { DashboardGrid } from "@/components/panel/dashboard-grid";
-import { getRoomStats, getServiceRequestStats, getDashboardSetting } from "@/lib/data";
+import { getRoomStats, getServiceRequestStats, getDashboardSetting, getRatingStats, getRecentReviews } from "@/lib/data";
 import { hasPermission } from "@/lib/auth";
 import { requirePanelContext } from "@/lib/panel";
 import { WorldClockWidget } from "@/components/panel/world-clock-widget";
 import { WeatherWidget } from "@/components/panel/weather-widget";
+import { GuestSatisfactionWidget } from "@/components/panel/guest-satisfaction-widget";
 
 type Props = {
   params: Promise<{ lang: string }>;
@@ -19,13 +20,15 @@ export default async function DashboardPage({ params, searchParams }: Props) {
   const query = await searchParams;
   const ctx = await requirePanelContext(routeParams.lang);
 
-  const [stats, srStats, clocksRaw, weatherRaw] = await Promise.all([
+  const [stats, srStats, clocksRaw, weatherRaw, ratingStats, recentReviews] = await Promise.all([
     getRoomStats(),
     hasPermission(ctx.user, "services.manage")
       ? getServiceRequestStats()
       : Promise.resolve(null),
     getDashboardSetting("world_clocks"),
     getDashboardSetting("weather_locations"),
+    getRatingStats(),
+    getRecentReviews(5),
   ]);
 
   const serviceOpen = srStats ? srStats.pending + srStats.accepted + srStats.in_progress : 0;
@@ -80,6 +83,15 @@ export default async function DashboardPage({ params, searchParams }: Props) {
           {/* Weather Widget */}
           {weatherLocations.length > 0 && (
             <WeatherWidget lang={ctx.lang} locations={weatherLocations} />
+          )}
+
+          {/* Guest Satisfaction Widget */}
+          {ratingStats.total > 0 && (
+            <GuestSatisfactionWidget
+              lang={ctx.lang}
+              stats={ratingStats}
+              reviews={recentReviews}
+            />
           )}
       </div>
     </PanelShell>

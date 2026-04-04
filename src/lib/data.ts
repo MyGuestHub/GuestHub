@@ -563,6 +563,9 @@ export type ServiceRequestRow = {
   assigned_to_avatar: string | null;
   created_at: string;
   completed_at: string | null;
+  cancelled_at: string | null;
+  cancellation_reason: string | null;
+  cancelled_by_guest: boolean;
 };
 
 export type GuestAccessToken = {
@@ -683,7 +686,10 @@ export async function listServiceRequestsPaginated(
        au.full_name AS assigned_to_name,
        au.avatar_url AS assigned_to_avatar,
        sr.created_at::text,
-       sr.completed_at::text
+       sr.completed_at::text,
+       sr.cancelled_at::text,
+       sr.cancellation_reason,
+       sr.cancelled_by_guest
      FROM service_requests sr
      JOIN guests g ON g.id = sr.guest_id
      JOIN rooms rm ON rm.id = sr.room_id
@@ -731,7 +737,11 @@ export async function listServiceRequestsByReservation(
        au.avatar_url AS assigned_to_avatar,
        sr.created_at::text,
        sr.completed_at::text,
-       si.estimated_duration_minutes
+       sr.cancelled_at::text,
+       sr.cancellation_reason,
+       sr.cancelled_by_guest,
+       si.estimated_duration_minutes,
+       sr.service_item_id
      FROM service_requests sr
      JOIN guests g ON g.id = sr.guest_id
      JOIN rooms rm ON rm.id = sr.room_id
@@ -1294,4 +1304,118 @@ export async function getGuestInfoByToken(token: string): Promise<{
   }
 
   return null;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Guest Ratings
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+export type Rating = {
+  id: number;
+  service_request_id: number;
+  reservation_id: number;
+  stars: number;
+  emoji: string | null;
+  comment: string | null;
+  created_at: string;
+};
+
+export async function submitRating(
+  serviceRequestId: number,
+  reservationId: number,
+  stars: number,
+  emoji: string | null,
+  comment: string | null,
+): Promise<Rating> {
+  const result = await query<Rating>(
+    `INSERT INTO service_request_ratings (service_request_id, reservation_id, stars, emoji, comment)
+     VALUES ($1, $2, $3, $4, $5)
+     ON CONFLICT (service_request_id) DO UPDATE
+       SET stars = EXCLUDED.stars, emoji = EXCLUDED.emoji, comment = EXCLUDED.comment
+     RETURNING *`,
+    [serviceRequestId, reservationId, stars, emoji, comment],
+  );
+  return result.rows[0];
+}
+
+export async function getRatingByRequestId(requestId: number): Promise<Rating | null> {
+  const result = await query<Rating>(
+    `SELECT * FROM service_request_ratings WHERE service_request_id = $1`,
+    [requestId],
+  );
+  return result.rows[0] ?? null;
+}
+
+export async function getRatingsForReservation(reservationId: number): Promise<Rating[]> {
+  const result = await query<Rating>(
+    `SELECT * FROM service_request_ratings WHERE reservation_id = $1 ORDER BY created_at DESC`,
+    [reservationId],
+  );
+  return result.rows;
+}
+
+export type RatingStats = {
+  total: number;
+  average: number;
+  distribution: Record<number, number>;
+  emojiCounts: Record<string, number>;
+};
+
+export async function getRatingStats(): Promise<RatingStats> {
+  const [avgResult, distResult, emojiResult] = await Promise.all([
+    query<{ total: string; average: string }>(
+      `SELECT COUNT(*)::text AS total, COALESCE(ROUND(AVG(stars)::numeric, 1), 0)::text AS average
+       FROM service_request_ratings`,
+    ),
+    query<{ stars: number; count: string }>(
+      `SELECT stars, COUNT(*)::text AS count FROM service_request_ratings GROUP BY stars ORDER BY stars`,
+    ),
+    query<{ emoji: string; count: string }>(
+      `SELECT emoji, COUNT(*)::text AS count FROM service_request_ratings WHERE emoji IS NOT NULL GROUP BY emoji`,
+    ),
+  ]);
+
+  const distribution: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+  for (const row of distResult.rows) distribution[row.stars] = Number(row.count);
+
+  const emojiCounts: Record<string, number> = {};
+  for (const row of emojiResult.rows) emojiCounts[row.emoji] = Number(row.count);
+
+  return {
+    total: Number(avgResult.rows[0]?.total ?? "0"),
+    average: Number(avgResult.rows[0]?.average ?? "0"),
+    distribution,
+    emojiCounts,
+  };
+}
+
+export type RecentReview = {
+  stars: number;
+  emoji: string | null;
+  comment: string | null;
+  guest_name: string;
+  room_number: string;
+  item_name_en: string;
+  item_name_ar: string;
+  created_at: string;
+};
+
+export async function getRecentReviews(limit = 10): Promise<RecentReview[]> {
+  const result = await query<RecentReview>(
+    `SELECT r.stars, r.emoji, r.comment,
+            g.first_name || ' ' || g.last_name AS guest_name,
+            rm.room_number,
+            si.name_en AS item_name_en,
+            si.name_ar AS item_name_ar,
+            r.created_at::text
+     FROM service_request_ratings r
+     JOIN service_requests sr ON sr.id = r.service_request_id
+     JOIN guests g ON g.id = sr.guest_id
+     JOIN rooms rm ON rm.id = sr.room_id
+     JOIN service_items si ON si.id = sr.service_item_id
+     ORDER BY r.created_at DESC
+     LIMIT $1`,
+    [limit],
+  );
+  return result.rows;
 }

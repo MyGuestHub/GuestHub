@@ -25,6 +25,7 @@ export async function POST(request: Request) {
     const requestId = Number.parseInt(cleanText(form.get("requestId")), 10);
     const newStatus = cleanText(form.get("status"));
     const assignedTo = cleanText(form.get("assignedTo"));
+    const cancellationReason = cleanText(form.get("cancellationReason")) || null;
     const validStatuses = ["pending", "accepted", "in_progress", "completed", "cancelled"];
 
     if (!Number.isFinite(requestId) || !validStatuses.includes(newStatus)) {
@@ -44,6 +45,7 @@ export async function POST(request: Request) {
       const oldStatus = current.rows[0]?.request_status ?? null;
 
       const completedAt = newStatus === "completed" ? "NOW()" : "NULL";
+      const cancelledAt = newStatus === "cancelled" ? "NOW()" : "NULL";
       const assignedId = assignedTo ? Number.parseInt(assignedTo, 10) : null;
 
       await client.query(
@@ -51,15 +53,22 @@ export async function POST(request: Request) {
          SET request_status = $1,
              assigned_to = COALESCE($2, assigned_to),
              completed_at = ${completedAt},
+             cancelled_at = ${cancelledAt},
+             cancellation_reason = CASE WHEN $3 = 'cancelled' THEN $4 ELSE cancellation_reason END,
+             cancelled_by_guest = CASE WHEN $3 = 'cancelled' THEN FALSE ELSE cancelled_by_guest END,
              updated_at = NOW()
-         WHERE id = $3`,
-        [newStatus, assignedId, requestId],
+         WHERE id = $5`,
+        [newStatus, assignedId, newStatus, cancellationReason, requestId],
       );
+
+      const logNote = newStatus === "cancelled" && cancellationReason
+        ? `Staff cancelled: ${cancellationReason}`
+        : null;
 
       await client.query(
         `INSERT INTO service_request_logs (service_request_id, old_status, new_status, changed_by, note)
          VALUES ($1, $2, $3, $4, $5)`,
-        [requestId, oldStatus, newStatus, currentUser.id, null],
+        [requestId, oldStatus, newStatus, currentUser.id, logNote],
       );
     });
 

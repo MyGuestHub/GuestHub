@@ -116,3 +116,35 @@ body {
 .os-theme-light > .os-scrollbar > .os-scrollbar-track {
   background: transparent;
 }
+
+/* Confetti fall animation */
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(0) rotate(0deg) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(720deg) scale(0.4);
+    opacity: 0;
+  }
+}
+.animate-confetti-fall {
+  animation: confetti-fall 2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+/* Guest dark mode */
+.guest-dark {
+  --guest-bg: #0f172a;
+  --guest-surface: #1e293b;
+  --guest-text: #e2e8f0;
+  --guest-text-muted: #94a3b8;
+  --guest-border: #334155;
+}
+.guest-dark body,
+.guest-dark .bg-slate-50 { background-color: var(--guest-bg) !important; }
+.guest-dark .bg-white { background-color: var(--guest-surface) !important; }
+.guest-dark .text-slate-900,
+.guest-dark .text-slate-800 { color: var(--guest-text) !important; }
+.guest-dark .text-slate-500,
+.guest-dark .text-slate-600 { color: var(--guest-text-muted) !important; }
+.guest-dark .border-slate-200 { border-color: var(--guest-border) !important; }

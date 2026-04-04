@@ -38,6 +38,9 @@ type ServiceRequest = {
   notes: string | null;
   created_at: string;
   completed_at: string | null;
+  cancelled_at: string | null;
+  cancellation_reason: string | null;
+  cancelled_by_guest: boolean;
 };
 
 type Staff = { id: number; full_name: string };
@@ -723,6 +726,18 @@ function KanbanCard({
         </p>
       )}
 
+      {/* Cancellation indicator */}
+      {r.request_status === "cancelled" && (
+        <div className="mt-2 rounded-lg bg-red-500/10 px-2.5 py-1.5">
+          <p className="text-[11px] font-medium text-red-300">
+            {r.cancelled_by_guest ? t("ألغي بواسطة الضيف", "Cancelled by guest") : t("ألغي بواسطة الموظف", "Cancelled by staff")}
+          </p>
+          {r.cancellation_reason && (
+            <p className="mt-0.5 truncate text-[10px] text-red-300/70">{r.cancellation_reason}</p>
+          )}
+        </div>
+      )}
+
       {/* Footer */}
       <div className="mt-3 flex items-center justify-between border-t border-white/10 pt-3">
         {r.assigned_to_name ? (
@@ -785,6 +800,7 @@ function RequestActionPanel({
   const [isPending, startTransition] = useTransition();
   const [status, setStatus] = useState("");
   const [assignedTo, setAssignedTo] = useState("");
+  const [cancelReason, setCancelReason] = useState("");
   const t = (ar: string, en: string) => (lang === "ar" ? ar : en);
   const returnUrl = `${basePath}${statusFilter ? `?status=${statusFilter}` : ""}`;
   const isTerminal = r.request_status === "completed" || r.request_status === "cancelled";
@@ -801,6 +817,7 @@ function RequestActionPanel({
     formData.append("requestId", String(r.id));
     formData.append("status", status);
     if (assignedTo) formData.append("assignedTo", assignedTo);
+    if (status === "cancelled" && cancelReason) formData.append("cancellationReason", cancelReason);
     formData.append("returnTo", returnUrl);
 
     try {
@@ -884,6 +901,18 @@ function RequestActionPanel({
             ))}
           </AppSelect>
 
+          {/* Cancellation reason — shown when "cancelled" is selected */}
+          {status === "cancelled" && (
+            <input
+              type="text"
+              value={cancelReason}
+              onChange={(e) => setCancelReason(e.target.value)}
+              placeholder={t("سبب الإلغاء (اختياري)", "Cancellation reason (optional)")}
+              maxLength={500}
+              className="rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/30 focus:border-red-400/50 focus:outline-none focus:ring-1 focus:ring-red-400/30"
+            />
+          )}
+
           <button
             type="submit"
             disabled={isPending || !status}
@@ -915,6 +944,31 @@ function RequestActionPanel({
         <div className="ms-auto max-w-xs rounded-lg bg-white/5 px-3 py-2">
           <p className="text-xs text-white/40">{t("ملاحظات", "Notes")}</p>
           <p className="mt-1 text-sm text-white/70">{r.notes}</p>
+        </div>
+      )}
+
+      {/* Cancellation info */}
+      {r.request_status === "cancelled" && (r.cancellation_reason || r.cancelled_by_guest) && !compact && (
+        <div className="w-full rounded-xl border border-red-400/20 bg-red-500/10 px-4 py-3">
+          <div className="flex items-center gap-2 text-sm font-medium text-red-300">
+            <FiXCircle className="h-4 w-4" />
+            {r.cancelled_by_guest
+              ? t("ألغي بواسطة الضيف", "Cancelled by guest")
+              : t("ألغي بواسطة الموظف", "Cancelled by staff")}
+          </div>
+          {r.cancellation_reason && (
+            <p className="mt-1.5 text-sm text-red-200/80">{r.cancellation_reason}</p>
+          )}
+          {r.cancelled_at && (
+            <p className="mt-1 text-xs text-red-300/50">
+              {new Date(r.cancelled_at).toLocaleString(lang === "ar" ? "ar" : "en", {
+                month: "short",
+                day: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+            </p>
+          )}
         </div>
       )}
 
