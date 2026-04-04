@@ -22,7 +22,12 @@ type NavKey =
   | "settings"
   | "analytics"
   | "housekeeping"
-  | "activity-log";
+  | "activity-log"
+  | "chat"
+  | "complaints"
+  | "lost-found"
+  | "facilities"
+  | "invoices";
 
 type Props = {
   lang: AppLang;

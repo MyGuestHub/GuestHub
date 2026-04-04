@@ -11,6 +11,13 @@ import { HtmlDirSetter } from "@/components/html-dir-setter";
 import { GuestSessionGate } from "@/components/guest/guest-session-gate";
 import { GuestSessionFixer } from "@/components/guest/guest-session-fixer";
 import { GuestDarkModeToggle } from "@/components/guest/guest-dark-mode-toggle";
+import { GuestCart } from "@/components/guest/guest-cart";
+import { GuestChat } from "@/components/guest/guest-chat";
+import { GuestInvoice } from "@/components/guest/guest-invoice";
+import { GuestQuickActions } from "@/components/guest/guest-quick-actions";
+import { GuestFavorites } from "@/components/guest/guest-favorites";
+import { GuestComplaintForm } from "@/components/guest/guest-complaints";
+import { GuestFacilities } from "@/components/guest/guest-facilities";
 
 type Props = {
   params: Promise<{ token: string }>;
@@ -33,7 +40,7 @@ export default async function GuestPortalPage({ params, searchParams }: Props) {
   if (sessionCookie) {
     const guest = await validateGuestSession(sessionCookie);
     if (guest && guest.token === token) {
-      return renderPortal(guest, token, lang);
+      return renderPortal(guest, token, lang, sessionCookie);
     }
     // Session invalid, expired, or belongs to a different token/room
     // → require fresh phone verification for this token
@@ -45,7 +52,7 @@ export default async function GuestPortalPage({ params, searchParams }: Props) {
 
 import type { GuestContext } from "@/lib/data";
 
-async function renderPortal(guest: GuestContext, token: string, lang: AppLang) {
+async function renderPortal(guest: GuestContext, token: string, lang: AppLang, sessionToken: string) {
   const t = (ar: string, en: string) => tr(lang, ar, en);
 
   const [categories, myRequests] = await Promise.all([
@@ -83,6 +90,7 @@ async function renderPortal(guest: GuestContext, token: string, lang: AppLang) {
             </p>
           </div>
           <div className="flex items-center gap-2.5">
+            <GuestCart token={token} lang={lang} />
             <GuestDarkModeToggle />
             <a
               href={`/guest/${token}?lang=${otherLang}`}
@@ -122,6 +130,18 @@ async function renderPortal(guest: GuestContext, token: string, lang: AppLang) {
           </div>
         </section>
 
+        {/* ── Quick Actions: DND, Wake-up, Invoice, Facilities, Complaints ── */}
+        <GuestQuickActions lang={lang} />
+
+        <div className="mb-5 flex flex-wrap gap-2">
+          <GuestInvoice lang={lang} />
+          <GuestFacilities lang={lang} />
+          <GuestComplaintForm lang={lang} />
+        </div>
+
+        {/* ── Favorites ── */}
+        <GuestFavorites lang={lang} />
+
         {/* ── Active requests ── */}
         <GuestRequestsLive token={token} lang={lang} initialRequests={myRequests} />
 
@@ -137,6 +157,9 @@ async function renderPortal(guest: GuestContext, token: string, lang: AppLang) {
       <footer className="border-t border-slate-100 bg-white py-4 text-center text-[11px] text-slate-400">
         GuestHub &copy; {new Date().getFullYear()}
       </footer>
+
+      {/* ── Floating Chat ── */}
+      <GuestChat token={token} lang={lang} guestSessionToken={sessionToken} />
     </div>
   );
 }
