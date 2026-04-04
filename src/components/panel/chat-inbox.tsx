@@ -29,6 +29,7 @@ function toNum(value: unknown): number {
 }
 
 export function ChatInbox({ lang, sessionToken }: Props) {
+  const [mounted, setMounted] = useState(false);
   const [chats, setChats] = useState<ChatSummary[]>([]);
   const [activeResId, setActiveResId] = useState<number | null>(null);
   const [messages, setMessages] = useState<ChatMsg[]>([]);
@@ -38,6 +39,8 @@ export function ChatInbox({ lang, sessionToken }: Props) {
   const [emojiOpen, setEmojiOpen] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const wsRef = useRef<WebSocket | null>(null);
+  const reconnectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const reconnectAttemptRef = useRef(0);
   const typingTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const activeResIdRef = useRef<number | null>(null);
   const optimisticIdRef = useRef(-1);
@@ -71,11 +74,20 @@ export function ChatInbox({ lang, sessionToken }: Props) {
   }, []);
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
     activeResIdRef.current = activeResId;
   }, [activeResId]);
 
   // Connect WebSocket
   useEffect(() => {
+    if (!mounted) return;
+
+    let closedByEffect = false;
+
+    const connect = () => {
     const wsBase = process.env.NEXT_PUBLIC_WS_URL
       || (window.location.protocol === "https:"
         ? `wss://${window.location.host}/ws`
@@ -83,8 +95,17 @@ export function ChatInbox({ lang, sessionToken }: Props) {
     const ws = new WebSocket(`${wsBase}?session=${sessionToken}`);
     wsRef.current = ws;
 
-    ws.onopen = () => setConnected(true);
-    ws.onclose = () => setConnected(false);
+    ws.onopen = () => {
+      setConnected(true);
+      reconnectAttemptRef.current = 0;
+    };
+    ws.onclose = () => {
+      setConnected(false);
+      if (closedByEffect) return;
+      const delay = Math.min(1000 * (reconnectAttemptRef.current + 1), 5000);
+      reconnectAttemptRef.current += 1;
+      reconnectTimerRef.current = setTimeout(connect, delay);
+    };
     ws.onmessage = (evt) => {
       const msg = JSON.parse(evt.data);
       if (msg.type === "chat:message") {
@@ -136,9 +157,20 @@ export function ChatInbox({ lang, sessionToken }: Props) {
         typingTimer.current = setTimeout(() => setTyping(null), 2000);
       }
     };
+    };
 
-    return () => ws.close();
-  }, [sessionToken, loadChats]);
+    connect();
+
+    return () => {
+      closedByEffect = true;
+      if (reconnectTimerRef.current) {
+        clearTimeout(reconnectTimerRef.current);
+        reconnectTimerRef.current = null;
+      }
+      wsRef.current?.close();
+      wsRef.current = null;
+    };
+  }, [mounted, sessionToken, loadChats]);
 
   // Load chats on mount
   useEffect(() => { loadChats(); }, [loadChats]);
@@ -204,6 +236,10 @@ export function ChatInbox({ lang, sessionToken }: Props) {
   }
 
   const activeChat = chats.find((c) => c.reservation_id === activeResId);
+
+  if (!mounted) {
+    return <div className="h-[calc(100vh-120px)] rounded-2xl bg-slate-900/60" />;
+  }
 
   return (
     <div className="flex h-[calc(100vh-120px)] overflow-hidden rounded-2xl bg-slate-900/60 backdrop-blur-xl">

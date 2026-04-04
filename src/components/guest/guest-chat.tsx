@@ -20,6 +20,7 @@ type Props = {
 };
 
 export function GuestChat({ token, lang, guestSessionToken }: Props) {
+  const [mounted, setMounted] = useState(false);
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMsg[]>([]);
   const [text, setText] = useState("");
@@ -29,6 +30,8 @@ export function GuestChat({ token, lang, guestSessionToken }: Props) {
   const [emojiOpen, setEmojiOpen] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const wsRef = useRef<WebSocket | null>(null);
+  const reconnectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const reconnectAttemptRef = useRef(0);
   const typingTimeout = useRef<ReturnType<typeof setTimeout>>(undefined);
   const quickEmojis = ["😀", "😍", "🙏", "👍", "👌", "🎉", "❤️", "😊"];
 
@@ -48,10 +51,18 @@ export function GuestChat({ token, lang, guestSessionToken }: Props) {
     }
   }, [lang]);
 
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   // Connect WebSocket
   useEffect(() => {
-    if (!open) return;
+    if (!mounted || !open) return;
     loadHistory(true);
+
+    let closedByEffect = false;
+
+    const connect = () => {
 
     const wsBase = process.env.NEXT_PUBLIC_WS_URL
       || (window.location.protocol === "https:"
@@ -61,8 +72,17 @@ export function GuestChat({ token, lang, guestSessionToken }: Props) {
     const ws = new WebSocket(wsUrl);
     wsRef.current = ws;
 
-    ws.onopen = () => setConnected(true);
-    ws.onclose = () => setConnected(false);
+    ws.onopen = () => {
+      setConnected(true);
+      reconnectAttemptRef.current = 0;
+    };
+    ws.onclose = () => {
+      setConnected(false);
+      if (closedByEffect || !open) return;
+      const delay = Math.min(1000 * (reconnectAttemptRef.current + 1), 5000);
+      reconnectAttemptRef.current += 1;
+      reconnectTimerRef.current = setTimeout(connect, delay);
+    };
     ws.onmessage = (evt) => {
       const msg = JSON.parse(evt.data);
       if (msg.type === "chat:message") {
@@ -87,12 +107,20 @@ export function GuestChat({ token, lang, guestSessionToken }: Props) {
         typingTimeout.current = setTimeout(() => setTyping(false), 2000);
       }
     };
+    };
+
+    connect();
 
     return () => {
-      ws.close();
+      closedByEffect = true;
+      if (reconnectTimerRef.current) {
+        clearTimeout(reconnectTimerRef.current);
+        reconnectTimerRef.current = null;
+      }
+      wsRef.current?.close();
       wsRef.current = null;
     };
-  }, [open, guestSessionToken, loadHistory]);
+  }, [mounted, open, guestSessionToken, loadHistory]);
 
   // Auto-scroll
   useEffect(() => {
@@ -131,6 +159,8 @@ export function GuestChat({ token, lang, guestSessionToken }: Props) {
       wsRef.current.send(JSON.stringify({ type: "chat:typing" }));
     }
   }
+
+  if (!mounted) return null;
 
   return (
     <>

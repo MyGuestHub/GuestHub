@@ -53,10 +53,32 @@ if [ "${AUTO_SEED_ADMIN:-true}" = "true" ]; then
   fi
 fi
 
-echo "[Entrypoint] Starting WebSocket chat server on port ${WS_PORT:-3001}..."
-node ./scripts/ws-chat-server.mjs &
-WS_PID=$!
-echo "[Entrypoint] WS chat server started (PID=$WS_PID)."
+run_ws_supervisor() {
+  while true; do
+    echo "[Entrypoint] Starting WebSocket chat server on port ${WS_PORT:-3001}..."
+    node ./scripts/ws-chat-server.mjs
+    WS_EXIT=$?
+    echo "[Entrypoint] WS chat server exited with code ${WS_EXIT}. Restarting in 2s..."
+    sleep 2
+  done
+}
+
+run_ws_supervisor &
+WS_SUPERVISOR_PID=$!
 
 echo "[Entrypoint] Starting application: $*"
-exec "$@"
+"$@" &
+APP_PID=$!
+
+cleanup() {
+  kill "$APP_PID" 2>/dev/null || true
+  kill "$WS_SUPERVISOR_PID" 2>/dev/null || true
+}
+
+trap cleanup INT TERM EXIT
+
+wait "$APP_PID"
+APP_EXIT=$?
+kill "$WS_SUPERVISOR_PID" 2>/dev/null || true
+wait "$WS_SUPERVISOR_PID" 2>/dev/null || true
+exit "$APP_EXIT"
