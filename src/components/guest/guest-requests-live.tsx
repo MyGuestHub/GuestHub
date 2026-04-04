@@ -700,7 +700,7 @@ export function GuestRequestsLive({ token, lang, initialRequests }: Props) {
               )}
 
               <div className="mt-1.5 flex items-center justify-between">
-                <p className="text-[10px] text-slate-400">
+                <p suppressHydrationWarning className="text-[10px] text-slate-400">
                   {fmtDate(r.created_at)}
                 </p>
                 <div className="flex items-center gap-2">
