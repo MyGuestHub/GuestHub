@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
   const limit = Math.min(100, Math.max(1, Number(searchParams.get("limit")) || 50));
   const offset = Math.max(0, Number(searchParams.get("offset")) || 0);
 
-  let sql = `SELECT sr.id, sr.guest_id, g.full_name AS guest_name,
+  let sql = `SELECT sr.id, sr.guest_id, (g.first_name || ' ' || g.last_name) AS guest_name,
                     sr.room_id, rm.room_number,
                     sc.name_en AS category_name_en, sc.name_ar AS category_name_ar,
                     si.name_en AS item_name_en, si.name_ar AS item_name_ar,

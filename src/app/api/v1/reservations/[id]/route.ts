@@ -33,7 +33,7 @@ export async function GET(req: NextRequest, { params }: Ctx) {
   }
 
   const r = await query(
-    `SELECT r.id, r.guest_id, g.full_name AS guest_name,
+    `SELECT r.id, r.guest_id, (g.first_name || ' ' || g.last_name) AS guest_name,
             r.room_id, rm.room_number,
             r.check_in::text, r.check_out::text,
             r.reservation_status, r.adults, r.children,
@@ -142,7 +142,7 @@ export async function DELETE(req: NextRequest, { params }: Ctx) {
   }
 
   const r = await query(
-    `UPDATE reservations SET reservation_status = 'cancelled', cancelled_at = NOW()
+    `UPDATE reservations SET reservation_status = 'cancelled'
      WHERE id = $1 AND reservation_status NOT IN ('checked_out', 'cancelled')
      RETURNING id, reservation_status`,
     [resId],

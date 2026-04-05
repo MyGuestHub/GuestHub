@@ -31,7 +31,7 @@ export async function GET(req: NextRequest) {
 
   if (search) {
     idx++;
-    sql += ` AND (full_name ILIKE $${idx} OR email ILIKE $${idx} OR phone ILIKE $${idx})`;
+    sql += ` AND ((first_name || ' ' || last_name) ILIKE $${idx} OR email ILIKE $${idx} OR phone ILIKE $${idx})`;
     params.push(`%${search}%`);
   }
 

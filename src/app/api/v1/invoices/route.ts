@@ -26,10 +26,10 @@ export async function GET(req: NextRequest) {
   const offset = Math.max(0, Number(searchParams.get("offset")) || 0);
 
   let sql = `SELECT inv.id, inv.reservation_id,
-                    g.full_name AS guest_name, rm.room_number,
+                    (g.first_name || ' ' || g.last_name) AS guest_name, rm.room_number,
                     inv.subtotal::text, inv.tax_rate::text, inv.tax_amount::text,
                     inv.total::text, inv.currency, inv.status,
-                    inv.notes, inv.issued_at::text, inv.closed_at::text, inv.created_at::text
+                    inv.notes, inv.closed_at::text, inv.created_at::text
              FROM invoices inv
              JOIN reservations res ON res.id = inv.reservation_id
              JOIN guests g ON g.id = res.guest_id

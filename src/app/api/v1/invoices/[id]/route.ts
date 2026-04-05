@@ -34,7 +34,7 @@ export async function GET(req: NextRequest, { params }: Ctx) {
 
   const r = await query(
     `SELECT inv.id, inv.reservation_id, inv.guest_id, inv.room_id,
-            g.full_name AS guest_name, rm.room_number,
+            (g.first_name || ' ' || g.last_name) AS guest_name, rm.room_number,
             inv.subtotal::text, inv.tax_rate::text, inv.tax_amount::text,
             inv.total::text, inv.currency, inv.status,
             inv.notes, inv.created_at::text, inv.closed_at::text

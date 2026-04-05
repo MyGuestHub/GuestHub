@@ -32,7 +32,7 @@ export async function GET(req: NextRequest) {
   let bookingsSql = `SELECT fb.id, fb.facility_id, fb.reservation_id,
                             fb.booking_date::text, fb.start_time::text, fb.end_time::text,
                             fb.guests_count, fb.status, fb.created_at::text,
-                            g.full_name AS guest_name, rm.room_number
+                            (g.first_name || ' ' || g.last_name) AS guest_name, rm.room_number
                      FROM facility_bookings fb
                      JOIN reservations res ON res.id = fb.reservation_id
                      JOIN guests g ON g.id = fb.guest_id
