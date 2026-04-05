@@ -24,7 +24,7 @@ export async function GET(req: NextRequest) {
   const limit = Math.min(100, Math.max(1, Number(searchParams.get("limit")) || 50));
   const offset = Math.max(0, Number(searchParams.get("offset")) || 0);
 
-  let sql = `SELECT id, first_name, last_name, full_name, email, phone, nationality, id_type, id_number, created_at::text
+  let sql = `SELECT id, first_name, last_name, email, phone, created_at::text
              FROM guests WHERE 1=1`;
   const params: unknown[] = [];
   let idx = 0;

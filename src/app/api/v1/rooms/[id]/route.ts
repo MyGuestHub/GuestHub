@@ -33,7 +33,7 @@ export async function GET(req: NextRequest, { params }: Ctx) {
   }
 
   const r = await query(
-    `SELECT id, room_number, floor, room_type, capacity, status, amenities, created_at::text
+    `SELECT id, room_number, floor, room_type, capacity, status, created_at::text
      FROM rooms WHERE id = $1`,
     [roomId],
   );
@@ -87,7 +87,7 @@ export async function PUT(req: NextRequest, { params }: Ctx) {
   vals.push(roomId);
   const r = await query(
     `UPDATE rooms SET ${sets.join(", ")} WHERE id = $${idx}
-     RETURNING id, room_number, floor, room_type, capacity, status, amenities, created_at::text`,
+     RETURNING id, room_number, floor, room_type, capacity, status, created_at::text`,
     vals,
   );
 

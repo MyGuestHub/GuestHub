@@ -33,7 +33,7 @@ export async function GET(req: NextRequest, { params }: Ctx) {
   }
 
   const r = await query(
-    `SELECT id, first_name, last_name, full_name, email, phone, notes, created_at::text
+    `SELECT id, first_name, last_name, email, phone, notes, created_at::text
      FROM guests WHERE id = $1`,
     [guestId],
   );

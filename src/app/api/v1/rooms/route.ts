@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
   const status = searchParams.get("status");
   const floor = searchParams.get("floor");
 
-  let sql = `SELECT id, room_number, floor, room_type, capacity, status, amenities, created_at::text
+  let sql = `SELECT id, room_number, floor, room_type, capacity, status, created_at::text
              FROM rooms WHERE 1=1`;
   const params: unknown[] = [];
   let idx = 0;
