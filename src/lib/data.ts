@@ -2041,7 +2041,7 @@ export type DndRoom = {
 
 export async function listActiveDndRooms(): Promise<DndRoom[]> {
   const r = await query<DndRoom>(
-    `SELECT r.id AS reservation_id, rm.room_number, g.full_name AS guest_name
+    `SELECT r.id AS reservation_id, rm.room_number, g.first_name || ' ' || g.last_name AS guest_name
      FROM reservations r
      JOIN rooms rm ON rm.id = r.room_id
      JOIN guests g ON g.id = r.guest_id
@@ -2064,7 +2064,7 @@ export type AdminWakeUp = {
 
 export async function listActiveWakeUpCalls(): Promise<AdminWakeUp[]> {
   const r = await query<AdminWakeUp>(
-    `SELECT w.id, rm.room_number, g.full_name AS guest_name,
+    `SELECT w.id, rm.room_number, g.first_name || ' ' || g.last_name AS guest_name,
             w.wake_time::text, w.wake_date::text, w.created_at::text
      FROM wake_up_calls w
      JOIN reservations res ON res.id = w.reservation_id
