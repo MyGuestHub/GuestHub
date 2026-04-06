@@ -586,7 +586,22 @@ export function GuestRequestsLive({ token, lang, initialRequests }: Props) {
       .catch(() => {});
   }, []);
 
-  if (!mounted || requests.length === 0) return null;
+  if (!mounted) {
+    return (
+      <section id="guest-requests-live" className="mb-6 scroll-mt-24">
+        <div className="rounded-2xl border border-white/10 bg-slate-900/40 p-3 backdrop-blur-xl">
+          <div className="h-6 w-40 animate-pulse rounded bg-white/10" />
+          <div className="mt-2 flex gap-2">
+            <div className="h-5 w-20 animate-pulse rounded-full bg-white/10" />
+            <div className="h-5 w-20 animate-pulse rounded-full bg-white/10" />
+            <div className="h-5 w-24 animate-pulse rounded-full bg-white/10" />
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (requests.length === 0) return null;
 
   const isCancellable = (status: string) =>
     status === "pending" || status === "accepted";
