@@ -29,6 +29,7 @@ type ServiceRequest = {
   id: number;
   guest_name: string;
   room_number: string;
+  category_slug: string;
   category_name_ar: string;
   category_name_en: string;
   item_name_ar: string;
@@ -38,6 +39,8 @@ type ServiceRequest = {
   assigned_to_avatar: string | null;
   quantity: number;
   notes: string | null;
+  eta_minutes: number | null;
+  eta_set_at: string | null;
   created_at: string;
   completed_at: string | null;
   cancelled_at: string | null;
@@ -892,10 +895,17 @@ function RequestActionPanel({
   const [isPending, startTransition] = useTransition();
   const [status, setStatus] = useState("");
   const [assignedTo, setAssignedTo] = useState("");
+  const [etaMinutes, setEtaMinutes] = useState("");
   const [cancelReason, setCancelReason] = useState("");
   const t = (ar: string, en: string) => (lang === "ar" ? ar : en);
   const returnUrl = `${basePath}${statusFilter ? `?status=${statusFilter}` : ""}`;
   const isTerminal = r.request_status === "completed" || r.request_status === "cancelled";
+  const etaLabel =
+    r.category_slug === "food_beverage"
+      ? t("وقت تجهيز الطعام (دقيقة)", "Food prep ETA (min)")
+      : r.category_slug === "transport"
+        ? t("وقت وصول السيارة (دقيقة)", "Taxi ETA (min)")
+        : t("الوقت المتوقع للخدمة (دقيقة)", "Service ETA (min)");
 
   const statusLabel = (s: string) => statusConfig[s as keyof typeof statusConfig]?.label[lang] ?? s;
 
@@ -909,6 +919,9 @@ function RequestActionPanel({
     formData.append("requestId", String(r.id));
     formData.append("status", status);
     if (assignedTo) formData.append("assignedTo", assignedTo);
+    if ((status === "accepted" || status === "in_progress") && etaMinutes) {
+      formData.append("etaMinutes", etaMinutes);
+    }
     if (status === "cancelled" && cancelReason) formData.append("cancellationReason", cancelReason);
     formData.append("returnTo", returnUrl);
 
@@ -924,6 +937,8 @@ function RequestActionPanel({
       });
       setStatus("");
       setAssignedTo("");
+      setEtaMinutes("");
+      setCancelReason("");
     } catch (err) {
       console.error("Failed to update status:", err);
     }
@@ -992,6 +1007,18 @@ function RequestActionPanel({
               </option>
             ))}
           </AppSelect>
+
+          {(status === "accepted" || status === "in_progress") && (
+            <input
+              type="number"
+              min={1}
+              max={480}
+              value={etaMinutes}
+              onChange={(e) => setEtaMinutes(e.target.value)}
+              placeholder={etaLabel}
+              className="w-52 rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/30 focus:border-cyan-400/50 focus:outline-none focus:ring-1 focus:ring-cyan-400/30"
+            />
+          )}
 
           {/* Cancellation reason — shown when "cancelled" is selected */}
           {status === "cancelled" && (

@@ -41,15 +41,19 @@ export function GuestChat({ token, lang, guestSessionToken }: Props) {
 
   // Load chat history via REST
   const loadHistory = useCallback(async (markRead = true) => {
-    const res = await fetch(`/api/guest/chat?lang=${lang}&markRead=${markRead ? "1" : "0"}`);
-    if (res.ok) {
-      const data = await res.json();
-      const normalized: ChatMsg[] = (data.messages ?? []).map((m: ChatMsg) => ({
-        ...m,
-        id: Number(m.id),
-      }));
-      setMessages(normalized);
-      if (markRead) setUnread(0);
+    try {
+      const res = await fetch(`/api/guest/chat?lang=${lang}&markRead=${markRead ? "1" : "0"}`);
+      if (res.ok) {
+        const data = await res.json();
+        const normalized: ChatMsg[] = (data.messages ?? []).map((m: ChatMsg) => ({
+          ...m,
+          id: Number(m.id),
+        }));
+        setMessages(normalized);
+        if (markRead) setUnread(0);
+      }
+    } catch {
+      // Ignore transient network errors and keep current chat state.
     }
   }, [lang]);
 
@@ -60,7 +64,7 @@ export function GuestChat({ token, lang, guestSessionToken }: Props) {
   // Connect WebSocket
   useEffect(() => {
     if (!mounted || !open) return;
-    loadHistory(true);
+    void loadHistory(true);
 
     let closedByEffect = false;
 
@@ -86,7 +90,12 @@ export function GuestChat({ token, lang, guestSessionToken }: Props) {
       reconnectTimerRef.current = setTimeout(connect, delay);
     };
     ws.onmessage = (evt) => {
-      const msg = JSON.parse(evt.data);
+      let msg: any;
+      try {
+        msg = JSON.parse(evt.data);
+      } catch {
+        return;
+      }
       if (msg.type === "chat:message") {
         setMessages((prev) => {
           const nextMsg: ChatMsg = {
@@ -108,6 +117,9 @@ export function GuestChat({ token, lang, guestSessionToken }: Props) {
         clearTimeout(typingTimeout.current);
         typingTimeout.current = setTimeout(() => setTyping(false), 2000);
       }
+    };
+    ws.onerror = () => {
+      setConnected(false);
     };
     };
 
@@ -137,13 +149,17 @@ export function GuestChat({ token, lang, guestSessionToken }: Props) {
   useEffect(() => {
     if (open) { setUnread(0); return; }
     const iv = setInterval(async () => {
-      const res = await fetch(`/api/guest/chat?lang=${lang}&markRead=0`);
-      if (res.ok) {
-        const data = await res.json();
-        const unreadStaff = (data.messages ?? []).filter(
-          (m: ChatMsg) => m.sender_type === "staff" && !m.is_read,
-        );
-        setUnread(unreadStaff.length > 0 ? Math.min(unreadStaff.length, 99) : 0);
+      try {
+        const res = await fetch(`/api/guest/chat?lang=${lang}&markRead=0`);
+        if (res.ok) {
+          const data = await res.json();
+          const unreadStaff = (data.messages ?? []).filter(
+            (m: ChatMsg) => m.sender_type === "staff" && !m.is_read,
+          );
+          setUnread(unreadStaff.length > 0 ? Math.min(unreadStaff.length, 99) : 0);
+        }
+      } catch {
+        // Ignore transient network failures while polling.
       }
     }, 12000);
     return () => clearInterval(iv);

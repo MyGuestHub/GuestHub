@@ -25,6 +25,8 @@ export async function POST(request: Request) {
     const requestId = Number.parseInt(cleanText(form.get("requestId")), 10);
     const newStatus = cleanText(form.get("status"));
     const assignedTo = cleanText(form.get("assignedTo"));
+    const etaMinutesRaw = cleanText(form.get("etaMinutes"));
+    const etaMinutes = etaMinutesRaw ? Number.parseInt(etaMinutesRaw, 10) : null;
     const cancellationReason = cleanText(form.get("cancellationReason")) || null;
     const validStatuses = ["pending", "accepted", "in_progress", "completed", "cancelled"];
 
@@ -37,6 +39,11 @@ export async function POST(request: Request) {
       );
     }
 
+    const safeEtaMinutes =
+      Number.isFinite(etaMinutes as number) && (etaMinutes as number) > 0
+        ? Math.min(480, etaMinutes as number)
+        : null;
+
     await tx(async (client) => {
       const current = await client.query(
         `SELECT request_status FROM service_requests WHERE id = $1`,
@@ -44,21 +51,46 @@ export async function POST(request: Request) {
       );
       const oldStatus = current.rows[0]?.request_status ?? null;
 
+      const etaColumns = await client.query<{ exists: boolean }>(
+        `SELECT EXISTS (
+           SELECT 1
+           FROM information_schema.columns
+           WHERE table_schema = 'public'
+             AND table_name = 'service_requests'
+             AND column_name = 'eta_minutes'
+         ) AS exists`,
+      );
+      const hasEtaColumns = Boolean(etaColumns.rows[0]?.exists);
+
       const completedAt = newStatus === "completed" ? "NOW()" : "NULL";
       const cancelledAt = newStatus === "cancelled" ? "NOW()" : "NULL";
       const assignedId = assignedTo ? Number.parseInt(assignedTo, 10) : null;
+      const etaSetClause = hasEtaColumns
+        ? `,
+             eta_minutes = CASE
+               WHEN $3::int IS NOT NULL AND $1 IN ('accepted', 'in_progress') THEN $3::int
+               WHEN $1 IN ('completed', 'cancelled') THEN NULL
+               ELSE eta_minutes
+             END,
+             eta_set_at = CASE
+               WHEN $3::int IS NOT NULL AND $1 IN ('accepted', 'in_progress') THEN NOW()
+               WHEN $1 IN ('completed', 'cancelled') THEN NULL
+               ELSE eta_set_at
+             END`
+        : "";
 
       await client.query(
         `UPDATE service_requests
          SET request_status = $1,
-             assigned_to = COALESCE($2, assigned_to),
-             completed_at = ${completedAt},
+             assigned_to = COALESCE($2, assigned_to)
+             ${etaSetClause}
+             , completed_at = ${completedAt},
              cancelled_at = ${cancelledAt},
-             cancellation_reason = CASE WHEN $3 = 'cancelled' THEN $4 ELSE cancellation_reason END,
-             cancelled_by_guest = CASE WHEN $3 = 'cancelled' THEN FALSE ELSE cancelled_by_guest END,
+             cancellation_reason = CASE WHEN $1 = 'cancelled' THEN $4 ELSE cancellation_reason END,
+             cancelled_by_guest = CASE WHEN $1 = 'cancelled' THEN FALSE ELSE cancelled_by_guest END,
              updated_at = NOW()
          WHERE id = $5`,
-        [newStatus, assignedId, newStatus, cancellationReason, requestId],
+        [newStatus, assignedId, safeEtaMinutes, cancellationReason, requestId],
       );
 
       const logNote = newStatus === "cancelled" && cancellationReason

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import {
   FiAlertTriangle,
   FiCheckCircle,
+  FiChevronDown,
   FiClock,
   FiLoader,
   FiRefreshCw,
@@ -19,11 +20,14 @@ type Request = {
   id: number;
   item_name_en: string;
   item_name_ar: string;
+  category_slug?: string;
   quantity: number;
   notes: string | null;
   request_status: string;
   created_at: string;
   estimated_duration_minutes?: number | null;
+  eta_minutes?: number | null;
+  eta_set_at?: string | null;
   assigned_to_name?: string | null;
   cancelled_at?: string | null;
   cancellation_reason?: string | null;
@@ -393,7 +397,10 @@ function CancelModal({
    Main Component
    ═══════════════════════════════════════════════════════════════════════ */
 export function GuestRequestsLive({ token, lang, initialRequests }: Props) {
+  const [mounted, setMounted] = useState(false);
   const [requests, setRequests] = useState<Request[]>(initialRequests);
+  const [nowMs, setNowMs] = useState(0);
+  const [collapsed, setCollapsed] = useState(true);
   const [cancelTarget, setCancelTarget] = useState<Request | null>(null);
   const [cancelSuccess, setCancelSuccess] = useState<number | null>(null);
   const [showConfetti, setShowConfetti] = useState(false);
@@ -408,6 +415,10 @@ export function GuestRequestsLive({ token, lang, initialRequests }: Props) {
     new Map(initialRequests.map((req) => [req.id, req.request_status])),
   );
   const t = (ar: string, en: string) => (lang === "ar" ? ar : en);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   /* deterministic short date — avoids locale ICU mismatch between Node and browser */
   const fmtDate = (iso: string) => {
@@ -484,12 +495,21 @@ export function GuestRequestsLive({ token, lang, initialRequests }: Props) {
   }, [token]);
 
   useEffect(() => {
+    setNowMs(Date.now());
+    const tick = setInterval(() => setNowMs(Date.now()), 30_000);
+    return () => clearInterval(tick);
+  }, []);
+
+  useEffect(() => {
     const interval = setInterval(fetchRequests, 5_000);
     const onNewRequest = () => fetchRequests();
+    const onExpand = () => setCollapsed(false);
     window.addEventListener("guest-request-change", onNewRequest);
+    window.addEventListener("guest-requests-expand", onExpand);
     return () => {
       clearInterval(interval);
       window.removeEventListener("guest-request-change", onNewRequest);
+      window.removeEventListener("guest-requests-expand", onExpand);
     };
   }, [fetchRequests]);
 
@@ -566,13 +586,31 @@ export function GuestRequestsLive({ token, lang, initialRequests }: Props) {
       .catch(() => {});
   }, []);
 
-  if (requests.length === 0) return null;
+  if (!mounted || requests.length === 0) return null;
 
   const isCancellable = (status: string) =>
     status === "pending" || status === "accepted";
 
+  const getEtaRemainingMinutes = (r: Request) => {
+    if (!r.eta_minutes || !r.eta_set_at) return null;
+    if (r.request_status !== "accepted" && r.request_status !== "in_progress") return null;
+    if (!nowMs) return null;
+
+    const etaSetTs = new Date(r.eta_set_at).getTime();
+    if (!Number.isFinite(etaSetTs)) return null;
+    const etaTargetMs = etaSetTs + r.eta_minutes * 60_000;
+    const diffMs = etaTargetMs - nowMs;
+
+    if (diffMs <= 0) return 0;
+    return Math.ceil(diffMs / 60_000);
+  };
+
+  const pendingCount = requests.filter((r) => r.request_status === "pending").length;
+  const activeCount = requests.filter((r) => r.request_status === "accepted" || r.request_status === "in_progress").length;
+  const completedCount = requests.filter((r) => r.request_status === "completed").length;
+
   return (
-    <section className="mb-6">
+    <section id="guest-requests-live" className="mb-6 scroll-mt-24">
       {/* Confetti celebration */}
       {showConfetti && (
         <ConfettiBurst onDone={() => setShowConfetti(false)} />
@@ -586,20 +624,42 @@ export function GuestRequestsLive({ token, lang, initialRequests }: Props) {
         </div>
       )}
 
-      <div className="mb-3 flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-white">
-          {t("طلباتي", "My Requests")}
-        </h2>
-        <button
-          onClick={fetchRequests}
-          className="rounded-lg p-1.5 text-white/40 transition hover:bg-white/10 hover:text-white/70"
-          aria-label={t("تحديث", "Refresh")}
-        >
-          <FiRefreshCw className="h-4 w-4" />
-        </button>
+      <div className="mb-3 rounded-2xl border border-white/10 bg-slate-900/40 p-3 backdrop-blur-xl">
+        <div className="flex items-center justify-between gap-2">
+          <button
+            type="button"
+            onClick={() => setCollapsed((prev) => !prev)}
+            className="inline-flex items-center gap-2 rounded-lg px-1 text-start text-white/90 transition hover:text-white"
+            aria-expanded={!collapsed}
+            aria-controls="guest-requests-body"
+          >
+            <FiChevronDown className={`h-4 w-4 text-white/60 transition-transform ${collapsed ? "-rotate-90" : "rotate-0"}`} />
+            <h2 className="text-lg font-semibold text-white">{t("طلباتي", "My Requests")}</h2>
+          </button>
+
+          <button
+            onClick={fetchRequests}
+            className="rounded-lg p-1.5 text-white/40 transition hover:bg-white/10 hover:text-white/70"
+            aria-label={t("تحديث", "Refresh")}
+          >
+            <FiRefreshCw className="h-4 w-4" />
+          </button>
+        </div>
+
+        <div className="mt-2 flex flex-wrap gap-1.5">
+          <span className="rounded-full bg-amber-500/15 px-2 py-0.5 text-[11px] font-medium text-amber-300">
+            {pendingCount} {t("معلق", "pending")}
+          </span>
+          <span className="rounded-full bg-blue-500/15 px-2 py-0.5 text-[11px] font-medium text-blue-300">
+            {activeCount} {t("نشط", "active")}
+          </span>
+          <span className="rounded-full bg-emerald-500/15 px-2 py-0.5 text-[11px] font-medium text-emerald-300">
+            {completedCount} {t("مكتمل", "completed")}
+          </span>
+        </div>
       </div>
 
-      <div className="space-y-2">
+      {!collapsed && <div id="guest-requests-body" className="space-y-2">
         {requests.map((r) => {
           const cfg = statusConfig[r.request_status] ?? statusConfig.pending;
           const Icon = cfg.icon;
@@ -609,6 +669,7 @@ export function GuestRequestsLive({ token, lang, initialRequests }: Props) {
           const showCancelBtn = isCancellable(r.request_status);
           const isCompleted = r.request_status === "completed";
           const existingRating = ratings.get(r.id);
+          const etaRemainingMinutes = getEtaRemainingMinutes(r);
 
           return (
             <div
@@ -704,6 +765,17 @@ export function GuestRequestsLive({ token, lang, initialRequests }: Props) {
                   {fmtDate(r.created_at)}
                 </p>
                 <div className="flex items-center gap-2">
+                  {etaRemainingMinutes !== null ? (
+                    <span
+                      suppressHydrationWarning
+                      className="inline-flex items-center gap-0.5 rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-semibold text-emerald-300"
+                    >
+                      <FiClock className="h-2.5 w-2.5" />
+                      {etaRemainingMinutes === 0
+                        ? t("وصل قريباً", "Arriving soon")
+                        : `${t("المتبقي", "ETA")} ${etaRemainingMinutes}${t("د", "m")}`}
+                    </span>
+                  ) : null}
                   {r.estimated_duration_minutes &&
                   r.request_status !== "completed" &&
                   r.request_status !== "cancelled" ? (
@@ -769,7 +841,7 @@ export function GuestRequestsLive({ token, lang, initialRequests }: Props) {
             </div>
           );
         })}
-      </div>
+      </div>}
 
       {/* Cancel modal */}
       {cancelTarget && (

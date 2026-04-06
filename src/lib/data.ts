@@ -554,10 +554,13 @@ export type ServiceRequestRow = {
   item_name_ar: string;
   category_name_en: string;
   category_name_ar: string;
+  category_slug: string;
   request_status: "pending" | "accepted" | "in_progress" | "completed" | "cancelled";
   notes: string | null;
   quantity: number;
   estimated_cost: string | null;
+  eta_minutes: number | null;
+  eta_set_at: string | null;
   scheduled_at: string | null;
   assigned_to_name: string | null;
   assigned_to_avatar: string | null;
@@ -678,10 +681,13 @@ export async function listServiceRequestsPaginated(
        si.name_ar AS item_name_ar,
        sc.name_en AS category_name_en,
        sc.name_ar AS category_name_ar,
+       sc.slug AS category_slug,
        sr.request_status,
        sr.notes,
        sr.quantity,
        sr.estimated_cost::text,
+       NULLIF(to_jsonb(sr)->>'eta_minutes', '')::int AS eta_minutes,
+       to_jsonb(sr)->>'eta_set_at' AS eta_set_at,
        sr.scheduled_at::text,
        au.full_name AS assigned_to_name,
        au.avatar_url AS assigned_to_avatar,
@@ -728,10 +734,13 @@ export async function listServiceRequestsByReservation(
        si.name_ar AS item_name_ar,
        sc.name_en AS category_name_en,
        sc.name_ar AS category_name_ar,
+       sc.slug AS category_slug,
        sr.request_status,
        sr.notes,
        sr.quantity,
        sr.estimated_cost::text,
+      NULLIF(to_jsonb(sr)->>'eta_minutes', '')::int AS eta_minutes,
+      to_jsonb(sr)->>'eta_set_at' AS eta_set_at,
        sr.scheduled_at::text,
        au.full_name AS assigned_to_name,
        au.avatar_url AS assigned_to_avatar,

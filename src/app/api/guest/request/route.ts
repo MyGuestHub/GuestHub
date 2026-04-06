@@ -34,8 +34,19 @@ export async function POST(request: Request) {
   }
 
   // Verify item exists and is active
-  const item = await query(
-    `SELECT id, estimated_cost FROM service_items WHERE id = $1 AND is_active = TRUE`,
+  const item = await query<{
+    id: number;
+    estimated_cost: string | null;
+    estimated_duration_minutes: number | null;
+    category_slug: string;
+  }>(
+    `SELECT si.id,
+            si.estimated_cost::text,
+            si.estimated_duration_minutes,
+            sc.slug AS category_slug
+     FROM service_items si
+     JOIN service_categories sc ON sc.id = si.category_id
+     WHERE si.id = $1 AND si.is_active = TRUE`,
     [serviceItemId],
   );
 
@@ -47,6 +58,8 @@ export async function POST(request: Request) {
   }
 
   const estimatedCost = item.rows[0].estimated_cost;
+  const estimatedDurationMinutes = item.rows[0].estimated_duration_minutes;
+  const categorySlug = item.rows[0].category_slug;
   const parsedSchedule = scheduledAt ? new Date(scheduledAt) : null;
 
   const result = await tx(async (client) => {
@@ -82,5 +95,14 @@ export async function POST(request: Request) {
     ok: true,
     message: tr(lang, "تم إرسال طلبك بنجاح", "Your request has been submitted successfully"),
     requestId: result,
+    estimatedDurationMinutes,
+    etaType:
+      categorySlug === "food_beverage"
+        ? "food"
+        : categorySlug === "transport"
+          ? "transport"
+          : "service",
+    invoiceUrl: `/api/guest/invoice?lang=${lang}`,
+    paymentUrl: `/api/guest/invoice?lang=${lang}&openPayment=1`,
   });
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   FiBriefcase,
   FiCalendar,
@@ -73,10 +73,27 @@ type Props = {
 export function GuestServiceForm({ token, categories, lang }: Props) {
   const [selectedCategory, setSelectedCategory] = useState<CategoryWithItems | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const [result, setResult] = useState<{ ok: boolean; message: string } | null>(null);
+  const [result, setResult] = useState<{
+    ok: boolean;
+    message: string;
+    estimatedDurationMinutes?: number | null;
+    etaType?: "food" | "transport" | "service";
+    invoiceUrl?: string;
+    paymentUrl?: string;
+  } | null>(null);
 
   const t = (ar: string, en: string) => (lang === "ar" ? ar : en);
   const BackIcon = lang === "ar" ? FiChevronRight : FiChevronLeft;
+
+  useEffect(() => {
+    if (!result?.ok) return;
+    const timer = setTimeout(() => {
+      window.dispatchEvent(new CustomEvent("guest-requests-expand"));
+      const section = document.getElementById("guest-requests-live");
+      section?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 120);
+    return () => clearTimeout(timer);
+  }, [result?.ok]);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -91,7 +108,14 @@ export function GuestServiceForm({ token, categories, lang }: Props) {
       const res = await fetch("/api/guest/request", { method: "POST", body: form });
       const data = await res.json();
       if (res.ok && data.ok) {
-        setResult({ ok: true, message: data.message });
+        setResult({
+          ok: true,
+          message: data.message,
+          estimatedDurationMinutes: data.estimatedDurationMinutes,
+          etaType: data.etaType,
+          invoiceUrl: data.invoiceUrl,
+          paymentUrl: data.paymentUrl,
+        });
         (e.target as HTMLFormElement).reset();
         setSelectedCategory(null);
         window.dispatchEvent(new CustomEvent("guest-request-change"));
@@ -106,10 +130,59 @@ export function GuestServiceForm({ token, categories, lang }: Props) {
   }
 
   if (result?.ok) {
+    const etaLabel =
+      result.etaType === "food"
+        ? t("الوقت المتوقع لتجهيز الطلب", "Estimated food preparation time")
+        : result.etaType === "transport"
+          ? t("الوقت المتوقع لوصول السيارة", "Estimated taxi arrival time")
+          : t("الوقت المتوقع لتنفيذ الطلب", "Estimated fulfillment time");
+
     return (
       <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-6 text-center backdrop-blur-xl">
         <FiCheck className="mx-auto mb-2 h-10 w-10 text-emerald-400" />
         <p className="text-sm font-medium text-emerald-300">{result.message}</p>
+        {result.estimatedDurationMinutes ? (
+          <div className="mt-3 inline-flex items-center gap-1.5 rounded-xl border border-cyan-400/25 bg-cyan-500/10 px-3 py-2 text-xs font-semibold text-cyan-200">
+            <FiClock className="h-3.5 w-3.5" />
+            {etaLabel}: ~{result.estimatedDurationMinutes} {t("دقيقة", "min")}
+          </div>
+        ) : (
+          <p className="mt-3 text-xs text-emerald-200/85">
+            {t(
+              "سوف يتم تحديث الوقت المتوقع بمجرد قبول الطلب من قبل الفريق.",
+              "ETA will appear once your request is approved by staff.",
+            )}
+          </p>
+        )}
+        <div className="mt-4 grid gap-2 sm:grid-cols-2">
+          <a
+            href={result.invoiceUrl ?? "#"}
+            onClick={(e) => {
+              e.preventDefault();
+              window.dispatchEvent(new CustomEvent("guest-invoice-open", { detail: { focusPayment: false } }));
+            }}
+            className="rounded-xl border border-cyan-400/30 bg-cyan-500/10 px-4 py-2 text-sm font-semibold text-cyan-300 transition hover:bg-cyan-500/20"
+          >
+            {t("عرض الفاتورة", "View Invoice")}
+          </a>
+          <a
+            href={result.paymentUrl ?? "#"}
+            onClick={(e) => {
+              e.preventDefault();
+              window.dispatchEvent(new CustomEvent("guest-invoice-open", { detail: { focusPayment: true } }));
+            }}
+            className="rounded-xl border border-indigo-400/30 bg-indigo-500/10 px-4 py-2 text-sm font-semibold text-indigo-300 transition hover:bg-indigo-500/20"
+          >
+            {t("الدفع الآن", "Proceed to Payment")}
+          </a>
+        </div>
+        <a
+          href="#guest-requests-live"
+          onClick={() => window.dispatchEvent(new CustomEvent("guest-requests-expand"))}
+          className="mt-3 block text-xs font-medium text-cyan-300 underline decoration-cyan-400/50 underline-offset-4 hover:text-cyan-200"
+        >
+          {t("تتبع الطلب الآن", "Track this request now")}
+        </a>
         <button
           onClick={() => setResult(null)}
           className="mt-4 rounded-xl bg-emerald-600 px-5 py-2 text-sm font-semibold text-white"
