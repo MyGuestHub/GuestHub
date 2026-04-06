@@ -6,7 +6,6 @@ import {
 } from "@/lib/data";
 import { tr, type AppLang } from "@/lib/i18n";
 import { GuestServiceForm } from "@/components/guest/guest-service-form";
-import { GuestRequestsLive } from "@/components/guest/guest-requests-live";
 import { HtmlDirSetter } from "@/components/html-dir-setter";
 import { GuestSessionGate } from "@/components/guest/guest-session-gate";
 import { GuestSessionFixer } from "@/components/guest/guest-session-fixer";
@@ -18,6 +17,7 @@ import { GuestComplaintForm } from "@/components/guest/guest-complaints";
 import { GuestFacilities } from "@/components/guest/guest-facilities";
 import { GuestScrollArea } from "@/components/guest/guest-scroll-area";
 import { GuestChatClientOnly } from "@/components/guest/guest-chat-client-only";
+import { GuestRequestsLive } from "@/components/guest/guest-requests-live";
 
 type Props = {
   params: Promise<{ token: string }>;
