@@ -173,7 +173,7 @@ export function GuestServiceForm({ token, categories, lang }: Props) {
             }}
             className="rounded-xl border border-indigo-400/30 bg-indigo-500/10 px-4 py-2 text-sm font-semibold text-indigo-300 transition hover:bg-indigo-500/20"
           >
-            {t("الدفع الآن", "Proceed to Payment")}
+            {t("تعليمات الدفع", "Payment Instructions")}
           </a>
         </div>
         <a

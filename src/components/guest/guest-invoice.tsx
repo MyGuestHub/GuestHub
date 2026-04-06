@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { FiFileText, FiPrinter, FiX } from "react-icons/fi";
+import { FiFileText, FiX } from "react-icons/fi";
 import type { AppLang } from "@/lib/i18n";
 
 type InvoiceData = {
@@ -33,8 +33,6 @@ export function GuestInvoice({ lang }: Props) {
   const [invoice, setInvoice] = useState<InvoiceData | null>(null);
   const [items, setItems] = useState<InvoiceItem[]>([]);
   const [loading, setLoading] = useState(false);
-  const [paying, setPaying] = useState(false);
-  const [payMessage, setPayMessage] = useState<string | null>(null);
 
   const t = (ar: string, en: string) => (lang === "ar" ? ar : en);
 
@@ -63,30 +61,6 @@ export function GuestInvoice({ lang }: Props) {
     return () => window.removeEventListener("guest-invoice-open", onOpenInvoice as EventListener);
   }, []);
 
-  async function handlePayNow() {
-    setPaying(true);
-    setPayMessage(null);
-    try {
-      const res = await fetch(`/api/guest/invoice?lang=${lang}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "pay" }),
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setInvoice(data.invoice);
-        setItems(data.items ?? []);
-        setPayMessage(data.message ?? t("تم تسجيل الدفع", "Payment recorded"));
-      } else {
-        setPayMessage(data.error ?? t("تعذر إتمام الدفع", "Payment failed"));
-      }
-    } catch {
-      setPayMessage(t("خطأ في الاتصال", "Connection error"));
-    } finally {
-      setPaying(false);
-    }
-  }
-
   return (
     <>
       <button
@@ -107,12 +81,6 @@ export function GuestInvoice({ lang }: Props) {
                 {t("فاتورتك", "Your Invoice")}
               </h2>
               <div className="flex items-center gap-2">
-                <button
-                  onClick={() => window.print()}
-                  className="rounded-lg p-1.5 text-white/40 hover:bg-white/10 hover:text-white/70"
-                >
-                  <FiPrinter className="h-4 w-4" />
-                </button>
                 <button onClick={() => setOpen(false)} className="rounded-lg p-1.5 hover:bg-white/10">
                   <FiX className="h-5 w-5 text-white/50" />
                 </button>
@@ -122,13 +90,7 @@ export function GuestInvoice({ lang }: Props) {
             {loading ? (
               <div className="p-8 text-center text-sm text-white/40">{t("جارٍ التحميل…", "Loading…")}</div>
             ) : invoice ? (
-              <div className="p-4 space-y-4 print:p-2">
-                {payMessage && (
-                  <div className="rounded-xl border border-emerald-500/25 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-300">
-                    {payMessage}
-                  </div>
-                )}
-
+              <div className="p-4 space-y-4">
                 {/* Guest info */}
                 <div className="rounded-xl bg-white/5 p-3 text-sm">
                   <div className="flex justify-between">
@@ -192,18 +154,14 @@ export function GuestInvoice({ lang }: Props) {
                       <p className="text-sm font-semibold text-indigo-200">
                         {t("الدفع", "Payment")}
                       </p>
-                      <span className="text-xs text-indigo-300/80">
-                        {t("آمن", "Secure")}
-                      </span>
+                      <span className="text-xs text-indigo-300/80">{t("معلومة", "Info")}</span>
                     </div>
-                    <button
-                      type="button"
-                      onClick={handlePayNow}
-                      disabled={paying}
-                      className="w-full rounded-lg bg-gradient-to-r from-indigo-500 to-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:from-indigo-400 hover:to-blue-500 disabled:opacity-60"
-                    >
-                      {paying ? t("جارٍ المعالجة…", "Processing…") : t("ادفع الآن", "Pay Now")}
-                    </button>
+                    <div className="rounded-lg border border-amber-400/30 bg-amber-500/10 px-3 py-2 text-sm text-amber-200">
+                      {t(
+                        "لإتمام الدفع، يرجى مراجعة رسبشن الفندق.",
+                        "To complete payment, please visit the hotel reception.",
+                      )}
+                    </div>
                   </div>
                 )}
               </div>

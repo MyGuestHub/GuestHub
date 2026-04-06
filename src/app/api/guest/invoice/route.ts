@@ -6,7 +6,6 @@ import {
   getOrCreateInvoice,
   syncInvoiceItems,
   listInvoiceItems,
-  updateInvoiceStatus,
 } from "@/lib/data";
 
 export async function GET(request: Request) {
@@ -34,22 +33,22 @@ export async function POST(request: Request) {
   const guest = session ? await validateGuestSession(session) : null;
   if (!guest) return NextResponse.json({ error: tr(lang, "غير مصرح", "Unauthorized") }, { status: 403 });
 
-  const body = await request.json().catch(() => ({}));
-  const action = typeof body?.action === "string" ? body.action : "";
-  if (action !== "pay") {
-    return NextResponse.json({ error: tr(lang, "إجراء غير صالح", "Invalid action") }, { status: 400 });
-  }
-
   const invoice = await getOrCreateInvoice(guest.reservationId, guest.guestId, guest.roomId);
   await syncInvoiceItems(guest.reservationId);
-  await updateInvoiceStatus(invoice.id, "paid");
   const updated = await getOrCreateInvoice(guest.reservationId, guest.guestId, guest.roomId);
   const items = await listInvoiceItems(updated.id);
 
-  return NextResponse.json({
-    ok: true,
-    message: tr(lang, "تم تسجيل الدفع بنجاح", "Payment recorded successfully"),
-    invoice: updated,
-    items,
-  });
+  return NextResponse.json(
+    {
+      ok: false,
+      message: tr(
+        lang,
+        "لإتمام الدفع، يرجى مراجعة رسبشن الفندق.",
+        "To complete payment, please visit the hotel reception.",
+      ),
+      invoice: updated,
+      items,
+    },
+    { status: 400 },
+  );
 }

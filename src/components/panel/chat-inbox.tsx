@@ -78,8 +78,9 @@ export function ChatInbox({ lang, sessionToken }: Props) {
   const t = (ar: string, en: string) => (lang === "ar" ? ar : en);
 
   const loadChats = useCallback(async () => {
-    const res = await fetch("/api/admin/chat");
-    if (res.ok) {
+    try {
+      const res = await fetch("/api/admin/chat", { cache: "no-store" });
+      if (!res.ok) return;
       const data = await res.json();
       const normalized: ChatSummary[] = (data.chats ?? []).map((c: ChatSummary) => ({
         ...c,
@@ -87,18 +88,23 @@ export function ChatInbox({ lang, sessionToken }: Props) {
         unread_count: toNum(c.unread_count),
       }));
       setChats(normalized);
+    } catch {
+      // Ignore transient network errors (e.g. route change/offline) to avoid unhandled rejections.
     }
   }, []);
 
   const loadMessages = useCallback(async (resId: number) => {
-    const res = await fetch(`/api/admin/chat?reservationId=${resId}`);
-    if (res.ok) {
+    try {
+      const res = await fetch(`/api/admin/chat?reservationId=${resId}`, { cache: "no-store" });
+      if (!res.ok) return;
       const data = await res.json();
       const normalized: ChatMsg[] = (data.messages ?? []).map((m: ChatMsg) => ({
         ...m,
         id: toNum(m.id),
       }));
       setMessages(normalized);
+    } catch {
+      // Ignore transient network errors (e.g. route change/offline) to avoid unhandled rejections.
     }
   }, []);
 

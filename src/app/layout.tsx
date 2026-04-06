@@ -40,7 +40,7 @@ export default function RootLayout({
         {children}
         <script
           dangerouslySetInnerHTML={{
-            __html: `if("serviceWorker"in navigator){window.addEventListener("load",()=>{navigator.serviceWorker.register("/sw.js")})}`,
+            __html: `if("serviceWorker"in navigator&&location.hostname!=="localhost"&&location.hostname!=="127.0.0.1"){window.addEventListener("load",()=>{navigator.serviceWorker.register("/sw.js")})}`,
           }}
         />
       </body>

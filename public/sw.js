@@ -1,6 +1,6 @@
 /// <reference lib="webworker" />
 
-const CACHE_NAME = "guesthub-v1";
+const CACHE_NAME = "guesthub-v2";
 
 const PRECACHE_URLS = [
   "/",
@@ -41,11 +41,11 @@ self.addEventListener("fetch", (event) => {
   // API calls — network only (don't cache)
   if (url.pathname.startsWith("/api/")) return;
 
-  // Static assets in /icons, /fonts, /uploads — cache-first
+  // Static assets in /icons and font/image files — cache-first
   if (
     url.pathname.startsWith("/icons/") ||
     url.pathname.startsWith("/fonts/") ||
-    url.pathname.match(/\.(png|jpg|jpeg|svg|ico|woff2?|ttf|css|js)$/)
+    url.pathname.match(/\.(png|jpg|jpeg|svg|ico|woff2?|ttf)$/)
   ) {
     event.respondWith(
       caches.match(request).then(
