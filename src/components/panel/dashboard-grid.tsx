@@ -220,26 +220,39 @@ function StatCard({
   return (
     <div
       className={`
-        relative overflow-hidden rounded-2xl bg-slate-900/60 p-5 backdrop-blur-xl
+        group relative overflow-hidden rounded-2xl border border-white/5 bg-slate-900/60 p-5 backdrop-blur-xl
         transition-all duration-700
+        hover:-translate-y-1 hover:border-white/15 hover:shadow-2xl hover:shadow-black/30
         ${isVisible ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"}
       `}
     >
+      <div
+        className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+        style={{ background: `radial-gradient(420px circle at 85% 18%, ${color}, transparent 45%)` }}
+      />
       <div className="flex items-center justify-between">
-        <div>
-          <p className="text-xs font-medium uppercase tracking-wide text-white/50">{label}</p>
-          <p className="mt-2 text-3xl font-bold text-white">{displayValue}</p>
+        <div className="relative z-10">
+          <p className="text-xs font-medium uppercase tracking-wide text-white/50 transition-colors duration-300 group-hover:text-white/80">
+            {label}
+          </p>
+          <p className="mt-2 text-3xl font-bold text-white transition-all duration-300 group-hover:scale-[1.03] group-hover:text-white">
+            {displayValue}
+          </p>
         </div>
         <div
-          className="grid h-12 w-12 place-items-center rounded-xl"
+          className="relative z-10 grid h-12 w-12 place-items-center rounded-xl transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg"
           style={{ backgroundColor: color }}
         >
-          <Icon className="h-6 w-6 text-white" />
+          <Icon className="h-6 w-6 text-white transition-transform duration-300 group-hover:scale-110" />
         </div>
       </div>
+      <div
+        className="pointer-events-none absolute -right-10 -top-10 h-24 w-24 rounded-full opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-40"
+        style={{ backgroundColor: color }}
+      />
       {/* Decorative gradient line */}
       <div
-        className="absolute bottom-0 left-0 h-1 w-full opacity-60"
+        className="absolute bottom-0 left-0 h-1 w-full opacity-60 transition-all duration-300 group-hover:opacity-90"
         style={{ background: `linear-gradient(90deg, ${color}, transparent)` }}
       />
     </div>
