@@ -72,10 +72,10 @@ export function GuestInvoice({ lang }: Props) {
       </button>
 
       {open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4">
           <div className="absolute inset-0 bg-black/50 backdrop-blur-[2px]" onClick={() => setOpen(false)} />
-          <div className="relative w-full max-w-md max-h-[85vh] overflow-y-auto rounded-2xl border border-white/10 bg-slate-900/90 shadow-2xl backdrop-blur-xl">
-            <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
+          <div className="relative w-full max-w-md max-h-[92dvh] overflow-y-auto rounded-t-2xl border border-white/10 bg-slate-900/90 shadow-2xl backdrop-blur-xl sm:rounded-2xl">
+            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-white/10 bg-slate-900/95 px-3 py-3 sm:px-4">
               <h2 className="text-base font-bold text-white">
                 <FiFileText className="me-2 inline h-5 w-5 text-indigo-400" />
                 {t("فاتورتك", "Your Invoice")}
@@ -90,7 +90,7 @@ export function GuestInvoice({ lang }: Props) {
             {loading ? (
               <div className="p-8 text-center text-sm text-white/40">{t("جارٍ التحميل…", "Loading…")}</div>
             ) : invoice ? (
-              <div className="p-4 space-y-4">
+              <div className="space-y-4 p-3 pb-[max(env(safe-area-inset-bottom),0.85rem)] sm:p-4">
                 {/* Guest info */}
                 <div className="rounded-xl bg-white/5 p-3 text-sm">
                   <div className="flex justify-between">
@@ -114,14 +114,14 @@ export function GuestInvoice({ lang }: Props) {
                 {/* Items */}
                 {items.length > 0 ? (
                   <div className="divide-y divide-white/5 rounded-xl border border-white/10 overflow-hidden">
-                    <div className="grid grid-cols-[1fr_auto_auto] gap-2 bg-white/5 px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-white/40">
+                    <div className="grid grid-cols-[minmax(0,1fr)_auto_auto] gap-2 bg-white/5 px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-white/40">
                       <span>{t("الخدمة", "Service")}</span>
                       <span>{t("الكمية", "Qty")}</span>
                       <span>{t("المبلغ", "Amount")}</span>
                     </div>
                     {items.map((item) => (
-                      <div key={item.id} className="grid grid-cols-[1fr_auto_auto] gap-2 px-3 py-2 text-sm">
-                        <span className="text-white/80">{lang === "ar" ? item.description_ar : item.description_en}</span>
+                      <div key={item.id} className="grid grid-cols-[minmax(0,1fr)_auto_auto] gap-2 px-3 py-2 text-sm">
+                        <span className="truncate text-white/80">{lang === "ar" ? item.description_ar : item.description_en}</span>
                         <span className="text-white/50 text-center">{item.quantity}</span>
                         <span className="font-medium text-white/90">${item.total}</span>
                       </div>

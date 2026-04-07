@@ -59,10 +59,10 @@ export function GuestComplaintForm({ lang }: Props) {
       </button>
 
       {open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4">
           <div className="absolute inset-0 bg-black/50 backdrop-blur-[2px]" onClick={() => setOpen(false)} />
-          <div className="relative w-full max-w-md max-h-[85vh] overflow-y-auto rounded-2xl border border-white/10 bg-slate-900/90 shadow-2xl backdrop-blur-xl">
-            <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
+          <div className="relative w-full max-w-md max-h-[92dvh] overflow-y-auto rounded-t-2xl border border-white/10 bg-slate-900/90 shadow-2xl backdrop-blur-xl sm:rounded-2xl">
+            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-white/10 bg-slate-900/95 px-3 py-3 sm:px-4">
               <h2 className="text-base font-bold text-white">
                 <FiAlertTriangle className="me-2 inline h-5 w-5 text-rose-400" />
                 {t("تقديم شكوى", "Submit Complaint")}
@@ -71,7 +71,7 @@ export function GuestComplaintForm({ lang }: Props) {
             </div>
 
             {result?.ok ? (
-              <div className="p-6 text-center">
+              <div className="p-5 pb-[max(env(safe-area-inset-bottom),1rem)] text-center sm:p-6">
                 <FiCheck className="mx-auto mb-2 h-10 w-10 text-emerald-400" />
                 <p className="text-sm font-medium text-emerald-300">{result.message}</p>
                 <button onClick={() => setOpen(false)} className="mt-4 rounded-xl bg-white/10 px-5 py-2 text-sm font-medium text-white/70">
@@ -79,7 +79,7 @@ export function GuestComplaintForm({ lang }: Props) {
                 </button>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} className="p-4 space-y-3">
+              <form onSubmit={handleSubmit} className="space-y-3 p-3 pb-[max(env(safe-area-inset-bottom),0.85rem)] sm:p-4">
                 {result && !result.ok && (
                   <p className="rounded-xl border border-rose-500/20 bg-rose-500/10 px-3 py-2 text-sm text-rose-300">{result.message}</p>
                 )}
@@ -118,7 +118,7 @@ export function GuestComplaintForm({ lang }: Props) {
 
                 <div>
                   <label className="mb-1 block text-xs font-medium text-white/50">{t("مستوى الأهمية", "Severity")}</label>
-                  <div className="flex gap-2">
+                  <div className="grid grid-cols-2 gap-2 sm:flex">
                     {SEVERITY.map((s) => (
                       <label key={s.value} className={`flex-1 cursor-pointer rounded-lg border border-transparent px-2 py-1.5 text-center text-xs font-medium transition has-[:checked]:border-current has-[:checked]:ring-1 has-[:checked]:ring-current ${s.color}`}>
                         <input type="radio" name="severity" value={s.value} className="sr-only" defaultChecked={s.value === "medium"} />

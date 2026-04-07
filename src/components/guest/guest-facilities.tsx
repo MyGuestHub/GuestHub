@@ -117,11 +117,11 @@ export function GuestFacilities({ lang }: Props) {
       </button>
 
       {open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4">
           <div className="absolute inset-0 bg-black/40" onClick={() => setOpen(false)} />
-          <div className="relative w-full max-w-md max-h-[85vh] overflow-y-auto rounded-2xl border border-white/10 bg-slate-900/90 shadow-2xl backdrop-blur-xl">
+          <div className="relative w-full max-w-md max-h-[92dvh] overflow-y-auto rounded-t-2xl border border-white/10 bg-slate-900/90 shadow-2xl backdrop-blur-xl sm:rounded-2xl">
             {/* Header */}
-            <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
+            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-white/10 bg-slate-900/95 px-3 py-3 sm:px-4">
               <h2 className="text-base font-bold text-white">
                 <FiMapPin className="me-2 inline h-5 w-5 text-emerald-400" />
                 {t("حجز المرافق", "Book Facilities")}
@@ -138,7 +138,7 @@ export function GuestFacilities({ lang }: Props) {
               </div>
             )}
 
-            <div className="p-4 space-y-4">
+            <div className="space-y-4 p-3 pb-[max(env(safe-area-inset-bottom),0.85rem)] sm:p-4">
               {/* My bookings */}
               {bookings.length > 0 && (
                 <div>
@@ -211,7 +211,7 @@ export function GuestFacilities({ lang }: Props) {
                   </div>
 
                   {/* Slots grid */}
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                     {slots.map((s) => (
                       <button
                         key={s.start}

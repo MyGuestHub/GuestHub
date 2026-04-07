@@ -75,7 +75,7 @@ async function renderPortal(guest: GuestContext, token: string, lang: AppLang, s
   return (
     <div
       dir={lang === "ar" ? "rtl" : "ltr"}
-      className="guest-glass relative flex h-screen flex-col overflow-hidden bg-slate-950 text-slate-100"
+      className="guest-glass relative flex h-[100dvh] min-h-[100dvh] flex-col overflow-x-hidden overflow-y-hidden bg-slate-950 text-slate-100"
     >
       <HtmlDirSetter lang={lang} />
       <GuestSessionFixer />
@@ -88,15 +88,15 @@ async function renderPortal(guest: GuestContext, token: string, lang: AppLang, s
       <div className="pointer-events-none fixed inset-0 bg-gradient-to-br from-slate-950/82 via-slate-900/72 to-slate-900/78" />
 
       {/* ── Header ── */}
-      <header className="gh-surface-strong sticky top-0 z-20">
-        <div className="mx-auto flex max-w-lg items-center justify-between px-4 py-3">
-          <div>
+      <header className="gh-surface-strong sticky top-0 z-20 pt-[max(env(safe-area-inset-top),0px)]">
+        <div className="mx-auto flex max-w-lg items-center justify-between gap-2 px-3 py-2.5 sm:px-4 sm:py-3">
+          <div className="min-w-0">
             <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-cyan-400">GuestHub</p>
-            <p className="text-sm font-semibold text-white/90">
+            <p className="truncate text-sm font-semibold text-white/90">
               {t("مرحبًا", "Welcome")}, {guest.guestName}
             </p>
           </div>
-          <div className="flex items-center gap-2.5">
+          <div className="flex shrink-0 items-center gap-2">
             <GuestCart token={token} lang={lang} />
             <a
               href={`/guest/${token}?lang=${otherLang}`}
@@ -112,27 +112,27 @@ async function renderPortal(guest: GuestContext, token: string, lang: AppLang, s
       </header>
 
       <GuestScrollArea>
-        <main className="mx-auto w-full max-w-lg flex-1 px-4 py-5">
+        <main className="mx-auto w-full max-w-lg flex-1 px-3 py-4 pb-24 sm:px-4 sm:py-5 sm:pb-8">
         {/* ── Stay info card ── */}
         <section className="mb-5 overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-r from-cyan-900/30 via-slate-900/50 to-indigo-900/30 backdrop-blur-xl">
           <div className="flex items-stretch">
-            <div className="flex-1 p-4">
+            <div className="min-w-0 flex-1 p-3.5 sm:p-4">
               <p className="text-[10px] font-semibold uppercase tracking-wider text-cyan-400">
                 {t("تسجيل الدخول", "Check-in")}
               </p>
-              <p className="mt-0.5 text-sm font-bold text-white">{checkInDate}</p>
+              <p className="mt-0.5 truncate text-sm font-bold text-white">{checkInDate}</p>
             </div>
-            <div className="flex flex-col items-center justify-center px-3">
+            <div className="flex flex-col items-center justify-center px-2 sm:px-3">
               <div className="rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 px-2.5 py-1 text-[10px] font-bold text-white shadow-md shadow-cyan-500/20">
                 {nights} {t("ليلة", nights === 1 ? "night" : "nights")}
               </div>
               <div className="mt-1 h-px w-8 bg-white/15" />
             </div>
-            <div className="flex-1 p-4 text-end">
+            <div className="min-w-0 flex-1 p-3.5 text-end sm:p-4">
               <p className="text-[10px] font-semibold uppercase tracking-wider text-cyan-400">
                 {t("تسجيل الخروج", "Check-out")}
               </p>
-              <p className="mt-0.5 text-sm font-bold text-white">{checkOutDate}</p>
+              <p className="mt-0.5 truncate text-sm font-bold text-white">{checkOutDate}</p>
             </div>
           </div>
         </section>
@@ -162,7 +162,7 @@ async function renderPortal(guest: GuestContext, token: string, lang: AppLang, s
         </section>
       </main>
 
-      <footer className="border-t border-white/10 py-4 text-center text-[11px] text-white/30">
+      <footer className="border-t border-white/10 px-3 py-3 pb-[max(env(safe-area-inset-bottom),0.75rem)] text-center text-[11px] text-white/30 sm:px-4 sm:py-4">
         GuestHub &copy; {new Date().getFullYear()}
       </footer>
       </GuestScrollArea>

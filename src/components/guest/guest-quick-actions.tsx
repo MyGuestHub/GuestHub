@@ -85,17 +85,17 @@ export function GuestQuickActions({ lang }: Props) {
     <section className="mb-5 space-y-3">
       {/* Toast */}
       {toast && (
-        <div className="fixed inset-x-4 top-16 z-50 mx-auto max-w-sm rounded-xl border border-white/10 bg-slate-900/90 px-4 py-2.5 text-center text-sm font-medium text-white shadow-lg backdrop-blur-xl">
+        <div className="fixed inset-x-3 top-[calc(env(safe-area-inset-top)+4rem)] z-50 mx-auto max-w-sm rounded-xl border border-white/10 bg-slate-900/90 px-3 py-2.5 text-center text-sm font-medium text-white shadow-lg backdrop-blur-xl sm:inset-x-4 sm:px-4">
           {toast}
         </div>
       )}
 
-      <div className="flex flex-wrap gap-2">
+      <div className="grid grid-cols-1 gap-2 sm:flex sm:flex-wrap">
         {/* DND Toggle */}
         <button
           onClick={toggleDnd}
           disabled={dndLoading}
-          className={`flex items-center gap-2 rounded-xl border px-3 py-2 text-sm font-medium transition ${
+          className={`flex min-h-11 items-center justify-center gap-2 rounded-xl border px-3 py-2 text-sm font-medium transition sm:justify-start ${
             dnd
               ? "border-rose-500/25 bg-rose-500/10 text-rose-400"
               : "border-white/15 bg-slate-900/50 text-white/70 hover:bg-white/[0.06]"
@@ -107,9 +107,9 @@ export function GuestQuickActions({ lang }: Props) {
 
         {/* Wake-Up Call */}
         {wakeUp ? (
-          <div className="flex items-center gap-2 rounded-xl border border-amber-500/25 bg-amber-500/10 px-3 py-2 text-sm">
+          <div className="flex min-h-11 items-center justify-center gap-2 rounded-xl border border-amber-500/25 bg-amber-500/10 px-3 py-2 text-sm sm:justify-start">
             <FiSun className="h-4 w-4 text-amber-400" />
-            <span className="font-medium text-amber-300">
+            <span className="truncate font-medium text-amber-300">
               {wakeUp.wake_time.slice(0, 5)} — {wakeUp.wake_date}
             </span>
             <button onClick={cancelWake} className="ms-1 text-amber-400 hover:text-amber-300">
@@ -119,7 +119,7 @@ export function GuestQuickActions({ lang }: Props) {
         ) : (
           <button
             onClick={() => setShowWakeForm(!showWakeForm)}
-            className="flex items-center gap-2 rounded-xl border border-white/15 bg-slate-900/50 px-3 py-2 text-sm font-medium text-white/70 transition hover:bg-white/[0.06]"
+            className="flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/15 bg-slate-900/50 px-3 py-2 text-sm font-medium text-white/70 transition hover:bg-white/[0.06] sm:justify-start"
           >
             <FiSun className="h-4 w-4 text-amber-400" />
             {t("منبه الاستيقاظ", "Wake-up Call")}
@@ -130,7 +130,7 @@ export function GuestQuickActions({ lang }: Props) {
       {/* Wake-up form */}
       {showWakeForm && !wakeUp && (
         <div className="rounded-xl border border-amber-500/20 bg-amber-500/10 p-3 backdrop-blur-xl">
-          <div className="flex items-end gap-2">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
             <div className="flex-1">
               <label className="mb-1 block text-[11px] font-medium text-amber-400">
                 <FiClock className="me-1 inline h-3 w-3" />{t("الوقت", "Time")}
@@ -156,7 +156,7 @@ export function GuestQuickActions({ lang }: Props) {
             <button
               onClick={setWakeUpCall}
               disabled={wakeLoading}
-              className="rounded-lg bg-amber-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-amber-500 disabled:opacity-50"
+              className="rounded-lg bg-amber-600 px-3 py-2 text-sm font-semibold text-white hover:bg-amber-500 disabled:opacity-50"
             >
               {t("ضبط", "Set")}
             </button>

@@ -190,7 +190,7 @@ export function GuestChat({ token, lang, guestSessionToken }: Props) {
       {!open && (
         <button
           onClick={() => setOpen(true)}
-          className="fixed bottom-5 end-5 z-40 grid h-14 w-14 place-items-center rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg shadow-cyan-500/30 transition hover:scale-105 hover:from-cyan-400 hover:to-blue-500"
+          className="fixed bottom-[calc(env(safe-area-inset-bottom)+0.9rem)] end-4 z-40 grid h-13 w-13 place-items-center rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg shadow-cyan-500/30 transition hover:scale-105 hover:from-cyan-400 hover:to-blue-500 sm:bottom-5 sm:end-5 sm:h-14 sm:w-14"
         >
           <FiMessageCircle className="h-6 w-6" />
           {unread > 0 && (
@@ -203,13 +203,13 @@ export function GuestChat({ token, lang, guestSessionToken }: Props) {
 
       {/* Chat Panel */}
       {open && (
-        <div className="fixed bottom-0 end-0 z-50 flex h-[480px] w-full max-w-sm flex-col rounded-t-2xl border border-white/10 bg-slate-900/95 shadow-2xl backdrop-blur-xl sm:bottom-5 sm:end-5 sm:rounded-2xl">
+        <div className="fixed inset-x-0 bottom-0 z-50 flex h-[min(82dvh,700px)] w-full flex-col rounded-t-2xl border border-white/10 bg-slate-900/95 shadow-2xl backdrop-blur-xl sm:inset-x-auto sm:bottom-5 sm:end-5 sm:h-[560px] sm:w-[22rem] sm:rounded-2xl">
           {/* Header */}
-          <div className="flex items-center justify-between rounded-t-2xl bg-gradient-to-r from-cyan-600 to-blue-700 px-4 py-3 text-white">
+          <div className="flex items-center justify-between rounded-t-2xl bg-gradient-to-r from-cyan-600 to-blue-700 px-3 py-3 text-white sm:px-4">
             <div className="flex items-center gap-2">
               <FiMessageCircle className="h-5 w-5" />
               <div>
-                <p className="text-sm font-semibold">{t("الدردشة مع الاستقبال", "Chat with Reception")}</p>
+                <p className="text-sm font-semibold leading-tight">{t("الدردشة مع الاستقبال", "Chat with Reception")}</p>
                 <p className="text-[10px] opacity-80">
                   {connected
                     ? t("متصل", "Connected")
@@ -225,7 +225,7 @@ export function GuestChat({ token, lang, guestSessionToken }: Props) {
           {/* Messages */}
           <OverlayScrollbarsComponent
             ref={messagesRef}
-            className="flex-1 overscroll-contain px-3 py-3"
+            className="flex-1 overscroll-contain px-3 py-2.5"
             defer
             options={{
               scrollbars: { theme: "os-theme-light", autoHide: "move", autoHideDelay: 800 },
@@ -244,7 +244,7 @@ export function GuestChat({ token, lang, guestSessionToken }: Props) {
                 className={`flex ${msg.sender_type === "guest" ? "justify-end" : "justify-start"}`}
               >
                 <div
-                  className={`max-w-[75%] rounded-2xl px-3 py-2 text-sm ${
+                  className={`max-w-[85%] rounded-2xl px-3 py-2 text-sm sm:max-w-[75%] ${
                     msg.sender_type === "guest"
                       ? "rounded-ee-sm bg-gradient-to-r from-cyan-600 to-blue-600 text-white"
                       : "rounded-es-sm bg-white/10 text-white/90"
@@ -287,7 +287,7 @@ export function GuestChat({ token, lang, guestSessionToken }: Props) {
           </OverlayScrollbarsComponent>
 
           {/* Input */}
-          <div className="border-t border-white/10 px-3 py-2">
+          <div className="border-t border-white/10 px-3 py-2 pb-[max(env(safe-area-inset-bottom),0.6rem)]">
             {emojiOpen && (
               <div className="mb-2 flex flex-wrap gap-1 rounded-xl border border-white/10 bg-slate-800/60 p-2">
                 {quickEmojis.map((emoji) => (
@@ -306,7 +306,7 @@ export function GuestChat({ token, lang, guestSessionToken }: Props) {
               <button
                 type="button"
                 onClick={() => setEmojiOpen((v) => !v)}
-                className="grid h-9 w-9 place-items-center rounded-xl border border-white/15 bg-slate-800/60 text-white/70 transition hover:bg-white/10 hover:text-white"
+                className="grid h-10 w-10 place-items-center rounded-xl border border-white/15 bg-slate-800/60 text-white/70 transition hover:bg-white/10 hover:text-white"
                 aria-label={t("إيموجي", "Emoji")}
               >
                 <FiSmile className="h-4 w-4" />
@@ -324,12 +324,12 @@ export function GuestChat({ token, lang, guestSessionToken }: Props) {
                   }
                 }}
                 placeholder={t("اكتب رسالتك…", "Type a message…")}
-                className="flex-1 rounded-xl border border-white/15 bg-slate-800/60 px-3 py-2 text-sm text-white/90 placeholder:text-white/30 outline-none focus:border-cyan-500/50"
+                className="flex-1 rounded-xl border border-white/15 bg-slate-800/60 px-3 py-2.5 text-sm text-white/90 placeholder:text-white/30 outline-none focus:border-cyan-500/50"
               />
               <button
                 onClick={sendMessage}
                 disabled={!text.trim()}
-                className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white transition hover:from-cyan-400 hover:to-blue-500 disabled:opacity-40"
+                className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white transition hover:from-cyan-400 hover:to-blue-500 disabled:opacity-40"
               >
                 <FiSend className="h-4 w-4" />
               </button>
